@@ -9,21 +9,21 @@ enum CloudSettings {
                                                object: store, queue: .main) { _ in pull() }
         store.synchronize()
         pull()
-        // Only missing keys: a device with stale values must not overwrite newer ones from another device at launch.
-        for key in homeWideKeys where store.string(forKey: key) == nil { push(key) }
+        // ponytail: right after launch iCloud may not have downloaded yet, so a device with stale values can still
+        // seed them. Fine for the few devices of one home; compare modification dates if it ever bites.
+        for key in homeWideKeys where store.string(forKey: key) == nil && !(UserDefaults.standard.string(forKey: key) ?? "").isEmpty {
+            push(key)
+        }
     }
 
-    static func pushAll() { homeWideKeys.forEach(push) }
-
-    private static func push(_ key: String) {
-        guard let value = UserDefaults.standard.string(forKey: key), !value.isEmpty else { return }
-        store.set(value, forKey: key)
+    static func push(_ key: String) {
+        store.set(UserDefaults.standard.string(forKey: key) ?? "", forKey: key)
     }
 
     private static func pull() {
         for key in homeWideKeys {
-            guard let value = store.string(forKey: key), !value.isEmpty else { continue }
-            UserDefaults.standard.set(value, forKey: key)
+            guard let value = store.string(forKey: key) else { continue }
+            if value.isEmpty { UserDefaults.standard.removeObject(forKey: key) } else { UserDefaults.standard.set(value, forKey: key) }
         }
     }
 }

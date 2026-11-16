@@ -464,12 +464,12 @@
         }
       }
     },
-    "Home Assistant: %@. The keys on this device are replaced with the ones from the code." : {
+    "Home Assistant: %@. The keys and settings from the code replace the ones on this device and on your other devices with the same Apple ID." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home Assistant: %@. Ключи на этом устройстве заменятся ключами из кода."
+            "value" : "Home Assistant: %@. Ключи и настройки из кода заменят текущие на этом устройстве и на других твоих устройствах с тем же Apple ID."
           }
         }
       }

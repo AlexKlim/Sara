@@ -59,29 +59,14 @@ struct ContentView: View {
         .overlay { if let done { DoneAlertView(name: done) { self.done = nil } } }
         .fullScreenCover(isPresented: $showTalk) {
             TalkView(sara: sara, voice: voice, onAsk: { respond($0, spoken: $1) })
+                .setupLinkAlert($unconfirmedSetupLink, onConnect: connected)
         }
-        .sheet(isPresented: $showSettings, onDismiss: { CloudSettings.pushAll(); home.start(); applyWakeWord(); buildPanelIfEmpty() }) { SettingsView().presentationSizing(.page) }
+        .sheet(isPresented: $showSettings, onDismiss: { home.start(); applyWakeWord(); buildPanelIfEmpty() }) {
+            SettingsView().presentationSizing(.page).setupLinkAlert($unconfirmedSetupLink, onConnect: connected)
+        }
         .preferredColorScheme(.dark)
-        .onOpenURL { url in
-            guard let link = SetupLink(url: url) else { return }
-            showSettings = false
-            showTalk = false
-            // ponytail: fixed delay for the sheet to close, an alert can't show over it.
-            Task {
-                try? await Task.sleep(for: .milliseconds(700))
-                unconfirmedSetupLink = link
-            }
-        }
-        .alert("Connect to this home?", isPresented: Binding(get: { unconfirmedSetupLink != nil }, set: { if !$0 { unconfirmedSetupLink = nil } }), presenting: unconfirmedSetupLink) { link in
-            Button("Connect") {
-                link.apply()
-                home.start()
-                buildPanelIfEmpty()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: { link in
-            Text("Home Assistant: \(link.homeHost). The keys on this device are replaced with the ones from the code.")
-        }
+        .onOpenURL { unconfirmedSetupLink = SetupLink(url: $0) }
+        .setupLinkAlert($unconfirmedSetupLink, onConnect: connected)
         .onAppear {
             Keychain.moveLocalSecretsToICloud()
             CloudSettings.start()
@@ -92,7 +77,6 @@ struct ContentView: View {
             sara.extractLeftovers(in: context)
             // A timer or alarm rang while Sara is on screen: say it and show the card.
             Alarms.shared.onFire = { label in
-                PowerSaver.shared.activity()
                 done = label
                 if !isNight(.now) { voice.say(String(localized: "Timer: \(label)")) }
             }
@@ -176,6 +160,13 @@ struct ContentView: View {
             case .interrupted: break
             }
         }
+    }
+
+    private func connected() {
+        showSettings = false
+        showTalk = false
+        home.start()
+        buildPanelIfEmpty()
     }
 
     /// First run: build the panel from Home Assistant areas, so a new user sees their home right away.

@@ -52,6 +52,9 @@ struct SettingsView: View {
         .onChange(of: apiKey) { Keychain.set("anthropicKey", apiKey.trimmingCharacters(in: .whitespacesAndNewlines)) }
         .onChange(of: haToken) { Keychain.set("haToken", haToken.trimmingCharacters(in: .whitespacesAndNewlines)) }
         .onChange(of: yandexToken) { Keychain.set("yandexToken", yandexToken.trimmingCharacters(in: .whitespacesAndNewlines)) }
+        .onChange(of: haURL) { CloudSettings.push("haURL") }
+        .onChange(of: model) { CloudSettings.push("model") }
+        .onChange(of: notes) { CloudSettings.push("houseNotes") }
     }
 
     @ViewBuilder private func page(_ section: SettingsSection) -> some View {
