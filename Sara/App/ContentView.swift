@@ -26,7 +26,7 @@ struct ContentView: View {
     @AppStorage("haURL") private var haURL = ""
     @AppStorage("nightStart") private var nightStart = 23
     @AppStorage("nightEnd") private var nightEnd = 10
-    @AppStorage("nightEnabled") private var nightEnabled = true
+    @AppStorage("nightEnabled") private var nightEnabled = PowerSaver.isWallPanel
     @AppStorage("speakerEntity") private var speakerEntity = ""
     @AppStorage("wakeEnabled") private var wakeEnabled = true
     @AppStorage("wakeWord") private var wakeWord = ""
@@ -62,7 +62,7 @@ struct ContentView: View {
         .sheet(isPresented: $showSettings, onDismiss: { home.start(); applyWakeWord(); buildPanelIfEmpty() }) { SettingsView().presentationSizing(.page) }
         .preferredColorScheme(.dark)
         .onAppear {
-            UIApplication.shared.isIdleTimerDisabled = true // wall panel: keep the screen on
+            UIApplication.shared.isIdleTimerDisabled = PowerSaver.isWallPanel
             home.start()
             Alarms.shared.start()
             PowerSaver.shared.start()

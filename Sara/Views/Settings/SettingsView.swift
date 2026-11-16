@@ -13,7 +13,7 @@ struct SettingsView: View {
     @AppStorage("wakeEnabled") private var wakeEnabled = true
     @AppStorage("wakeWord") private var wakeWord = ""
     @AppStorage("followUpSeconds") private var followUpSeconds = 20.0
-    @AppStorage("nightEnabled") private var nightEnabled = true
+    @AppStorage("nightEnabled") private var nightEnabled = PowerSaver.isWallPanel
     @AppStorage("nightStart") private var nightStart = 23
     @AppStorage("nightEnd") private var nightEnd = 10
     @State private var apiKey = Keychain.get("anthropicKey")
