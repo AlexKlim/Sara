@@ -23,6 +23,7 @@ struct ContentView: View {
     @State private var inFlightFollowUp = false
     /// A phrase said while Sara was already acting or answering: handled right after her.
     @State private var queued: (text: String, followUp: Bool)?
+    @State private var unconfirmedSetupLink: SetupLink?
     @AppStorage("haURL") private var haURL = ""
     @AppStorage("nightStart") private var nightStart = 23
     @AppStorage("nightEnd") private var nightEnd = 10
@@ -59,9 +60,31 @@ struct ContentView: View {
         .fullScreenCover(isPresented: $showTalk) {
             TalkView(sara: sara, voice: voice, onAsk: { respond($0, spoken: $1) })
         }
-        .sheet(isPresented: $showSettings, onDismiss: { home.start(); applyWakeWord(); buildPanelIfEmpty() }) { SettingsView().presentationSizing(.page) }
+        .sheet(isPresented: $showSettings, onDismiss: { CloudSettings.pushAll(); home.start(); applyWakeWord(); buildPanelIfEmpty() }) { SettingsView().presentationSizing(.page) }
         .preferredColorScheme(.dark)
+        .onOpenURL { url in
+            guard let link = SetupLink(url: url) else { return }
+            showSettings = false
+            showTalk = false
+            // ponytail: fixed delay for the sheet to close, an alert can't show over it.
+            Task {
+                try? await Task.sleep(for: .milliseconds(700))
+                unconfirmedSetupLink = link
+            }
+        }
+        .alert("Connect to this home?", isPresented: Binding(get: { unconfirmedSetupLink != nil }, set: { if !$0 { unconfirmedSetupLink = nil } }), presenting: unconfirmedSetupLink) { link in
+            Button("Connect") {
+                link.apply()
+                home.start()
+                buildPanelIfEmpty()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { link in
+            Text("Home Assistant: \(link.homeHost). The keys on this device are replaced with the ones from the code.")
+        }
         .onAppear {
+            Keychain.moveLocalSecretsToICloud()
+            CloudSettings.start()
             UIApplication.shared.isIdleTimerDisabled = PowerSaver.isWallPanel
             home.start()
             Alarms.shared.start()

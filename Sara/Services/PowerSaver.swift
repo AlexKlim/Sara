@@ -4,7 +4,6 @@ import SwiftUI
 /// brings it back on touch, voice or an alert, and keeps an eye on how hot the device gets.
 @MainActor @Observable final class PowerSaver {
     static let shared = PowerSaver()
-    /// An iPad is the wall panel. An iPhone is in the hand: no dimming, no night mode by default, normal auto-lock.
     static let isWallPanel = UIDevice.current.userInterfaceIdiom == .pad
 
     /// Nobody touched the screen or talked to Sara for a while.

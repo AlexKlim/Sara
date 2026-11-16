@@ -247,6 +247,28 @@
         }
       }
     },
+    "Connect" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключить"
+          }
+        }
+      }
+    },
+    "Connect to this home?" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключиться к этому дому?"
+          }
+        }
+      }
+    },
     "Connected: %lld devices" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -438,6 +460,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "История"
+          }
+        }
+      }
+    },
+    "Home Assistant: %@. The keys on this device are replaced with the ones from the code." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home Assistant: %@. Ключи на этом устройстве заменятся ключами из кода."
           }
         }
       }
@@ -900,6 +932,16 @@
         }
       }
     },
+    "Scan it with the camera of the other iPhone or iPad. Sara must be installed there." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отсканируй его камерой другого iPhone или iPad. На нём должна быть установлена Сара."
+          }
+        }
+      }
+    },
     "Script" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -972,6 +1014,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Настройки"
+          }
+        }
+      }
+    },
+    "Share connection" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться подключением"
           }
         }
       }
@@ -1059,6 +1112,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "цель %@"
+          }
+        }
+      }
+    },
+    "The code holds your keys. It closes in a minute." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В коде твои ключи. Он закроется через минуту."
           }
         }
       }
@@ -1176,6 +1239,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Слишком много шагов, попробуй проще"
+          }
+        }
+      }
+    },
+    "Too much for a QR code. Shorten the house notes." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не помещается в QR-код. Сократи заметки о доме."
           }
         }
       }
@@ -1527,6 +1600,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Токен Яндекса"
+          }
+        }
+      }
+    },
+    "Your devices with the same Apple ID get the keys and the address through iCloud by themselves. For someone with their own Apple ID, show a QR code." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Твои устройства с тем же Apple ID получат ключи и адрес через iCloud сами. Человеку со своим Apple ID покажи QR-код."
           }
         }
       }
