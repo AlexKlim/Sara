@@ -4,6 +4,7 @@ import SwiftUI
 /// Root screen: the panel by day, the night clock by night, talking to Sara on top, "done" alerts over everything.
 struct ContentView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \Turn.date) private var allTurns: [Turn]
     @State private var sara = Sara()
     @State private var voice = Voice()
@@ -36,12 +37,22 @@ struct ContentView: View {
             if isNight(timeline.date) && timeline.date > awakeUntil {
                 NightView(home: home, panel: panel, endHour: nightEnd)
                     .onTapGesture { awakeUntil = .now + 120 }
+                    .onAppear { PowerSaver.shared.night = true }
             } else {
                 PanelView(
                     home: home, panel: panel,
                     lastTurn: allTurns.last { $0.chatID == sara.chatID },
                     listening: wakeEnabled,
                     onTalk: { showTalk = true }, onSettings: { showSettings = true })
+                .onAppear { PowerSaver.shared.night = false }
+            }
+        }
+        // Any touch counts as someone being here.
+        .simultaneousGesture(TapGesture().onEnded { PowerSaver.shared.activity() })
+        // The first touch on a dimmed panel only wakes it, so a tile under the finger is not toggled in the dark.
+        .overlay {
+            if PowerSaver.shared.idle && !PowerSaver.shared.night {
+                Color.black.opacity(0.001).ignoresSafeArea().onTapGesture { PowerSaver.shared.activity() }
             }
         }
         .overlay { if let done { DoneAlertView(name: done) { self.done = nil } } }
@@ -54,9 +65,11 @@ struct ContentView: View {
             UIApplication.shared.isIdleTimerDisabled = true // wall panel: keep the screen on
             home.start()
             Alarms.shared.start()
+            PowerSaver.shared.start()
             sara.extractLeftovers(in: context)
             // A timer or alarm rang while Sara is on screen: say it and show the card.
             Alarms.shared.onFire = { label in
+                PowerSaver.shared.activity()
                 done = label
                 if !isNight(.now) { voice.say(String(localized: "Timer: \(label)")) }
             }
@@ -66,6 +79,10 @@ struct ContentView: View {
         }
         // The conversation ran out: back to the panel.
         .onChange(of: sara.timedOutAt) { showTalk = false }
+        .onChange(of: done) { if done != nil { PowerSaver.shared.activity() } }
+        .onChange(of: scenePhase) {
+            if scenePhase == .active { PowerSaver.shared.activity() } else { PowerSaver.shared.restoreBrightness() }
+        }
         .onChange(of: running) { old, new in
             // A device that was running and stopped: show "done".
             if let finished = old.subtracting(new).first,
@@ -83,6 +100,7 @@ struct ContentView: View {
     /// `followUp`: heard without the wake word, so Sara may decide it was not for her.
     private func respond(_ text: String, spoken: Bool, followUp: Bool = false) {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        PowerSaver.shared.activity()
         var text = text, followUp = followUp
         let previous = inFlight
         if sara.busy {
@@ -159,7 +177,7 @@ struct ContentView: View {
         let word = wakeWord.trimmingCharacters(in: .whitespaces)
         Task {
             await voice.listen(for: word.isEmpty ? String(localized: "Sara") : word,
-                               onWake: { showTalk = true },
+                               onWake: { PowerSaver.shared.activity(); showTalk = true },
                                onCommand: { respond($0, spoken: true, followUp: $1) })
         }
     }

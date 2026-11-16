@@ -92,6 +92,11 @@ struct SettingsView: View {
             Section("Current conversation") {
                 Stepper("Continues for \(Int(window)) s after a reply", value: $window, in: 30...600, step: 30)
             }
+            Section {
+                LabeledContent("Heat", value: String(localized: "\(PowerSaver.name(PowerSaver.shared.thermal)), highest since launch: \(PowerSaver.name(PowerSaver.shared.hottest))"))
+            } footer: {
+                Text("How hot this iPad gets. If it is often hot, always-on listening may be too much for it.")
+            }
         }
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)

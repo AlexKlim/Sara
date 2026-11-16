@@ -159,7 +159,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				CODE_SIGN_ENTITLEMENTS = Sara.entitlements;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_UIBackgroundModes = "remote-notification";
 				INFOPLIST_KEY_CFBundleDisplayName = Sara;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Sara connects to Home Assistant on your home network.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Sara listens to your voice commands.";
@@ -188,7 +190,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				CODE_SIGN_ENTITLEMENTS = Sara.entitlements;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_UIBackgroundModes = "remote-notification";
 				INFOPLIST_KEY_CFBundleDisplayName = Sara;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Sara connects to Home Assistant on your home network.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Sara listens to your voice commands.";
