@@ -24,6 +24,7 @@ struct SettingsView: View {
     @State private var home = Home()
     @State private var connection: String?
     @State private var sharing = false
+    @State private var scanning = false
     @Query(sort: \Fact.name) private var facts: [Fact]
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -96,8 +97,10 @@ struct SettingsView: View {
             Section {
                 Button("Share connection") { sharing = true }
                     .sheet(isPresented: $sharing) { ShareConnectionView() }
+                Button("Scan connection") { scanning = true }
+                    .sheet(isPresented: $scanning) { ScanConnectionView { dismiss() } }
             } footer: {
-                Text("Your devices with the same Apple ID get the keys and the address through iCloud by themselves. For someone with their own Apple ID, show a QR code.")
+                Text("Your devices with the same Apple ID get the keys and the address through iCloud by themselves. For someone with their own Apple ID: show the code here, and on their device tap Scan connection.")
             }
             Section("Current conversation") {
                 Stepper("Continues for \(Int(window)) s after a reply", value: $window, in: 30...600, step: 30)

@@ -31,6 +31,24 @@
         }
       }
     },
+    "NSCameraUsageDescription" : {
+      "comment" : "Privacy - Camera Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sara scans a QR code to connect to your home."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сара сканирует QR-код, чтобы подключиться к твоему дому."
+          }
+        }
+      }
+    },
     "NSLocalNetworkUsageDescription" : {
       "comment" : "Privacy - Local Network Usage Description",
       "extractionState" : "extracted_with_value",

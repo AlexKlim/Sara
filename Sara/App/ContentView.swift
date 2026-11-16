@@ -23,7 +23,6 @@ struct ContentView: View {
     @State private var inFlightFollowUp = false
     /// A phrase said while Sara was already acting or answering: handled right after her.
     @State private var queued: (text: String, followUp: Bool)?
-    @State private var unconfirmedSetupLink: SetupLink?
     @AppStorage("haURL") private var haURL = ""
     @AppStorage("nightStart") private var nightStart = 23
     @AppStorage("nightEnd") private var nightEnd = 10
@@ -37,7 +36,7 @@ struct ContentView: View {
         TimelineView(.everyMinute) { timeline in
             if isNight(timeline.date) && timeline.date > awakeUntil {
                 NightView(home: home, panel: panel, endHour: nightEnd)
-                    .onTapGesture { awakeUntil = .now + 120 }
+                    .onTapGesture { wakePanel() }
                     .onAppear { PowerSaver.shared.night = true }
             } else {
                 PanelView(
@@ -59,14 +58,13 @@ struct ContentView: View {
         .overlay { if let done { DoneAlertView(name: done) { self.done = nil } } }
         .fullScreenCover(isPresented: $showTalk) {
             TalkView(sara: sara, voice: voice, onAsk: { respond($0, spoken: $1) })
-                .setupLinkAlert($unconfirmedSetupLink, onConnect: connected)
+                .simultaneousGesture(TapGesture().onEnded { PowerSaver.shared.activity() })
         }
         .sheet(isPresented: $showSettings, onDismiss: { home.start(); applyWakeWord(); buildPanelIfEmpty() }) {
-            SettingsView().presentationSizing(.page).setupLinkAlert($unconfirmedSetupLink, onConnect: connected)
+            SettingsView().presentationSizing(.page).simultaneousGesture(TapGesture().onEnded { PowerSaver.shared.activity() })
         }
         .preferredColorScheme(.dark)
-        .onOpenURL { unconfirmedSetupLink = SetupLink(url: $0) }
-        .setupLinkAlert($unconfirmedSetupLink, onConnect: connected)
+        .onChange(of: haURL) { home.start() }
         .onAppear {
             Keychain.moveLocalSecretsToICloud()
             CloudSettings.start()
@@ -86,7 +84,7 @@ struct ContentView: View {
         }
         // The conversation ran out: back to the panel.
         .onChange(of: sara.timedOutAt) { showTalk = false }
-        .onChange(of: done) { if done != nil { PowerSaver.shared.activity() } }
+        .onChange(of: done) { if done != nil { wakePanel() } }
         .onChange(of: scenePhase) {
             if scenePhase == .active { PowerSaver.shared.activity() } else { PowerSaver.shared.restoreBrightness() }
         }
@@ -162,11 +160,9 @@ struct ContentView: View {
         }
     }
 
-    private func connected() {
-        showSettings = false
-        showTalk = false
-        home.start()
-        buildPanelIfEmpty()
+    private func wakePanel() {
+        awakeUntil = .now + 120
+        PowerSaver.shared.activity()
     }
 
     /// First run: build the panel from Home Assistant areas, so a new user sees their home right away.
@@ -191,7 +187,7 @@ struct ContentView: View {
         let word = wakeWord.trimmingCharacters(in: .whitespaces)
         Task {
             await voice.listen(for: word.isEmpty ? String(localized: "Sara") : word,
-                               onWake: { PowerSaver.shared.activity(); showTalk = true },
+                               onWake: { wakePanel(); showTalk = true },
                                onCommand: { respond($0, spoken: true, followUp: $1) })
         }
     }

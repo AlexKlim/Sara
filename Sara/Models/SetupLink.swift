@@ -1,7 +1,8 @@
 import Foundation
 
 struct SetupLink: Equatable {
-    static let scheme = "sara-home"
+    // Not a URL: the system camera would hand a URL to whatever app claims its scheme. Only Sara's own scanner reads this.
+    static let prefix = "SARA1:"
 
     var values: [String: String]
 
@@ -12,12 +13,9 @@ struct SetupLink: Equatable {
         return SetupLink(values: values)
     }
 
-    var url: URL? {
+    var payload: String? {
         guard let json = try? JSONEncoder().encode(values) else { return nil }
-        // base64url: "+" in a query would turn into a space.
-        let data = json.base64EncodedString()
-            .replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
-        return URL(string: "\(Self.scheme)://connect?d=\(data)")
+        return Self.prefix + json.base64EncodedString()
     }
 
     var homeHost: String {
@@ -40,13 +38,9 @@ struct SetupLink: Equatable {
 }
 
 extension SetupLink {
-    init?(url: URL) {
-        guard url.scheme == Self.scheme, url.host == "connect",
-              var data = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "d" })?.value
-        else { return nil }
-        data = data.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
-        data += String(repeating: "=", count: (4 - data.count % 4) % 4)
-        guard let json = Data(base64Encoded: data), let values = try? JSONDecoder().decode([String: String].self, from: json) else { return nil }
+    init?(payload: String) {
+        guard payload.hasPrefix(Self.prefix), let json = Data(base64Encoded: String(payload.dropFirst(Self.prefix.count))),
+              let values = try? JSONDecoder().decode([String: String].self, from: json) else { return nil }
         self.values = values
     }
 }

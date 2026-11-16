@@ -162,6 +162,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Sara;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Sara scans a QR code to connect to your home.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Sara connects to Home Assistant on your home network.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Sara listens to your voice commands.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Sara turns your speech into text commands.";
@@ -193,6 +194,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Sara;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Sara scans a QR code to connect to your home.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Sara connects to Home Assistant on your home network.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Sara listens to your voice commands.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Sara turns your speech into text commands.";

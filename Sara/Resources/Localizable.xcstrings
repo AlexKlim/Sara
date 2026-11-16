@@ -751,6 +751,16 @@
         }
       }
     },
+    "On the other iPhone or iPad, open Sara: Settings, Sara, Scan connection." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На другом iPhone или iPad открой Сару: Настройки, Сара, «Сканировать подключение»."
+          }
+        }
+      }
+    },
     "Open" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -769,6 +779,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Панель"
+          }
+        }
+      }
+    },
+    "Point the camera at the code on the other device." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наведи камеру на код на другом устройстве."
           }
         }
       }
@@ -932,12 +952,12 @@
         }
       }
     },
-    "Scan it with the camera of the other iPhone or iPad. Sara must be installed there." : {
+    "Scan connection" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Отсканируй его камерой другого iPhone или iPad. На нём должна быть установлена Сара."
+            "value" : "Сканировать подключение"
           }
         }
       }
@@ -1178,6 +1198,16 @@
         }
       }
     },
+    "This device can't scan QR codes, or Sara has no access to the camera." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это устройство не умеет сканировать QR-коды, или у Сары нет доступа к камере."
+          }
+        }
+      }
+    },
     "This device is in" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1185,6 +1215,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Это устройство в комнате"
+          }
+        }
+      }
+    },
+    "This is not a Sara code." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это не код Сары."
           }
         }
       }
@@ -1604,12 +1644,12 @@
         }
       }
     },
-    "Your devices with the same Apple ID get the keys and the address through iCloud by themselves. For someone with their own Apple ID, show a QR code." : {
+    "Your devices with the same Apple ID get the keys and the address through iCloud by themselves. For someone with their own Apple ID: show the code here, and on their device tap Scan connection." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Твои устройства с тем же Apple ID получат ключи и адрес через iCloud сами. Человеку со своим Apple ID покажи QR-код."
+            "value" : "Твои устройства с тем же Apple ID получат ключи и адрес через iCloud сами. Для человека со своим Apple ID: покажи код здесь, а на его устройстве нажми «Сканировать подключение»."
           }
         }
       }

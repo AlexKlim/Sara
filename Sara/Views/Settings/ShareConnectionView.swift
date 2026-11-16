@@ -4,7 +4,7 @@ import SwiftUI
 struct ShareConnectionView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
-    private let image = SetupLink.current().url.flatMap(Self.qr)
+    private let image = SetupLink.current().payload.flatMap(Self.qr)
 
     var body: some View {
         NavigationStack {
@@ -17,7 +17,7 @@ struct ShareConnectionView: View {
                         .frame(maxWidth: 360)
                         .padding(16)
                         .background(.white, in: RoundedRectangle(cornerRadius: 16))
-                    Text("Scan it with the camera of the other iPhone or iPad. Sara must be installed there.")
+                    Text("On the other iPhone or iPad, open Sara: Settings, Sara, Scan connection.")
                         .multilineTextAlignment(.center)
                     Text("The code holds your keys. It closes in a minute.")
                         .font(.footnote)
@@ -38,9 +38,9 @@ struct ShareConnectionView: View {
         .onChange(of: scenePhase) { if scenePhase != .active { dismiss() } }
     }
 
-    private static func qr(_ url: URL) -> UIImage? {
+    private static func qr(_ text: String) -> UIImage? {
         let filter = CIFilter.qrCodeGenerator()
-        filter.message = Data(url.absoluteString.utf8)
+        filter.message = Data(text.utf8)
         filter.correctionLevel = "L"
         guard let output = filter.outputImage,
               let cg = CIContext().createCGImage(output, from: output.extent) else { return nil }

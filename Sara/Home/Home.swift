@@ -14,6 +14,7 @@ import Foundation
     private var subscription: Task<Void, Never>?
     /// The WebSocket subscription is delivering states, so Home Assistant needs no polling.
     private var live = false
+    private var connectedURL = ""
 
     private var yandex: YandexHome? {
         let token = Keychain.get("yandexToken")
@@ -32,6 +33,10 @@ import Foundation
         subscription?.cancel()
         live = false
         let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
+        if url != connectedURL {
+            haStates = [:]
+            connectedURL = url
+        }
         if !url.isEmpty {
             let socket = HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken"))
             subscription = Task { [weak self] in

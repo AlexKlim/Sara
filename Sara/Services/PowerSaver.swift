@@ -34,7 +34,7 @@ import SwiftUI
         guard Self.isWallPanel else { return }
         idleTimer = Task { [weak self] in
             try? await Task.sleep(for: Self.idleAfter)
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled, UIApplication.shared.applicationState == .active else { return }
             self?.idle = true
             self?.apply()
         }
