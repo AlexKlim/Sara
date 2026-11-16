@@ -1,0 +1,45 @@
+language: en-US
+tone_instructions: "Be concise and direct. Point out real problems, skip praise and restating the diff."
+
+reviews:
+  profile: chill
+  high_level_summary: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+  path_filters:
+    - "!**/*.pbxproj"
+    - "!**/xcuserdata/**"
+  path_instructions:
+    - path: "Sara/**/*.swift"
+      instructions: |
+        Project conventions:
+        - One type per file. Folders by purpose: App, Assistant, Home, Speech, Services, Models, Views/{Panel,Talk,Settings}.
+        - Every user-visible string is localized: a literal in SwiftUI or String(localized:), with an entry and a Russian translation in Resources/Localizable.xcstrings. Proper nouns use Text(verbatim:).
+        - No Russian text in code, comments or test data. Russian lives only in the string catalogs.
+        - Prompts are files in Resources/Prompts and tool definitions are JSON in Resources/Tools, not strings in Swift.
+        - Secrets (Claude API key, Home Assistant and Yandex tokens) live only in the Keychain, never in UserDefaults, logs or code.
+        - SwiftData models must stay CloudKit-compatible: every property has a default or is optional, no unique constraints.
+        - Comments explain why, not what. Flag comments that restate the code.
+        - Keep it minimal: flag new abstractions, dependencies or config that the change does not need.
+        - No em or en dashes in code, comments or strings, use a plain hyphen.
+    - path: "Sara/Assistant/Sara.swift"
+      instructions: |
+        The Claude conversation must stay valid for preserved thinking: assistant content is appended unchanged,
+        earlier messages are never edited, history is only cut at the tail (ignored or interrupted phrases).
+    - path: "Sara/Speech/**"
+      instructions: |
+        Audio runs on one always-running AVAudioEngine with voice processing. Check thread hops between the audio
+        thread and the main actor, and that the microphone tap is installed before the engine starts.
+    - path: "Sara/Resources/Tools/**"
+      instructions: |
+        Claude tool definitions. Check the JSON schema is valid, descriptions say when to use the tool,
+        and strict tools have additionalProperties false and every property in required.
+    - path: "Sara/Resources/Prompts/**"
+      instructions: |
+        Prompts for Claude. Check for contradictions with other prompts and tool descriptions, and for wording that
+        is outdated or overly prescriptive.
+
+chat:
+  auto_reply: true
