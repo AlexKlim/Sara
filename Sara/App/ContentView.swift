@@ -58,10 +58,9 @@ struct ContentView: View {
         .overlay { if let done { DoneAlertView(name: done) { self.done = nil } } }
         .fullScreenCover(isPresented: $showTalk) {
             TalkView(sara: sara, voice: voice, onAsk: { respond($0, spoken: $1) })
-                .simultaneousGesture(TapGesture().onEnded { PowerSaver.shared.activity() })
         }
         .sheet(isPresented: $showSettings, onDismiss: { home.start(); applyWakeWord(); buildPanelIfEmpty() }) {
-            SettingsView().presentationSizing(.page).simultaneousGesture(TapGesture().onEnded { PowerSaver.shared.activity() })
+            SettingsView().presentationSizing(.page)
         }
         .preferredColorScheme(.dark)
         .onChange(of: haURL) { home.start() }

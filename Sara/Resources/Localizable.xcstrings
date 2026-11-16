@@ -784,6 +784,7 @@
       }
     },
     "Point the camera at the code on the other device." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -953,6 +954,7 @@
       }
     },
     "Scan connection" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1220,6 +1222,7 @@
       }
     },
     "This is not a Sara code." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {

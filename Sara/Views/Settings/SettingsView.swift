@@ -53,6 +53,8 @@ struct SettingsView: View {
         .onChange(of: apiKey) { Keychain.set("anthropicKey", apiKey.trimmingCharacters(in: .whitespacesAndNewlines)) }
         .onChange(of: haToken) { Keychain.set("haToken", haToken.trimmingCharacters(in: .whitespacesAndNewlines)) }
         .onChange(of: yandexToken) { Keychain.set("yandexToken", yandexToken.trimmingCharacters(in: .whitespacesAndNewlines)) }
+        // Not a tap gesture: it would swallow the sidebar's row selection.
+        .onChange(of: section) { PowerSaver.shared.activity() }
         .onChange(of: haURL) { CloudSettings.push("haURL") }
         .onChange(of: model) { CloudSettings.push("model") }
         .onChange(of: notes) { CloudSettings.push("houseNotes") }
