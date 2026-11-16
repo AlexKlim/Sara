@@ -1,0 +1,30 @@
+[
+  {
+    "name": "memory_save",
+    "description": "Save a lasting fact to long-term memory, or replace the fact with the same name. Use for preferences, routines, people in the home and corrections to your behavior. Not for one-off commands or current device states.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string", "description": "Unique key in English snake_case, e.g. evening_light. Reuse an existing name to update that fact."},
+        "type": {"type": "string", "enum": ["preference", "routine", "person", "correction", "other"]},
+        "content": {"type": "string", "description": "The fact in one or two sentences, in the user's language."}
+      },
+      "required": ["name", "type", "content"],
+      "additionalProperties": false
+    },
+    "strict": true
+  },
+  {
+    "name": "memory_delete",
+    "description": "Delete a fact from long-term memory when it is wrong or no longer true.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string", "description": "Name of the fact to delete."}
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+]

@@ -1,0 +1,8 @@
+// Signing for your own device. Put your Apple developer team in Config/Local.xcconfig (git-ignored):
+//   DEVELOPMENT_TEAM = ABCDE12345
+// You can also pick the team in Xcode under Signing & Capabilities.
+// Yandex OAuth client id (oauth.yandex.ru, scopes iot:view and iot:control, redirect https://oauth.yandex.ru/verification_code).
+// Empty: the Yandex settings page explains how to get a token without it.
+YANDEX_CLIENT_ID =
+
+#include? "Local.xcconfig"

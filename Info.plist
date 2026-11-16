@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<!-- OAuth client id of Sara at oauth.yandex.ru, set in Config/Signing.xcconfig or Local.xcconfig. -->
+	<key>YandexClientID</key>
+	<string>$(YANDEX_CLIENT_ID)</string>
+</dict>
+</plist>

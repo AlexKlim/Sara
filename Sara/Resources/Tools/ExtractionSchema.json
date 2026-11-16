@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "save": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "type": {"type": "string", "enum": ["preference", "routine", "person", "correction", "other"]},
+          "content": {"type": "string"}
+        },
+        "required": ["name", "type", "content"],
+        "additionalProperties": false
+      }
+    },
+    "delete": {"type": "array", "items": {"type": "string"}}
+  },
+  "required": ["save", "delete"],
+  "additionalProperties": false
+}

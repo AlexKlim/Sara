@@ -1,0 +1,7 @@
+xcuserdata/
+DerivedData/
+build/
+.DS_Store
+Sara/Resources/Panel.local.json
+Config/Local.xcconfig
+TODO.md

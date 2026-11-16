@@ -1,0 +1,25 @@
+[
+  {
+    "name": "end_conversation",
+    "description": "End the conversation when the user is clearly done: says goodbye, thanks you and needs nothing more, or says \"ok\" or \"got it\" after you finished. Never while a task is still open or right after you asked a question. The app closes the chat and stops listening for follow-ups.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "farewell": {"type": "string", "description": "A short goodbye to say aloud, in the user's language. Empty for a plain \"ok\"."}
+      },
+      "required": ["farewell"],
+      "additionalProperties": false
+    },
+    "strict": true
+  },
+  {
+    "name": "not_for_me",
+    "description": "The last speech was heard without the wake word and is not addressed to you: people talking to each other, a TV, radio or a phone call. You stay silent and the app keeps listening. Use only for speech marked as heard without the wake word.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+]

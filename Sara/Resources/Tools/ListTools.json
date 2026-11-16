@@ -1,0 +1,55 @@
+[
+  {
+    "name": "list_add",
+    "description": "Add items to a list kept in the app (to-do, shopping, packing). Creates the list if it does not exist; a new list also appears on the panel.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "list": {"type": "string", "description": "List name in the user's language, e.g. \"Weekend to-dos\"."},
+        "items": {"type": "array", "items": {"type": "string"}, "description": "Items to add. May be empty to just create the list."}
+      },
+      "required": ["list", "items"],
+      "additionalProperties": false
+    },
+    "strict": true
+  },
+  {
+    "name": "list_read",
+    "description": "Read a list with its open and checked items.",
+    "input_schema": {
+      "type": "object",
+      "properties": {"list": {"type": "string"}},
+      "required": ["list"],
+      "additionalProperties": false
+    },
+    "strict": true
+  },
+  {
+    "name": "list_check",
+    "description": "Check off items of a list as done.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "list": {"type": "string"},
+        "items": {"type": "array", "items": {"type": "string"}, "description": "Items as they appear in the list."}
+      },
+      "required": ["list", "items"],
+      "additionalProperties": false
+    },
+    "strict": true
+  },
+  {
+    "name": "list_remove",
+    "description": "Remove items from a list, or the whole list when items is empty.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "list": {"type": "string"},
+        "items": {"type": "array", "items": {"type": "string"}}
+      },
+      "required": ["list", "items"],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+]

@@ -1,0 +1,36 @@
+[
+  {
+    "name": "yandex_device_action",
+    "description": "Control a device of the Yandex Smart Home. Use the device id, capability and instance exactly as shown in <yandex_home>. Examples: on_off/on = true; range/brightness = 40; color_setting/temperature_k = 2700; range/temperature = 22; mode/thermostat = \"heat\".",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "device_id": {"type": "string"},
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "capability": {"type": "string", "description": "on_off, range, color_setting, mode or toggle"},
+              "instance": {"type": "string", "description": "e.g. on, brightness, temperature_k, hsv, volume, channel"},
+              "value": {"description": "true/false, a number, a mode name, or {\"h\":..,\"s\":..,\"v\":..} for hsv"}
+            },
+            "required": ["capability", "instance", "value"]
+          }
+        }
+      },
+      "required": ["device_id", "actions"]
+    }
+  },
+  {
+    "name": "yandex_scenario",
+    "description": "Run a scenario of the Yandex Smart Home by its id from <yandex_home>.",
+    "input_schema": {
+      "type": "object",
+      "properties": {"scenario_id": {"type": "string"}},
+      "required": ["scenario_id"],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+]

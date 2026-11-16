@@ -1,0 +1,47 @@
+[
+  {
+    "name": "set_timer",
+    "description": "Start a timer. When it ends, the app rings, shows a card and you say the label aloud. Works when the app is in the background too.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "minutes": {"type": "number", "description": "Duration in minutes, fractions allowed (0.5 is 30 seconds)."},
+        "label": {"type": "string", "description": "What it is for, in the user's language, e.g. \"pasta\". Empty if not said."}
+      },
+      "required": ["minutes", "label"],
+      "additionalProperties": false
+    },
+    "strict": true
+  },
+  {
+    "name": "set_alarm",
+    "description": "Set an alarm for a time of day (local time). It rings at the next occurrence of that time.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "time": {"type": "string", "description": "24-hour local time HH:mm, e.g. \"07:30\"."},
+        "label": {"type": "string", "description": "What it is for, in the user's language. Empty if not said."}
+      },
+      "required": ["time", "label"],
+      "additionalProperties": false
+    },
+    "strict": true
+  },
+  {
+    "name": "list_timers",
+    "description": "List the timers and alarms that are set, with their ids and when they ring.",
+    "input_schema": {"type": "object", "properties": {}, "additionalProperties": false},
+    "strict": true
+  },
+  {
+    "name": "cancel_timer",
+    "description": "Cancel a timer or alarm by its id from list_timers, or all of them with id \"all\".",
+    "input_schema": {
+      "type": "object",
+      "properties": {"id": {"type": "string"}},
+      "required": ["id"],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+]

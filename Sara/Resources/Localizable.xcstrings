@@ -1,0 +1,1431 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ is done": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: готово"
+          }
+        }
+      }
+    },
+    "%@ s (Claude %@, HA %@)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ с (Claude %@, HA %@)"
+          }
+        }
+      }
+    },
+    "%@ s, first words after %@ s (Claude %@, HA %@)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ с, первые слова через %@ с (Claude %@, HA %@)"
+          }
+        }
+      }
+    },
+    "A dim clock instead of the panel, and Sara answers in text only.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вместо панели тусклые часы, и Сара отвечает только текстом."
+          }
+        }
+      }
+    },
+    "Add block": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить блок"
+          }
+        }
+      }
+    },
+    "Add device": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить устройство"
+          }
+        }
+      }
+    },
+    "Address": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Адрес"
+          }
+        }
+      }
+    },
+    "API key": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API-ключ"
+          }
+        }
+      }
+    },
+    "Blocks": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Блоки"
+          }
+        }
+      }
+    },
+    "Close": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрыть"
+          }
+        }
+      }
+    },
+    "Closes by itself in 5 minutes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закроется само через 5 минут"
+          }
+        }
+      }
+    },
+    "Column": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колонка"
+          }
+        }
+      }
+    },
+    "Continues for %lld s after a reply": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продолжается %lld с после ответа"
+          }
+        }
+      }
+    },
+    "Current conversation": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текущий разговор"
+          }
+        }
+      }
+    },
+    "Detail": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подробности"
+          }
+        }
+      }
+    },
+    "Devices": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Устройства"
+          }
+        }
+      }
+    },
+    "Done": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готово"
+          }
+        }
+      }
+    },
+    "Ends at %@": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заканчивается в %@"
+          }
+        }
+      }
+    },
+    "Entity": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сущность"
+          }
+        }
+      }
+    },
+    "Finish time": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Время окончания"
+          }
+        }
+      }
+    },
+    "For example http://192.168.1.10:8123 or http://homeassistant.local:8123": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Например, http://192.168.1.10:8123 или http://homeassistant.local:8123"
+          }
+        }
+      }
+    },
+    "History": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История"
+          }
+        }
+      }
+    },
+    "House notes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заметки о доме"
+          }
+        }
+      }
+    },
+    "I can't help with that.": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не могу с этим помочь."
+          }
+        }
+      }
+    },
+    "Icon (SF Symbol)": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Иконка (SF Symbol)"
+          }
+        }
+      }
+    },
+    "Left": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слева"
+          }
+        }
+      }
+    },
+    "Let me look it up.": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сейчас посмотрю."
+          }
+        }
+      }
+    },
+    "Listen for the wake word": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слушать слово для вызова"
+          }
+        }
+      }
+    },
+    "Listening...": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слушаю..."
+          }
+        }
+      }
+    },
+    "Long-lived token": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Долгосрочный токен"
+          }
+        }
+      }
+    },
+    "Memory": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Память"
+          }
+        }
+      }
+    },
+    "Model": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Модель"
+          }
+        }
+      }
+    },
+    "Name": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Название"
+          }
+        }
+      }
+    },
+    "New conversation": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новый разговор"
+          }
+        }
+      }
+    },
+    "Night mode": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ночной режим"
+          }
+        }
+      }
+    },
+    "Night mode until %@ · Sara answers in text": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ночной режим до %@ · Сара отвечает текстом"
+          }
+        }
+      }
+    },
+    "None": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет"
+          }
+        }
+      }
+    },
+    "Nothing yet": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока ничего"
+          }
+        }
+      }
+    },
+    "Off": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выключено"
+          }
+        }
+      }
+    },
+    "OK": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Понятно"
+          }
+        }
+      }
+    },
+    "On": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включено"
+          }
+        }
+      }
+    },
+    "Panel": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Панель"
+          }
+        }
+      }
+    },
+    "Progress": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогресс"
+          }
+        }
+      }
+    },
+    "Remaining %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Осталось %@"
+          }
+        }
+      }
+    },
+    "Remaining %@, done at %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Осталось %@, закончится в %@"
+          }
+        }
+      }
+    },
+    "Right": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Справа"
+          }
+        }
+      }
+    },
+    "Room": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Комната"
+          }
+        }
+      }
+    },
+    "Running %@": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выполняю %@"
+          }
+        }
+      }
+    },
+    "Running devices": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Работающие устройства"
+          }
+        }
+      }
+    },
+    "Sara": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сара"
+          }
+        }
+      }
+    },
+    "Sara is listening": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сара слушает"
+          }
+        }
+      }
+    },
+    "Sara reads them before every conversation: what things are called, what not to touch.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сара читает их перед каждым разговором: как что называется, что не трогать."
+          }
+        }
+      }
+    },
+    "Say or type": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скажи или напиши"
+          }
+        }
+      }
+    },
+    "Script": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрипт"
+          }
+        }
+      }
+    },
+    "Script field": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поле скрипта"
+          }
+        }
+      }
+    },
+    "Searching the web...": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ищу в интернете..."
+          }
+        }
+      }
+    },
+    "Set the Home Assistant address in Settings": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Укажи адрес Home Assistant в настройках"
+          }
+        }
+      }
+    },
+    "Set up the panel in Settings": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настрой панель в настройках"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки"
+          }
+        }
+      }
+    },
+    "Slider": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ползунок"
+          }
+        }
+      }
+    },
+    "Speak": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Говорить"
+          }
+        }
+      }
+    },
+    "Starts at %@": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начинается в %@"
+          }
+        }
+      }
+    },
+    "Stop": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоп"
+          }
+        }
+      }
+    },
+    "Talk to Sara": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поговорить с Сарой"
+          }
+        }
+      }
+    },
+    "target %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "цель %@"
+          }
+        }
+      }
+    },
+    "The entity is the remaining-time sensor. Set a working status if that sensor keeps a value while the device is idle.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сущность это датчик оставшегося времени. Укажи статус работы, если этот датчик показывает время и когда устройство простаивает."
+          }
+        }
+      }
+    },
+    "The microphone listens all the time, speech is recognized on this device. Say the word and the command together, e.g. \"Sara, turn on the light\".": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Микрофон слушает постоянно, речь распознаётся на этом устройстве. Говори слово и команду вместе, например «Сара, включи свет»."
+          }
+        }
+      }
+    },
+    "The value comes from the entity. To change it, set a script, e.g. a TV volume script. Without one, media players and lights are set directly.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Значение берётся из сущности. Чтобы его менять, укажи скрипт, например громкости ТВ. Без скрипта медиаплееры и свет меняются напрямую."
+          }
+        }
+      }
+    },
+    "Thermostats": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Термостаты"
+          }
+        }
+      }
+    },
+    "Thinking...": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Думаю..."
+          }
+        }
+      }
+    },
+    "Title": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заголовок"
+          }
+        }
+      }
+    },
+    "Too many steps, try something simpler": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слишком много шагов, попробуй проще"
+          }
+        }
+      }
+    },
+    "Voice": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голос"
+          }
+        }
+      }
+    },
+    "Wake word": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слово для вызова"
+          }
+        }
+      }
+    },
+    "Weather": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Погода"
+          }
+        }
+      }
+    },
+    "weather.clear-night": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ясно"
+          }
+        }
+      }
+    },
+    "weather.cloudy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Облачно"
+          }
+        }
+      }
+    },
+    "weather.exceptional": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unusual weather"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Необычная погода"
+          }
+        }
+      }
+    },
+    "weather.fog": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fog"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Туман"
+          }
+        }
+      }
+    },
+    "weather.hail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hail"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Град"
+          }
+        }
+      }
+    },
+    "weather.lightning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thunderstorm"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Гроза"
+          }
+        }
+      }
+    },
+    "weather.lightning-rainy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thunderstorm, rain"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Гроза, дождь"
+          }
+        }
+      }
+    },
+    "weather.partlycloudy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partly cloudy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Переменная облачность"
+          }
+        }
+      }
+    },
+    "weather.pouring": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heavy rain"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ливень"
+          }
+        }
+      }
+    },
+    "weather.rainy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rain"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дождь"
+          }
+        }
+      }
+    },
+    "weather.snowy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snow"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Снег"
+          }
+        }
+      }
+    },
+    "weather.snowy-rainy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleet"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мокрый снег"
+          }
+        }
+      }
+    },
+    "weather.sunny": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sunny"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Солнечно"
+          }
+        }
+      }
+    },
+    "weather.windy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ветрено"
+          }
+        }
+      }
+    },
+    "weather.windy-variant": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windy, cloudy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ветрено, облачно"
+          }
+        }
+      }
+    },
+    "What Sara remembers about the home and you. Swipe left to delete.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Что Сара помнит о доме и о тебе. Смахни влево, чтобы удалить."
+          }
+        }
+      }
+    },
+    "Working status": {
+      "extractionState": "stale",
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Статус работы"
+          }
+        }
+      }
+    },
+    "After a reply, listens without it for %lld s": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "После ответа слушает без него %lld с"
+          }
+        }
+      }
+    },
+    "stop, cancel, enough": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "стоп, хватит, отмена"
+          }
+        }
+      }
+    },
+    "Build from Home Assistant": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Собрать из Home Assistant"
+          }
+        }
+      }
+    },
+    "Restore the layout from Panel.local.json": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вернуть раскладку из Panel.local.json"
+          }
+        }
+      }
+    },
+    "Replace the panel with one built from Home Assistant rooms?": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заменить панель на собранную из комнат Home Assistant?"
+          }
+        }
+      }
+    },
+    "Replace": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заменить"
+          }
+        }
+      }
+    },
+    "Check connection": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверить подключение"
+          }
+        }
+      }
+    },
+    "Checking...": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверяю..."
+          }
+        }
+      }
+    },
+    "Connected: %lld tools": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключено, инструментов: %lld"
+          }
+        }
+      }
+    },
+    "Speaker": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колонка"
+          }
+        }
+      }
+    },
+    "Choose a Home Assistant speaker that reads text aloud, e.g. a Yandex Station in local mode. Without one, Sara speaks with this device.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбери колонку из Home Assistant, которая читает текст вслух, например Яндекс Станцию в локальном режиме. Без неё Сара говорит голосом этого устройства."
+          }
+        }
+      }
+    },
+    "This device is in": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Это устройство в комнате"
+          }
+        }
+      }
+    },
+    "Not set": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не выбрано"
+          }
+        }
+      }
+    },
+    "When you don't name a room, Sara means this one. Set it on each panel.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Если комната не названа, Сара считает, что это она. Выбери на каждой панели свою."
+          }
+        }
+      }
+    },
+    "Time is up": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Время вышло"
+          }
+        }
+      }
+    },
+    "Timer: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таймер: %@"
+          }
+        }
+      }
+    },
+    "Set up Home Assistant or Yandex Smart Home in Settings": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключи Home Assistant или Умный дом Яндекса в настройках"
+          }
+        }
+      }
+    },
+    "Yandex Smart Home": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Умный дом Яндекса"
+          }
+        }
+      }
+    },
+    "Get a token": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Получить токен"
+          }
+        }
+      }
+    },
+    "Yandex token": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Токен Яндекса"
+          }
+        }
+      }
+    },
+    "Connected: %lld devices": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключено, устройств: %lld"
+          }
+        }
+      }
+    },
+    "Register an app at oauth.yandex.ru with the iot:view and iot:control rights and put its id in Config/Local.xcconfig as YANDEX_CLIENT_ID. Or paste a token you already have.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зарегистрируй приложение на oauth.yandex.ru с правами iot:view и iot:control и укажи его ID в Config/Local.xcconfig как YANDEX_CLIENT_ID. Или вставь готовый токен."
+          }
+        }
+      }
+    },
+    "For a home with Alice. Sign in to Yandex, copy the token it shows and paste it here. Sara sees and controls your devices and scenarios.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для дома с Алисой. Войди в Яндекс, скопируй показанный токен и вставь сюда. Сара будет видеть и управлять устройствами и сценариями."
+          }
+        }
+      }
+    },
+    "Timers and alarms": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таймеры и будильники"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отменить"
+          }
+        }
+      }
+    },
+    "List": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Список"
+          }
+        }
+      }
+    },
+    "Empty": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пусто"
+          }
+        }
+      }
+    },
+    "Close the list": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрыть список"
+          }
+        }
+      }
+    },
+    "Lists": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Списки"
+          }
+        }
+      }
+    },
+    "Open": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открытые"
+          }
+        }
+      }
+    },
+    "Closed": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрытые"
+          }
+        }
+      }
+    },
+    "Back to the panel": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вернуть на панель"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить"
+          }
+        }
+      }
+    },
+    "No lists yet": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Списков пока нет"
+          }
+        }
+      }
+    },
+    "Closed %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрыт %@"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
