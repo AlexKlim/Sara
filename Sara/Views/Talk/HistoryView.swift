@@ -1,12 +1,13 @@
 import SwiftData
 import SwiftUI
 
-/// All past conversations, newest first.
 struct HistoryView: View {
-    // ponytail: loads the whole history, add a fetch limit or paging when it grows large
-    @Query(sort: \Turn.date, order: .reverse) private var turns: [Turn]
+    @Environment(\.modelContext) private var context
+    @State private var turns: [Turn] = []
+    @State private var hasOlder = false
+    private static let page = 200
 
-    /// Turns grouped into conversations, newest conversation first, turns inside oldest first.
+    /// Newest conversation first, turns inside oldest first.
     private var chats: [[Turn]] {
         turns.reduce(into: [[Turn]]()) { chats, turn in
             if chats.last?.first?.chatID == turn.chatID { chats[chats.count - 1].insert(turn, at: 0) } else { chats.append([turn]) }
@@ -22,7 +23,20 @@ struct HistoryView: View {
                     Text(chat[0].date, format: .dateTime.day().month().hour().minute())
                 }
             }
+            if hasOlder {
+                Button("Show older") { loadOlder() }
+            }
         }
         .navigationTitle("History")
+        .task { if turns.isEmpty { loadOlder() } }
+    }
+
+    private func loadOlder() {
+        var descriptor = FetchDescriptor<Turn>(sortBy: [SortDescriptor(\.date, order: .reverse)])
+        descriptor.fetchOffset = turns.count
+        descriptor.fetchLimit = Self.page + 1
+        let fetched = (try? context.fetch(descriptor)) ?? []
+        hasOlder = fetched.count > Self.page
+        turns += fetched.prefix(Self.page)
     }
 }
