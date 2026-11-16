@@ -191,7 +191,7 @@ struct SettingsView: View {
                 EntityRow(title: "Speaker", home: home, domains: ["media_player"],
                           selection: Binding(get: { speakerEntity.isEmpty ? nil : speakerEntity }, set: { speakerEntity = $0 ?? "" }))
             } footer: {
-                Text("Choose a Home Assistant speaker that reads text aloud, e.g. a Yandex Station in local mode. Without one, Sara speaks with this device.")
+                Text("A Yandex Station reads replies itself. Other speakers need a text-to-speech engine in Home Assistant and its local network address. If the speaker fails, Sara speaks with this device.")
             }
         }
         .autocorrectionDisabled()

@@ -52,6 +52,16 @@
         }
       }
     },
+    "A Yandex Station reads replies itself. Other speakers need a text-to-speech engine in Home Assistant and its local network address. If the speaker fails, Sara speaks with this device." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Яндекс Станция читает ответы сама. Другим колонкам нужен движок синтеза речи в Home Assistant и его адрес в локальной сети. Если колонка не ответит, Сара скажет ответ голосом этого устройства."
+          }
+        }
+      }
+    },
     "Add block" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -169,16 +179,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Проверяю..."
-          }
-        }
-      }
-    },
-    "Choose a Home Assistant speaker that reads text aloud, e.g. a Yandex Station in local mode. Without one, Sara speaks with this device." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выбери колонку из Home Assistant, которая читает текст вслух, например Яндекс Станцию в локальном режиме. Без неё Сара говорит голосом этого устройства."
           }
         }
       }
@@ -460,6 +460,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "История"
+          }
+        }
+      }
+    },
+    "Home Assistant has no text-to-speech engine" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В Home Assistant нет движка синтеза речи"
           }
         }
       }

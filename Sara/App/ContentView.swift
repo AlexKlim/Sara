@@ -131,7 +131,14 @@ struct ContentView: View {
             // Voice filters out its words and lets the user interrupt it while it reads, about 14 characters a second.
             say = { phrase in
                 voice.speakingExternally(phrase, for: Double(phrase.count) / 14 + 1)
-                Task { do { try await home.say(Voice.speakable(phrase), on: speaker) } catch { voice.say(phrase) } }
+                Task {
+                    do { try await home.say(Voice.speakable(phrase), on: speaker) } catch {
+                        #if DEBUG
+                        print("[speaker] \(speaker) failed:", error)
+                        #endif
+                        voice.say(phrase)
+                    }
+                }
             }
         }
         let task = Task { [followUp] in

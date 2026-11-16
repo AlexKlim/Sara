@@ -15,6 +15,7 @@ import Foundation
     /// The WebSocket subscription is delivering states, so Home Assistant needs no polling.
     private var live = false
     private var connectedURL = ""
+    private var platforms: [String: String] = [:]
 
     private var yandex: YandexHome? {
         let token = Keychain.get("yandexToken")
@@ -35,6 +36,7 @@ import Foundation
         let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
         if url != connectedURL {
             haStates = [:]
+            platforms = [:]
             connectedURL = url
         }
         if !url.isEmpty {
@@ -190,9 +192,27 @@ import Foundation
         await loadTodo(id)
     }
 
-    /// Reads text aloud on a Home Assistant speaker (e.g. a Yandex Station in local mode).
     func say(_ text: String, on speaker: String) async throws {
         guard let api else { throw SaraError("No Home Assistant address") }
-        try await api.call("media_player", "play_media", ["entity_id": speaker, "media_content_id": text, "media_content_type": "text"])
+        // A Yandex Station speaks text itself, in Alice's voice. Other players need a text-to-speech engine in HA.
+        if await platform(of: speaker) == "yandex_station" {
+            try await api.call("media_player", "play_media", ["entity_id": speaker, "media_content_id": text, "media_content_type": "text"])
+            return
+        }
+        guard let engine = states.keys.filter({ $0.hasPrefix("tts.") }).sorted().first else {
+            throw SaraError(String(localized: "Home Assistant has no text-to-speech engine"))
+        }
+        try await api.call("tts", "speak", ["entity_id": engine, "media_player_entity_id": speaker, "message": text,
+                                           "language": Locale.current.language.languageCode?.identifier ?? "en"])
+    }
+
+    private func platform(of entity: String) async -> String? {
+        if let known = platforms[entity] { return known }
+        let socket = HomeAssistantSocket(baseURL: connectedURL, token: Keychain.get("haToken"))
+        let entities = (try? await socket.call(["config/entity_registry/list_for_display"]).first as? [String: Any])?["entities"] as? [[String: Any]] ?? []
+        for entity in entities {
+            if let id = entity["ei"] as? String, let platform = entity["pl"] as? String { platforms[id] = platform }
+        }
+        return platforms[entity]
     }
 }
