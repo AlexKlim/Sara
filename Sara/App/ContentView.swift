@@ -23,6 +23,7 @@ struct ContentView: View {
     @State private var inFlightFollowUp = false
     /// A phrase said while Sara was already acting or answering: handled right after her.
     @State private var queued: (text: String, followUp: Bool)?
+    @State private var pausedMusicOn: String?
     @AppStorage("haURL") private var haURL = ""
     @AppStorage("nightStart") private var nightStart = 23
     @AppStorage("nightEnd") private var nightEnd = 10
@@ -172,6 +173,30 @@ struct ContentView: View {
         }
     }
 
+    private func pauseMusic() {
+        let speaker = speakerEntity.trimmingCharacters(in: .whitespaces)
+        // While the speaker reads Sara's own reply it is "playing" too, and that is not music.
+        guard pausedMusicOn == nil, !speaker.isEmpty, home.state(speaker) == "playing", !voice.speaking else { return }
+        pausedMusicOn = speaker
+        let pausedAt = Date.now
+        Task { await home.pause(speaker) }
+        Task {
+            var quietSince = Date.now
+            while true {
+                try? await Task.sleep(for: .seconds(1))
+                if voice.listening || sara.busy || voice.speaking { quietSince = .now }
+                if Date.now.timeIntervalSince(quietSince) > 3 { break }
+            }
+            guard let player = pausedMusicOn else { return }
+            pausedMusicOn = nil
+            // "Sara, stop the music": she handled the player herself, so it stays as she left it.
+            let name = home.attribute(player, "friendly_name") as? String ?? player
+            let handled = latestTurns.filter { $0.date >= pausedAt }.flatMap(\.actions)
+                .contains { $0.localizedCaseInsensitiveContains("media") || $0.localizedCaseInsensitiveContains(name) }
+            if !handled, home.state(player) == "paused" { await home.resume(player) }
+        }
+    }
+
     private func wakePanel() {
         awakeUntil = .now + 120
         PowerSaver.shared.activity()
@@ -200,7 +225,7 @@ struct ContentView: View {
         let word = wakeWord.trimmingCharacters(in: .whitespaces)
         Task {
             await voice.listen(for: word.isEmpty ? String(localized: "Sara") : word,
-                               onWake: { wakePanel(); showTalk = true },
+                               onWake: { wakePanel(); pauseMusic(); showTalk = true },
                                onCommand: { respond($0, spoken: true, followUp: $1) })
         }
     }

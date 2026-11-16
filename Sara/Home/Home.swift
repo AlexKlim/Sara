@@ -206,6 +206,14 @@ import Foundation
     }
 
     /// Stops a Home Assistant speaker (a Yandex Station in local mode stops reading).
+    func pause(_ player: String) async {
+        try? await api?.call("media_player", "media_pause", ["entity_id": player])
+    }
+
+    func resume(_ player: String) async {
+        try? await api?.call("media_player", "media_play", ["entity_id": player])
+    }
+
     func stop(_ speaker: String) async {
         try? await api?.call("media_player", "media_stop", ["entity_id": speaker])
     }
