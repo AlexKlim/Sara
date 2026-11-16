@@ -465,6 +465,7 @@
       }
     },
     "Home Assistant has no text-to-speech engine" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {

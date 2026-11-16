@@ -15,7 +15,9 @@ import Foundation
     /// The WebSocket subscription is delivering states, so Home Assistant needs no polling.
     private var live = false
     private var connectedURL = ""
-    private var platforms: [String: String] = [:]
+    private(set) var platforms: [String: String] = [:]
+    // Their Home Assistant integrations can't play speech: tts.speak to an Apple TV even drops its connection.
+    static let platformsWithoutSpeech: Set = ["apple_tv", "braviatv"]
 
     private var yandex: YandexHome? {
         let token = Keychain.get("yandexToken")
@@ -207,12 +209,17 @@ import Foundation
     }
 
     private func platform(of entity: String) async -> String? {
-        if let known = platforms[entity] { return known }
-        let socket = HomeAssistantSocket(baseURL: connectedURL, token: Keychain.get("haToken"))
+        if platforms[entity] == nil { await loadPlatforms() }
+        return platforms[entity]
+    }
+
+    func loadPlatforms() async {
+        let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
+        guard !url.isEmpty else { return }
+        let socket = HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken"))
         let entities = (try? await socket.call(["config/entity_registry/list_for_display"]).first as? [String: Any])?["entities"] as? [[String: Any]] ?? []
         for entity in entities {
             if let id = entity["ei"] as? String, let platform = entity["pl"] as? String { platforms[id] = platform }
         }
-        return platforms[entity]
     }
 }

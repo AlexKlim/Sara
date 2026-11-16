@@ -189,6 +189,7 @@ struct SettingsView: View {
             }
             Section {
                 EntityRow(title: "Speaker", home: home, domains: ["media_player"],
+                          allows: { !Home.platformsWithoutSpeech.contains(home.platforms[$0] ?? "") },
                           selection: Binding(get: { speakerEntity.isEmpty ? nil : speakerEntity }, set: { speakerEntity = $0 ?? "" }))
             } footer: {
                 Text("A Yandex Station reads replies itself. Other speakers need a text-to-speech engine in Home Assistant and its local network address. If the speaker fails, Sara speaks with this device.")
@@ -196,7 +197,10 @@ struct SettingsView: View {
         }
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
-        .task { await home.refresh() }
+        .task {
+            await home.refresh()
+            await home.loadPlatforms()
+        }
     }
 
     private var night: some View {
