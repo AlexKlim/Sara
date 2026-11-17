@@ -29,14 +29,26 @@ struct HistoryView: View {
         }
         .navigationTitle("History")
         .task { if turns.isEmpty { loadOlder() } }
+        .refreshable { reload() }
     }
 
     private func loadOlder() {
-        let before = turns.last?.date ?? .distantFuture
+        guard let page = fetch(Self.page, before: turns.last?.date ?? .distantFuture) else { return }
+        turns += page
+    }
+
+    /// Picks up turns that iCloud brought while History was open, keeping as many rows as were loaded.
+    private func reload() {
+        guard let page = fetch(max(turns.count, Self.page), before: .distantFuture) else { return }
+        turns = page
+    }
+
+    /// Up to `count` turns before the date, newest first; also sets whether older ones remain.
+    private func fetch(_ count: Int, before: Date) -> [Turn]? {
         var descriptor = FetchDescriptor<Turn>(predicate: #Predicate { $0.date < before }, sortBy: [SortDescriptor(\.date, order: .reverse)])
-        descriptor.fetchLimit = Self.page + 1
-        guard let fetched = try? context.fetch(descriptor) else { return }
-        hasOlder = fetched.count > Self.page
-        turns += fetched.prefix(Self.page)
+        descriptor.fetchLimit = count + 1
+        guard let fetched = try? context.fetch(descriptor) else { return nil }
+        hasOlder = fetched.count > count
+        return Array(fetched.prefix(count))
     }
 }
