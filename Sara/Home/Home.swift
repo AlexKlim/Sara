@@ -24,10 +24,7 @@ import Foundation
         return token.isEmpty ? nil : YandexHome(token: token)
     }
 
-    private var api: HomeAssistant? {
-        let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
-        return url.isEmpty ? nil : HomeAssistant(baseURL: url, token: Keychain.get("haToken"))
-    }
+    private var api: HomeAssistant? { .saved }
 
     /// Subscribes to Home Assistant states (reconnecting after 5 s when the connection drops) and polls the rest
     /// every few seconds: Yandex, and Home Assistant itself while the subscription is down.
@@ -136,6 +133,21 @@ import Foundation
         return false
     }
 
+    /// A thermostat without hvac_action heats while it is colder than the target.
+    func isHeating(_ id: String, target: Double?) -> Bool {
+        if let action = attribute(id, "hvac_action") as? String { return action == "heating" }
+        guard state(id) != "off", let target, let current = attribute(id, "current_temperature") as? Double else { return false }
+        return current < target
+    }
+
+    /// A thermostat's target one step up or down, within its limits.
+    func stepped(_ id: String, _ target: Double, up: Bool) -> Double {
+        let step = attribute(id, "target_temp_step") as? Double ?? 0.5
+        let low = attribute(id, "min_temp") as? Double ?? 5
+        let high = attribute(id, "max_temp") as? Double ?? 35
+        return min(high, max(low, target + (up ? step : -step)))
+    }
+
     /// Slider position 0-100.
     func value(_ item: PanelItem) -> Double? {
         if item.entity.hasPrefix("media_player.") { return (attribute(item.entity, "volume_level") as? Double).map { $0 * 100 } }
@@ -177,6 +189,11 @@ import Foundation
                 "actions": [["capability": "range", "instance": "brightness", "value": Int(value.rounded())]],
             ])
         }
+        await refresh()
+    }
+
+    func setTemperature(_ entity: String, _ value: Double) async {
+        try? await api?.call("climate", "set_temperature", ["entity_id": entity, "temperature": value])
         await refresh()
     }
 

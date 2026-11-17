@@ -13,7 +13,7 @@ struct NightView: View {
                 Text(context.date, format: .dateTime.hour().minute())
                     .font(.system(size: 220, weight: .light)).tracking(-8).monospacedDigit()
                     .minimumScaleFactor(0.3).lineLimit(1)
-                Text(Self.capitalizedFirst(context.date.formatted(.dateTime.weekday(.wide).day().month(.wide))))
+                Text(context.date.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalizedFirst)
                     .font(.system(size: 26)).foregroundStyle(Color(hex: 0x565D68))
                 Spacer()
                 HStack {
@@ -40,9 +40,6 @@ struct NightView: View {
     private var running: [PanelItem] {
         panel.blocks.filter { $0.kind == .running }.flatMap(\.items).filter(home.isRunning)
     }
-
-    /// Some languages write weekdays and months in lowercase: capitalize only the first letter (`capitalized` would do the month too).
-    static func capitalizedFirst(_ text: String) -> String { text.prefix(1).uppercased() + text.dropFirst() }
 
     /// 10 -> "10:00" in the device's time format.
     static func hour(_ hour: Int) -> String {

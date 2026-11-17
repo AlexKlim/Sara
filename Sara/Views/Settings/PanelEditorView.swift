@@ -10,9 +10,6 @@ struct PanelEditorView: View {
 
     var body: some View {
         Form {
-            Section {
-                EntityRow(title: "Weather", home: home, domains: ["weather"], selection: $panel.weather)
-            }
             Section("Blocks") {
                 ForEach($panel.blocks) { $block in
                     NavigationLink {

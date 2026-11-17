@@ -71,6 +71,8 @@ struct ContentView: View {
             home.start()
             Alarms.shared.start()
             PowerSaver.shared.start()
+            if PowerSaver.isWallPanel { BatteryReporter.start() }
+            Weather.shared.start(home: home)
             sara.extractLeftovers(in: context)
             // A timer or alarm rang while Sara is on screen: say it and show the card.
             Alarms.shared.onFire = { label in

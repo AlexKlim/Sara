@@ -7,6 +7,7 @@ struct SettingsView: View {
     @AppStorage("model") private var model = Claude.defaultModel
     @AppStorage("window") private var window = 150.0
     @AppStorage("houseNotes") private var notes = ""
+    @AppStorage("homeLocation") private var homeLocation = ""
     @AppStorage("deviceRoom") private var deviceRoom = ""
     @State private var rooms: [String] = []
     @AppStorage("speakerEntity") private var speakerEntity = ""
@@ -89,6 +90,16 @@ struct SettingsView: View {
                 Text("When you don't name a room, Sara means this one. Set it on each panel.")
             }
             .task { await loadRooms() }
+            Section {
+                NavigationLink {
+                    HomeLocationView()
+                } label: {
+                    LabeledContent("Home location", value: HomeLocation(stored: homeLocation)?.address
+                        ?? String(localized: haURL.isEmpty ? "Not set" : "From Home Assistant"))
+                }
+            } footer: {
+                Text("For the weather. When it's empty, Sara takes the home zone of Home Assistant.")
+            }
             Section {
                 TextEditor(text: $notes).frame(minHeight: 160)
             } header: {

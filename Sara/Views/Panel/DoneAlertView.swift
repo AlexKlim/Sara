@@ -7,7 +7,7 @@ struct DoneAlertView: View {
 
     var body: some View {
         ZStack {
-            Color(hex: 0x07080A).opacity(0.74).ignoresSafeArea()
+            Theme.deepBackground.opacity(0.74).ignoresSafeArea()
             VStack(spacing: 20) {
                 Image(systemName: "checkmark").font(.system(size: 40, weight: .semibold)).foregroundStyle(Theme.amber)
                     .frame(width: 96, height: 96).background(Theme.amberBackground, in: .circle)
@@ -22,7 +22,7 @@ struct DoneAlertView: View {
             .padding(48)
             .frame(maxWidth: 640)
             .background(Theme.card, in: .rect(cornerRadius: 28))
-            .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color(hex: 0x2E333B)))
+            .overlay(RoundedRectangle(cornerRadius: 28).stroke(Theme.ring))
             .padding(24)
         }
         .foregroundStyle(Theme.text)

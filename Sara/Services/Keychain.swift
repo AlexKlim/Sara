@@ -12,11 +12,12 @@ enum Keychain {
         return String(decoding: data, as: UTF8.self)
     }
 
-    static func set(_ key: String, _ value: String) {
-        let synced = item(key, synced: true)
+    /// Secrets of the home sync through iCloud Keychain. A secret of one device passes `synced: false`.
+    static func set(_ key: String, _ value: String, synced: Bool = true) {
+        let query = item(key, synced: synced)
         let data = [kSecValueData as String: Data(value.utf8)]
-        if SecItemUpdate(synced as CFDictionary, data as CFDictionary) == errSecItemNotFound {
-            SecItemAdd(synced.merging(data) { $1 } as CFDictionary, nil)
+        if SecItemUpdate(query as CFDictionary, data as CFDictionary) == errSecItemNotFound {
+            SecItemAdd(query.merging(data) { $1 } as CFDictionary, nil)
         }
     }
 
