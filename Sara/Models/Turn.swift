@@ -21,7 +21,8 @@ import SwiftData
         self.user = user
     }
 
-    // ponytail: the current conversation is always among the newest turns; a chat longer than 50 turns shows its last 50.
+    // ponytail: a chat lasts minutes, so it is among the newest 50 turns unless other devices add 50 turns meanwhile.
+    // A chat longer than 50 turns shows its last 50.
     static var latest: FetchDescriptor<Turn> {
         var descriptor = FetchDescriptor<Turn>(sortBy: [SortDescriptor(\.date, order: .reverse)])
         descriptor.fetchLimit = 50

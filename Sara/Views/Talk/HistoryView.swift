@@ -32,10 +32,10 @@ struct HistoryView: View {
     }
 
     private func loadOlder() {
-        var descriptor = FetchDescriptor<Turn>(sortBy: [SortDescriptor(\.date, order: .reverse)])
-        descriptor.fetchOffset = turns.count
+        let before = turns.last?.date ?? .distantFuture
+        var descriptor = FetchDescriptor<Turn>(predicate: #Predicate { $0.date < before }, sortBy: [SortDescriptor(\.date, order: .reverse)])
         descriptor.fetchLimit = Self.page + 1
-        let fetched = (try? context.fetch(descriptor)) ?? []
+        guard let fetched = try? context.fetch(descriptor) else { return }
         hasOlder = fetched.count > Self.page
         turns += fetched.prefix(Self.page)
     }
