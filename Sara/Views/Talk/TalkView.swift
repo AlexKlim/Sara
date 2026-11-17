@@ -9,12 +9,10 @@ struct TalkView: View {
     let onAsk: (String, Bool) -> Void
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
-    // ponytail: filters the whole history in memory, query by chatID if it gets slow
-    @Query(sort: \Turn.date) private var allTurns: [Turn]
+    @Query(Turn.latest) private var latestTurns: [Turn]
     @State private var input = ""
 
-    /// The current conversation only. Past ones are in History.
-    private var turns: [Turn] { allTurns.filter { $0.chatID == sara.chatID } }
+    private var currentChatTurns: [Turn] { latestTurns.filter { $0.chatID == sara.chatID }.reversed() }
 
     var body: some View {
         NavigationStack {
@@ -32,10 +30,10 @@ struct TalkView: View {
                     Text("Listening...").foregroundStyle(Theme.teal)
                 }
                 ScrollViewReader { proxy in
-                    List(turns) { TurnRow(turn: $0).id($0.id).listRowBackground(Theme.card) }
+                    List(currentChatTurns) { TurnRow(turn: $0).id($0.id).listRowBackground(Theme.card) }
                         .scrollContentBackground(.hidden)
-                        .onAppear { proxy.scrollTo(turns.last?.id) }
-                        .onChange(of: turns.last?.reply) { proxy.scrollTo(turns.last?.id) }
+                        .onAppear { proxy.scrollTo(currentChatTurns.last?.id) }
+                        .onChange(of: currentChatTurns.last?.reply) { proxy.scrollTo(currentChatTurns.last?.id) }
                 }
             }
             .padding(.top, 24)

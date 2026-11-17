@@ -1062,6 +1062,16 @@
         }
       }
     },
+    "Show older" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать старые"
+          }
+        }
+      }
+    },
     "Slider" : {
       "extractionState" : "stale",
       "localizations" : {

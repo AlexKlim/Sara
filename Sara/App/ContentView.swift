@@ -5,7 +5,7 @@ import SwiftUI
 struct ContentView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.scenePhase) private var scenePhase
-    @Query(sort: \Turn.date) private var allTurns: [Turn]
+    @Query(Turn.latest) private var latestTurns: [Turn]
     @State private var sara = Sara()
     @State private var voice = Voice()
     @State private var home = Home()
@@ -41,7 +41,7 @@ struct ContentView: View {
             } else {
                 PanelView(
                     home: home, panel: panel,
-                    lastTurn: allTurns.last { $0.chatID == sara.chatID },
+                    lastTurn: latestTurns.first { $0.chatID == sara.chatID },
                     listening: wakeEnabled,
                     onTalk: { showTalk = true }, onSettings: { showSettings = true })
                 .onAppear { PowerSaver.shared.night = false }
