@@ -4,6 +4,7 @@ import SwiftUI
 /// Root screen: the panel by day, the night clock by night, talking to Sara on top, "done" alerts over everything.
 struct ContentView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \Turn.date) private var allTurns: [Turn]
     @State private var sara = Sara()
     @State private var voice = Voice()
@@ -25,7 +26,7 @@ struct ContentView: View {
     @AppStorage("haURL") private var haURL = ""
     @AppStorage("nightStart") private var nightStart = 23
     @AppStorage("nightEnd") private var nightEnd = 10
-    @AppStorage("nightEnabled") private var nightEnabled = true
+    @AppStorage("nightEnabled") private var nightEnabled = PowerSaver.isWallPanel
     @AppStorage("speakerEntity") private var speakerEntity = ""
     @AppStorage("wakeEnabled") private var wakeEnabled = true
     @AppStorage("wakeWord") private var wakeWord = ""
@@ -35,25 +36,41 @@ struct ContentView: View {
         TimelineView(.everyMinute) { timeline in
             if isNight(timeline.date) && timeline.date > awakeUntil {
                 NightView(home: home, panel: panel, endHour: nightEnd)
-                    .onTapGesture { awakeUntil = .now + 120 }
+                    .onTapGesture { wakePanel() }
+                    .onAppear { PowerSaver.shared.night = true }
             } else {
                 PanelView(
                     home: home, panel: panel,
                     lastTurn: allTurns.last { $0.chatID == sara.chatID },
                     listening: wakeEnabled,
                     onTalk: { showTalk = true }, onSettings: { showSettings = true })
+                .onAppear { PowerSaver.shared.night = false }
+            }
+        }
+        // Any touch counts as someone being here.
+        .simultaneousGesture(TapGesture().onEnded { PowerSaver.shared.activity() })
+        // The first touch on a dimmed panel only wakes it, so a tile under the finger is not toggled in the dark.
+        .overlay {
+            if PowerSaver.shared.idle && !PowerSaver.shared.night {
+                Color.black.opacity(0.001).ignoresSafeArea().onTapGesture { PowerSaver.shared.activity() }
             }
         }
         .overlay { if let done { DoneAlertView(name: done) { self.done = nil } } }
         .fullScreenCover(isPresented: $showTalk) {
             TalkView(sara: sara, voice: voice, onAsk: { respond($0, spoken: $1) })
         }
-        .sheet(isPresented: $showSettings, onDismiss: { home.start(); applyWakeWord(); buildPanelIfEmpty() }) { SettingsView().presentationSizing(.page) }
+        .sheet(isPresented: $showSettings, onDismiss: { home.start(); applyWakeWord(); buildPanelIfEmpty() }) {
+            SettingsView().presentationSizing(.page)
+        }
         .preferredColorScheme(.dark)
+        .onChange(of: haURL) { home.start() }
         .onAppear {
-            UIApplication.shared.isIdleTimerDisabled = true // wall panel: keep the screen on
+            Keychain.moveLocalSecretsToICloud()
+            CloudSettings.start()
+            UIApplication.shared.isIdleTimerDisabled = PowerSaver.isWallPanel
             home.start()
             Alarms.shared.start()
+            PowerSaver.shared.start()
             sara.extractLeftovers(in: context)
             // A timer or alarm rang while Sara is on screen: say it and show the card.
             Alarms.shared.onFire = { label in
@@ -66,6 +83,10 @@ struct ContentView: View {
         }
         // The conversation ran out: back to the panel.
         .onChange(of: sara.timedOutAt) { showTalk = false }
+        .onChange(of: done) { if done != nil { wakePanel() } }
+        .onChange(of: scenePhase) {
+            if scenePhase == .active { PowerSaver.shared.activity() } else { PowerSaver.shared.restoreBrightness() }
+        }
         .onChange(of: running) { old, new in
             // A device that was running and stopped: show "done".
             if let finished = old.subtracting(new).first,
@@ -83,6 +104,7 @@ struct ContentView: View {
     /// `followUp`: heard without the wake word, so Sara may decide it was not for her.
     private func respond(_ text: String, spoken: Bool, followUp: Bool = false) {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        PowerSaver.shared.activity()
         var text = text, followUp = followUp
         let previous = inFlight
         if sara.busy {
@@ -109,7 +131,14 @@ struct ContentView: View {
             // Voice filters out its words and lets the user interrupt it while it reads, about 14 characters a second.
             say = { phrase in
                 voice.speakingExternally(phrase, for: Double(phrase.count) / 14 + 1)
-                Task { do { try await home.say(Voice.speakable(phrase), on: speaker) } catch { voice.say(phrase) } }
+                Task {
+                    do { try await home.say(Voice.speakable(phrase), on: speaker) } catch {
+                        #if DEBUG
+                        print("[speaker] \(speaker) failed:", error)
+                        #endif
+                        voice.say(phrase)
+                    }
+                }
             }
         }
         let task = Task { [followUp] in
@@ -137,17 +166,23 @@ struct ContentView: View {
         }
     }
 
+    private func wakePanel() {
+        awakeUntil = .now + 120
+        PowerSaver.shared.activity()
+    }
+
     /// First run: build the panel from Home Assistant areas, so a new user sees their home right away.
     private func buildPanelIfEmpty() {
         let yandexToken = Keychain.get("yandexToken")
-        guard panel.blocks.isEmpty, !haURL.isEmpty || !yandexToken.isEmpty else { return }
+        let url = haURL
+        guard panel.blocks.isEmpty, !url.isEmpty || !yandexToken.isEmpty else { return }
         Task {
             // Home Assistant first; a home with only Yandex gets its rooms from there.
-            var built = haURL.isEmpty ? nil : try? await Panel.build(from: HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken")))
+            var built = url.isEmpty ? nil : try? await Panel.build(from: HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken")))
             if built?.blocks.isEmpty ?? true, !yandexToken.isEmpty, let info = try? await YandexHome(token: yandexToken).info() {
                 built = Panel.build(fromYandex: info)
             }
-            guard let built, !built.blocks.isEmpty else { return }
+            guard let built, !built.blocks.isEmpty, url == haURL, panel.blocks.isEmpty else { return }
             built.save()
         }
     }
@@ -159,7 +194,7 @@ struct ContentView: View {
         let word = wakeWord.trimmingCharacters(in: .whitespaces)
         Task {
             await voice.listen(for: word.isEmpty ? String(localized: "Sara") : word,
-                               onWake: { showTalk = true },
+                               onWake: { wakePanel(); showTalk = true },
                                onCommand: { respond($0, spoken: true, followUp: $1) })
         }
     }

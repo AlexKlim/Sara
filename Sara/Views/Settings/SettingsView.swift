@@ -13,7 +13,7 @@ struct SettingsView: View {
     @AppStorage("wakeEnabled") private var wakeEnabled = true
     @AppStorage("wakeWord") private var wakeWord = ""
     @AppStorage("followUpSeconds") private var followUpSeconds = 20.0
-    @AppStorage("nightEnabled") private var nightEnabled = true
+    @AppStorage("nightEnabled") private var nightEnabled = PowerSaver.isWallPanel
     @AppStorage("nightStart") private var nightStart = 23
     @AppStorage("nightEnd") private var nightEnd = 10
     @State private var apiKey = Keychain.get("anthropicKey")
@@ -23,6 +23,8 @@ struct SettingsView: View {
     @State private var section: SettingsSection? = .assistant
     @State private var home = Home()
     @State private var connection: String?
+    @State private var sharing = false
+    @State private var scanning = false
     @Query(sort: \Fact.name) private var facts: [Fact]
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -51,6 +53,11 @@ struct SettingsView: View {
         .onChange(of: apiKey) { Keychain.set("anthropicKey", apiKey.trimmingCharacters(in: .whitespacesAndNewlines)) }
         .onChange(of: haToken) { Keychain.set("haToken", haToken.trimmingCharacters(in: .whitespacesAndNewlines)) }
         .onChange(of: yandexToken) { Keychain.set("yandexToken", yandexToken.trimmingCharacters(in: .whitespacesAndNewlines)) }
+        // Not a tap gesture: it would swallow the sidebar's row selection.
+        .onChange(of: section) { PowerSaver.shared.activity() }
+        .onChange(of: haURL) { CloudSettings.push("haURL") }
+        .onChange(of: model) { CloudSettings.push("model") }
+        .onChange(of: notes) { CloudSettings.push("houseNotes") }
     }
 
     @ViewBuilder private func page(_ section: SettingsSection) -> some View {
@@ -89,8 +96,21 @@ struct SettingsView: View {
             } footer: {
                 Text("Sara reads them before every conversation: what things are called, what not to touch.")
             }
+            Section {
+                Button("Share connection") { sharing = true }
+                    .sheet(isPresented: $sharing) { ShareConnectionView() }
+                Button("Scan connection") { scanning = true }
+                    .sheet(isPresented: $scanning) { ScanConnectionView { dismiss() } }
+            } footer: {
+                Text("Your devices with the same Apple ID get the keys and the address through iCloud by themselves. For someone with their own Apple ID: show the code here, and on their device tap Scan connection.")
+            }
             Section("Current conversation") {
                 Stepper("Continues for \(Int(window)) s after a reply", value: $window, in: 30...600, step: 30)
+            }
+            Section {
+                LabeledContent("Heat", value: String(localized: "\(PowerSaver.name(PowerSaver.shared.thermal)), highest since launch: \(PowerSaver.name(PowerSaver.shared.hottest))"))
+            } footer: {
+                Text("How hot this iPad gets. If it is often hot, always-on listening may be too much for it.")
             }
         }
         .autocorrectionDisabled()
@@ -169,14 +189,18 @@ struct SettingsView: View {
             }
             Section {
                 EntityRow(title: "Speaker", home: home, domains: ["media_player"],
+                          allows: { !Home.platformsWithoutSpeech.contains(home.platforms[$0] ?? "") },
                           selection: Binding(get: { speakerEntity.isEmpty ? nil : speakerEntity }, set: { speakerEntity = $0 ?? "" }))
             } footer: {
-                Text("Choose a Home Assistant speaker that reads text aloud, e.g. a Yandex Station in local mode. Without one, Sara speaks with this device.")
+                Text("A Yandex Station reads replies itself. Other speakers need a text-to-speech engine in Home Assistant and its local network address. If the speaker fails, Sara speaks with this device.")
             }
         }
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
-        .task { await home.refresh() }
+        .task {
+            await home.refresh()
+            await home.loadPlatforms()
+        }
     }
 
     private var night: some View {

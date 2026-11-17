@@ -14,6 +14,10 @@ import Foundation
     private var subscription: Task<Void, Never>?
     /// The WebSocket subscription is delivering states, so Home Assistant needs no polling.
     private var live = false
+    private var connectedURL = ""
+    private(set) var platforms: [String: String] = [:]
+    // Their Home Assistant integrations can't play speech: tts.speak to an Apple TV even drops its connection.
+    static let platformsWithoutSpeech: Set = ["apple_tv", "braviatv"]
 
     private var yandex: YandexHome? {
         let token = Keychain.get("yandexToken")
@@ -32,11 +36,17 @@ import Foundation
         subscription?.cancel()
         live = false
         let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
+        if url != connectedURL {
+            haStates = [:]
+            todoItems = [:]
+            platforms = [:]
+            connectedURL = url
+        }
         if !url.isEmpty {
             let socket = HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken"))
             subscription = Task { [weak self] in
                 while !Task.isCancelled {
-                    do { try await socket.subscribeEntities { self?.apply($0) } } catch {
+                    do { try await socket.subscribeEntities { if !Task.isCancelled { self?.apply($0) } } } catch {
                         #if DEBUG
                         print("[home] subscription dropped:", error)
                         #endif
@@ -82,7 +92,7 @@ import Foundation
 
     /// Home Assistant by REST unless the subscription is live, Yandex every third time (slower, rate limited).
     func refresh(yandexNow: Bool = false) async {
-        if !live, let fresh = try? await api?.states() { haStates = fresh }
+        if !live, let fresh = try? await api?.states(), !Task.isCancelled { haStates = fresh }
         if yandexNow || polls % 3 == 0, let info = try? await yandex?.info() { yandexStates = YandexHome.states(from: info) }
         polls += 1
         states = haStates.merging(yandexStates) { ha, _ in ha }
@@ -185,9 +195,32 @@ import Foundation
         await loadTodo(id)
     }
 
-    /// Reads text aloud on a Home Assistant speaker (e.g. a Yandex Station in local mode).
     func say(_ text: String, on speaker: String) async throws {
         guard let api else { throw SaraError("No Home Assistant address") }
-        try await api.call("media_player", "play_media", ["entity_id": speaker, "media_content_id": text, "media_content_type": "text"])
+        // A Yandex Station speaks text itself, in Alice's voice. Other players need a text-to-speech engine in HA.
+        if await platform(of: speaker) == "yandex_station" {
+            try await api.call("media_player", "play_media", ["entity_id": speaker, "media_content_id": text, "media_content_type": "text"])
+            return
+        }
+        guard let engine = states.keys.filter({ $0.hasPrefix("tts.") }).sorted().first else {
+            throw SaraError(String(localized: "Home Assistant has no text-to-speech engine"))
+        }
+        try await api.call("tts", "speak", ["entity_id": engine, "media_player_entity_id": speaker, "message": text,
+                                           "language": Locale.current.language.languageCode?.identifier ?? "en"])
+    }
+
+    private func platform(of entity: String) async -> String? {
+        if platforms[entity] == nil { await loadPlatforms() }
+        return platforms[entity]
+    }
+
+    func loadPlatforms() async {
+        let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
+        guard !url.isEmpty else { return }
+        let socket = HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken"))
+        let entities = (try? await socket.call(["config/entity_registry/list_for_display"]).first as? [String: Any])?["entities"] as? [[String: Any]] ?? []
+        for entity in entities {
+            if let id = entity["ei"] as? String, let platform = entity["pl"] as? String { platforms[id] = platform }
+        }
     }
 }

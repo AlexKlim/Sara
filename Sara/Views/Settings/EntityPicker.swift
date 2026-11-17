@@ -5,13 +5,14 @@ struct EntityPicker: View {
     let title: LocalizedStringKey
     let home: Home
     let domains: [String]
+    var allows: (String) -> Bool = { _ in true }
     @Binding var selection: String?
     @State private var search = ""
     @Environment(\.dismiss) private var dismiss
 
     private var entities: [String] {
         home.states.keys
-            .filter { id in domains.contains { id.hasPrefix($0 + ".") } }
+            .filter { id in domains.contains { id.hasPrefix($0 + ".") } && allows(id) }
             .filter { search.isEmpty || $0.localizedCaseInsensitiveContains(search) || name($0).localizedCaseInsensitiveContains(search) }
             .sorted()
     }

@@ -15,13 +15,9 @@ import SwiftData
     /// Adds a fact or replaces the one with the same name.
     func save(name: String, type: String, content: String) {
         guard !name.isEmpty, !content.isEmpty else { return }
-        if let fact = all().first(where: { $0.name == name }) {
-            fact.type = type
-            fact.content = content
-            fact.updated = .now
-        } else {
-            context.insert(Fact(name: name, type: type, content: content))
-        }
+        // Not an in-place update: iCloud sync can leave one fact with this name per device.
+        delete(name: name)
+        context.insert(Fact(name: name, type: type, content: content))
     }
 
     func delete(name: String) {
@@ -30,7 +26,8 @@ import SwiftData
 
     /// All facts as a block for the system prompt.
     func promptBlock() -> String {
-        let lines = all().map { "- \($0.name) (\($0.type)): \($0.content)" }
+        let newest = Dictionary(all().map { ($0.name, $0) }) { $0.updated > $1.updated ? $0 : $1 }
+        let lines = newest.values.sorted { $0.name < $1.name }.map { "- \($0.name) (\($0.type)): \($0.content)" }
         return "<memory>\n\(lines.isEmpty ? "(empty)" : lines.joined(separator: "\n"))\n</memory>"
     }
 
