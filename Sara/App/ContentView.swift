@@ -174,14 +174,15 @@ struct ContentView: View {
     /// First run: build the panel from Home Assistant areas, so a new user sees their home right away.
     private func buildPanelIfEmpty() {
         let yandexToken = Keychain.get("yandexToken")
-        guard panel.blocks.isEmpty, !haURL.isEmpty || !yandexToken.isEmpty else { return }
+        let url = haURL
+        guard panel.blocks.isEmpty, !url.isEmpty || !yandexToken.isEmpty else { return }
         Task {
             // Home Assistant first; a home with only Yandex gets its rooms from there.
-            var built = haURL.isEmpty ? nil : try? await Panel.build(from: HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken")))
+            var built = url.isEmpty ? nil : try? await Panel.build(from: HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken")))
             if built?.blocks.isEmpty ?? true, !yandexToken.isEmpty, let info = try? await YandexHome(token: yandexToken).info() {
                 built = Panel.build(fromYandex: info)
             }
-            guard let built, !built.blocks.isEmpty else { return }
+            guard let built, !built.blocks.isEmpty, url == haURL, panel.blocks.isEmpty else { return }
             built.save()
         }
     }

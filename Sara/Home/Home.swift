@@ -38,6 +38,7 @@ import Foundation
         let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
         if url != connectedURL {
             haStates = [:]
+            todoItems = [:]
             platforms = [:]
             connectedURL = url
         }
@@ -45,7 +46,7 @@ import Foundation
             let socket = HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken"))
             subscription = Task { [weak self] in
                 while !Task.isCancelled {
-                    do { try await socket.subscribeEntities { self?.apply($0) } } catch {
+                    do { try await socket.subscribeEntities { if !Task.isCancelled { self?.apply($0) } } } catch {
                         #if DEBUG
                         print("[home] subscription dropped:", error)
                         #endif
@@ -91,7 +92,7 @@ import Foundation
 
     /// Home Assistant by REST unless the subscription is live, Yandex every third time (slower, rate limited).
     func refresh(yandexNow: Bool = false) async {
-        if !live, let fresh = try? await api?.states() { haStates = fresh }
+        if !live, let fresh = try? await api?.states(), !Task.isCancelled { haStates = fresh }
         if yandexNow || polls % 3 == 0, let info = try? await yandex?.info() { yandexStates = YandexHome.states(from: info) }
         polls += 1
         states = haStates.merging(yandexStates) { ha, _ in ha }

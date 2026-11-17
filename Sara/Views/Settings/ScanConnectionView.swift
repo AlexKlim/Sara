@@ -5,18 +5,20 @@ import VisionKit
 struct ScanConnectionView: View {
     let onConnect: () -> Void
     @Environment(\.dismiss) private var dismiss
-    @State private var cameraAllowed: Bool?
+    @State private var canScan: Bool?
     @State private var link: SetupLink?
     @State private var notSaraCode = false
 
     var body: some View {
         NavigationStack {
             Group {
-                if cameraAllowed == true && DataScannerViewController.isSupported {
+                if canScan == true {
                     QRScanner { text in
                         guard link == nil else { return }
                         link = SetupLink(payload: text)
                         notSaraCode = link == nil
+                    } onFail: {
+                        canScan = false
                     }
                     .ignoresSafeArea()
                     .overlay(alignment: .bottom) {
@@ -25,7 +27,7 @@ struct ScanConnectionView: View {
                             .background(.ultraThinMaterial, in: Capsule())
                             .padding(32)
                     }
-                } else if cameraAllowed != nil {
+                } else if canScan != nil {
                     Text("This device can't scan QR codes, or Sara has no access to the camera.")
                         .multilineTextAlignment(.center)
                         .padding(24)
@@ -35,7 +37,7 @@ struct ScanConnectionView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { Button("Cancel") { dismiss() } }
         }
-        .task { cameraAllowed = await AVCaptureDevice.requestAccess(for: .video) }
+        .task { canScan = await AVCaptureDevice.requestAccess(for: .video) && DataScannerViewController.isAvailable }
         .alert("Connect to this home?", isPresented: Binding(get: { link != nil }, set: { if !$0 { link = nil } }), presenting: link) { link in
             Button("Connect") {
                 link.apply()
