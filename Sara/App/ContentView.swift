@@ -23,6 +23,10 @@ struct ContentView: View {
     @State private var inFlightFollowUp = false
     /// A phrase said while Sara was already acting or answering: handled right after her.
     @State private var queued: (text: String, followUp: Bool)?
+    @State private var pausedMusicOn: String?
+    @State private var pausingMusic = false
+    /// The chat that was told about a music pause, so it also hears when the pause is over.
+    @State private var musicNoteChat: UUID?
     @AppStorage("haURL") private var haURL = ""
     @AppStorage("nightStart") private var nightStart = 23
     @AppStorage("nightEnd") private var nightEnd = 10
@@ -149,7 +153,16 @@ struct ContentView: View {
         }
         let task = Task { [followUp] in
             _ = await previous?.value // a cancelled request cleans up first
-            return await sara.ask(text, in: context, speak: say, bySentence: speaker.isEmpty, withoutWakeWord: followUp)
+            // The pause may still be on its way to Home Assistant; the note has to match how it ends.
+            var waited = 0
+            while pausingMusic, pausedMusicOn == nil, waited < 20 {
+                try? await Task.sleep(for: .milliseconds(100))
+                waited += 1
+            }
+            let note = musicNote
+            let outcome = await sara.ask(text, in: context, speak: say, bySentence: speaker.isEmpty, withoutWakeWord: followUp, note: note)
+            if note != nil { musicNoteChat = pausedMusicOn == nil ? nil : sara.chatID }
+            return outcome
         }
         inFlight = task
         inFlightText = text
@@ -168,6 +181,44 @@ struct ContentView: View {
             case .ignored: voice.restoreFollowUp()
             case .ended: voice.endFollowUp(); showTalk = false
             case .interrupted: break
+            }
+        }
+    }
+
+    private var musicNote: String? {
+        if let player = pausedMusicOn {
+            return Sara.musicPausedNote.replacingOccurrences(of: "{player}", with: home.attribute(player, "friendly_name") as? String ?? player)
+        }
+        return musicNoteChat == sara.chatID ? Sara.musicResumedNote : nil
+    }
+
+    private func pauseMusic() {
+        let speaker = speakerEntity.trimmingCharacters(in: .whitespaces)
+        // While the speaker reads Sara's own reply it is "playing" too, and that is not music.
+        guard pausedMusicOn == nil, !pausingMusic, !speaker.isEmpty, home.state(speaker) == "playing", !voice.speaking else { return }
+        pausingMusic = true
+        let pausedAt = Date.now
+        Task {
+            defer { pausingMusic = false }
+            guard await home.pause(speaker) else { return }
+            pausedMusicOn = speaker
+            var quietSince = Date.now
+            while true {
+                try? await Task.sleep(for: .seconds(1))
+                if voice.listening || sara.busy || voice.speaking { quietSince = .now }
+                if Date.now.timeIntervalSince(quietSince) > 3 { break }
+            }
+            pausedMusicOn = nil
+            // "Sara, stop the music": she handled the player herself, so it stays as she left it.
+            let name = home.attribute(speaker, "friendly_name") as? String ?? speaker
+            let handled = latestTurns.filter { $0.date >= pausedAt }.flatMap(\.actions)
+                .filter { !$0.hasPrefix("web_search") }
+                .contains { $0.hasPrefix("HassMedia") || $0.contains(speaker) || $0.localizedCaseInsensitiveContains(name) }
+            await home.refresh()
+            guard !handled, home.state(speaker) == "paused" else { return }
+            for _ in 0..<3 {
+                if await home.resume(speaker) { return }
+                try? await Task.sleep(for: .seconds(2))
             }
         }
     }
@@ -200,7 +251,7 @@ struct ContentView: View {
         let word = wakeWord.trimmingCharacters(in: .whitespaces)
         Task {
             await voice.listen(for: word.isEmpty ? String(localized: "Sara") : word,
-                               onWake: { wakePanel(); showTalk = true },
+                               onWake: { wakePanel(); pauseMusic(); showTalk = true },
                                onCommand: { respond($0, spoken: true, followUp: $1) })
         }
     }

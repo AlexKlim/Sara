@@ -46,6 +46,9 @@ import SwiftData
     static let conversationTools = try! JSONSerialization.jsonObject(with: Data(resource("ConversationTools", "json").utf8)) as! [[String: Any]]
     /// "This device is in the room ...", added when the device's room is set.
     static let roomPrompt = resource("RoomPrompt", "md")
+    /// The app paused "{player}" while Sara listens; and the note for a later phrase once that pause is over.
+    static let musicPausedNote = resource("MusicPausedNote", "md")
+    static let musicResumedNote = resource("MusicResumedNote", "md")
     static let extractionPrompt = resource("ExtractionPrompt", "md")
     static let extractionSchema = try! JSONSerialization.jsonObject(with: Data(resource("ExtractionSchema", "json").utf8)) as! [String: Any]
 
@@ -60,9 +63,10 @@ import SwiftData
     /// Sends one phrase and saves the exchange in `context`. With `speak`, the reply is spoken as it streams in.
     /// Within the chat window the previous exchanges stay in Claude's context.
     /// `withoutWakeWord`: a follow-up that may be meant for someone else; Sara may ignore it.
+    /// `note`: what the app knows and Claude can't see, sent with the phrase.
     @discardableResult
     func ask(_ text: String, in context: ModelContext, speak: ((String) -> Void)? = nil, bySentence: Bool = true,
-             withoutWakeWord: Bool = false) async -> Outcome {
+             withoutWakeWord: Bool = false, note: String? = nil) async -> Outcome {
         let defaults = UserDefaults.standard
         let window = defaults.object(forKey: "window") as? Double ?? 150
         let memory = Memory(context: context)
@@ -114,7 +118,7 @@ import SwiftData
             // Send the current home state with the phrase, so Sara doesn't spend a Claude round trip on GetLiveContext.
             // The current local time: Claude doesn't know it, and timers, alarms and "tonight" need it.
             var content: [[String: Any]] = [
-                ["type": "text", "text": "<now>\(Date.now.formatted(date: .complete, time: .shortened))</now>"],
+                ["type": "text", "text": "<now>\(Date.now.formatted(date: .complete, time: .shortened))</now>" + (note.map { "\n\($0)" } ?? "")],
                 ["type": "text", "text": text],
             ]
             let lists = Lists(context: context)
