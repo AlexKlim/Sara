@@ -151,9 +151,15 @@ struct ContentView: View {
                 }
             }
         }
-        let note = musicNote
         let task = Task { [followUp] in
             _ = await previous?.value // a cancelled request cleans up first
+            // The pause may still be on its way to Home Assistant; the note has to match how it ends.
+            var waited = 0
+            while pausingMusic, pausedMusicOn == nil, waited < 20 {
+                try? await Task.sleep(for: .milliseconds(100))
+                waited += 1
+            }
+            let note = musicNote
             let outcome = await sara.ask(text, in: context, speak: say, bySentence: speaker.isEmpty, withoutWakeWord: followUp, note: note)
             if note != nil { musicNoteChat = pausedMusicOn == nil ? nil : sara.chatID }
             return outcome
@@ -206,7 +212,8 @@ struct ContentView: View {
             // "Sara, stop the music": she handled the player herself, so it stays as she left it.
             let name = home.attribute(speaker, "friendly_name") as? String ?? speaker
             let handled = latestTurns.filter { $0.date >= pausedAt }.flatMap(\.actions)
-                .contains { $0.localizedCaseInsensitiveContains("media") || $0.localizedCaseInsensitiveContains(name) }
+                .filter { !$0.hasPrefix("web_search") }
+                .contains { $0.hasPrefix("HassMedia") || $0.contains(speaker) || $0.localizedCaseInsensitiveContains(name) }
             await home.refresh()
             guard !handled, home.state(speaker) == "paused" else { return }
             for _ in 0..<3 {
