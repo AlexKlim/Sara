@@ -24,6 +24,9 @@ struct ContentView: View {
     /// A phrase said while Sara was already acting or answering: handled right after her.
     @State private var queued: (text: String, followUp: Bool)?
     @State private var pausedMusicOn: String?
+    @State private var pausingMusic = false
+    /// The chat that was told about a music pause, so it also hears when the pause is over.
+    @State private var musicNoteChat: UUID?
     @AppStorage("haURL") private var haURL = ""
     @AppStorage("nightStart") private var nightStart = 23
     @AppStorage("nightEnd") private var nightEnd = 10
@@ -148,9 +151,12 @@ struct ContentView: View {
                 }
             }
         }
+        let note = musicNote
         let task = Task { [followUp] in
             _ = await previous?.value // a cancelled request cleans up first
-            return await sara.ask(text, in: context, speak: say, bySentence: speaker.isEmpty, withoutWakeWord: followUp, note: musicNote)
+            let outcome = await sara.ask(text, in: context, speak: say, bySentence: speaker.isEmpty, withoutWakeWord: followUp, note: note)
+            if note != nil { musicNoteChat = pausedMusicOn == nil ? nil : sara.chatID }
+            return outcome
         }
         inFlight = task
         inFlightText = text
@@ -174,33 +180,39 @@ struct ContentView: View {
     }
 
     private var musicNote: String? {
-        pausedMusicOn.map { player in
-            "<music>\(home.attribute(player, "friendly_name") as? String ?? player) was playing music. The app paused it only while you listen "
-                + "and plays it again after your reply. If the user wants the music stopped or turned off, pause or stop that player.</music>"
+        if let player = pausedMusicOn {
+            return Sara.musicPausedNote.replacingOccurrences(of: "{player}", with: home.attribute(player, "friendly_name") as? String ?? player)
         }
+        return musicNoteChat == sara.chatID ? Sara.musicResumedNote : nil
     }
 
     private func pauseMusic() {
         let speaker = speakerEntity.trimmingCharacters(in: .whitespaces)
         // While the speaker reads Sara's own reply it is "playing" too, and that is not music.
-        guard pausedMusicOn == nil, !speaker.isEmpty, home.state(speaker) == "playing", !voice.speaking else { return }
-        pausedMusicOn = speaker
+        guard pausedMusicOn == nil, !pausingMusic, !speaker.isEmpty, home.state(speaker) == "playing", !voice.speaking else { return }
+        pausingMusic = true
         let pausedAt = Date.now
-        Task { await home.pause(speaker) }
         Task {
+            defer { pausingMusic = false }
+            guard await home.pause(speaker) else { return }
+            pausedMusicOn = speaker
             var quietSince = Date.now
             while true {
                 try? await Task.sleep(for: .seconds(1))
                 if voice.listening || sara.busy || voice.speaking { quietSince = .now }
                 if Date.now.timeIntervalSince(quietSince) > 3 { break }
             }
-            guard let player = pausedMusicOn else { return }
             pausedMusicOn = nil
             // "Sara, stop the music": she handled the player herself, so it stays as she left it.
-            let name = home.attribute(player, "friendly_name") as? String ?? player
+            let name = home.attribute(speaker, "friendly_name") as? String ?? speaker
             let handled = latestTurns.filter { $0.date >= pausedAt }.flatMap(\.actions)
                 .contains { $0.localizedCaseInsensitiveContains("media") || $0.localizedCaseInsensitiveContains(name) }
-            if !handled, home.state(player) == "paused" { await home.resume(player) }
+            await home.refresh()
+            guard !handled, home.state(speaker) == "paused" else { return }
+            for _ in 0..<3 {
+                if await home.resume(speaker) { return }
+                try? await Task.sleep(for: .seconds(2))
+            }
         }
     }
 

@@ -46,6 +46,9 @@ import SwiftData
     static let conversationTools = try! JSONSerialization.jsonObject(with: Data(resource("ConversationTools", "json").utf8)) as! [[String: Any]]
     /// "This device is in the room ...", added when the device's room is set.
     static let roomPrompt = resource("RoomPrompt", "md")
+    /// The app paused "{player}" while Sara listens; and the note for a later phrase once that pause is over.
+    static let musicPausedNote = resource("MusicPausedNote", "md")
+    static let musicResumedNote = resource("MusicResumedNote", "md")
     static let extractionPrompt = resource("ExtractionPrompt", "md")
     static let extractionSchema = try! JSONSerialization.jsonObject(with: Data(resource("ExtractionSchema", "json").utf8)) as! [String: Any]
 
