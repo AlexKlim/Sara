@@ -14,6 +14,16 @@ enum Theme {
     static let teal = Color(hex: 0x6ED3CB)
     static let tealBackground = Color(hex: 0x12201F)
     static let blue = Color(hex: 0x8DB9FF)
+    static let tealFill = Color(hex: 0x12302D)
+    static let blueFill = Color(hex: 0x172230)
+    static let soft = Color(hex: 0xC9CED6)
+    static let deepBackground = Color(hex: 0x07080A)
+    static let sheet = Color(hex: 0x12151A)
+    static let highlight = Color(hex: 0x1D2128)
+    static let track = Color(hex: 0x262B33)
+    static let ring = Color(hex: 0x2E333B)
+    static let tealBorder = Color(hex: 0x24413E)
+    static let snow = Color(hex: 0xDCE6F5)
     /// Accents for running devices, in turn.
     static let accents = [amber, blue, teal]
 }
@@ -25,14 +35,23 @@ extension Color {
 }
 
 extension View {
-    func card(padding: CGFloat = 22) -> some View {
+    func card(padding: CGFloat = 22, cornerRadius: CGFloat = 20) -> some View {
         self.padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.card, in: .rect(cornerRadius: 20))
-            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Theme.border))
+            .background(Theme.card, in: .rect(cornerRadius: cornerRadius))
+            .overlay(RoundedRectangle(cornerRadius: cornerRadius).stroke(Theme.border))
     }
 
-    func blockTitle() -> some View {
-        self.font(.system(size: 15, weight: .semibold)).tracking(1.5).textCase(.uppercase).foregroundStyle(Theme.secondary)
+    func blockTitle(_ color: Color = Theme.secondary) -> some View {
+        self.font(.system(size: 15, weight: .semibold)).tracking(1.5).textCase(.uppercase).foregroundStyle(color)
+    }
+
+    func pill() -> some View {
+        self.font(.system(size: 17, weight: .medium))
+            .foregroundStyle(Theme.text)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
+            .background(Theme.card, in: .capsule)
+            .overlay(Capsule().stroke(Theme.border))
     }
 }

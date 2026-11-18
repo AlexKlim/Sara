@@ -3,11 +3,12 @@ import SwiftUI
 /// Top of the panel: clock, date, weather, the talk button and settings.
 struct HeaderView: View {
     let home: Home
-    let weather: String?
     /// Wake word listening is on.
     let listening: Bool
     let onTalk: () -> Void
     let onSettings: () -> Void
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @State private var showWeather = false
 
     var body: some View {
         HStack(spacing: 24) {
@@ -16,21 +17,31 @@ struct HeaderView: View {
                     Text(context.date, format: .dateTime.hour().minute())
                         .font(.system(size: 84, weight: .semibold)).tracking(-3).monospacedDigit()
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(NightView.capitalizedFirst(context.date.formatted(.dateTime.weekday(.wide)))).font(.system(size: 22, weight: .medium))
+                        Text(context.date.formatted(.dateTime.weekday(.wide)).capitalizedFirst).font(.system(size: 22, weight: .medium))
                         Text(context.date, format: .dateTime.day().month(.wide)).font(.system(size: 18)).foregroundStyle(Theme.secondary)
                     }
                 }
             }
             Spacer()
-            if let weather, let condition = home.state(weather) {
-                HStack(spacing: 12) {
-                    Image(systemName: Self.symbol(condition)).font(.system(size: 30)).foregroundStyle(Theme.secondary)
-                    VStack(alignment: .leading) {
-                        if let temperature = home.attribute(weather, "temperature") as? Double {
-                            Text(verbatim: "\(Int(temperature.rounded()))°").font(.system(size: 28, weight: .semibold))
+            if let forecast = Weather.shared.forecast {
+                Button { showWeather = true } label: {
+                    HStack(spacing: 12) {
+                        WeatherIcon(condition: forecast.condition, size: 30, color: Theme.secondary)
+                        VStack(alignment: .leading) {
+                            Text(verbatim: forecast.current.temperature.rounded().degrees).font(.system(size: 28, weight: .semibold))
+                            Text(LocalizedStringKey("weather." + forecast.condition)).font(.system(size: 16)).foregroundStyle(Theme.secondary)
                         }
-                        Text(LocalizedStringKey("weather." + condition)) // a ready key: interpolation would make it "weather.%@".font(.system(size: 16)).foregroundStyle(Theme.secondary)
+                        Image(systemName: "chevron.down").font(.system(size: 14, weight: .semibold)).foregroundStyle(Theme.muted)
                     }
+                    .padding(.vertical, 8).padding(.horizontal, 12)
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("Opens the forecast")
+                .sheet(isPresented: $showWeather) {
+                    WeatherView(forecast: forecast, updated: Weather.shared.updated, wide: sizeClass == .regular)
+                        .presentationSizing(.fitted)
+                        .presentationCornerRadius(28)
                 }
             }
             Button(action: onTalk) {
@@ -41,22 +52,12 @@ struct HeaderView: View {
                 .font(.system(size: 18, weight: .medium))
                 .padding(.horizontal, 22).padding(.vertical, 14)
                 .background(Theme.tealBackground, in: .capsule)
-                .overlay(Capsule().stroke(Color(hex: 0x24413E)))
+                .overlay(Capsule().stroke(Theme.tealBorder))
             }
             .buttonStyle(.plain)
             Button("Settings", systemImage: "gearshape", action: onSettings)
                 .labelStyle(.iconOnly).font(.title2).foregroundStyle(Theme.secondary)
         }
         .foregroundStyle(Theme.text)
-    }
-
-    /// SF Symbol for a Home Assistant weather condition.
-    private static func symbol(_ condition: String) -> String {
-        [
-            "clear-night": "moon.stars", "cloudy": "cloud", "fog": "cloud.fog", "hail": "cloud.hail",
-            "lightning": "cloud.bolt", "lightning-rainy": "cloud.bolt.rain", "partlycloudy": "cloud.sun",
-            "pouring": "cloud.heavyrain", "rainy": "cloud.rain", "snowy": "cloud.snow", "snowy-rainy": "cloud.sleet",
-            "sunny": "sun.max", "windy": "wind", "windy-variant": "wind", "exceptional": "exclamationmark.triangle",
-        ][condition] ?? "cloud"
     }
 }

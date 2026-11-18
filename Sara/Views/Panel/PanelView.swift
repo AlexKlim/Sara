@@ -15,7 +15,7 @@ struct PanelView: View {
     var body: some View {
         let wide = sizeClass == .regular
         VStack(spacing: 28) {
-            HeaderView(home: home, weather: panel.weather, listening: listening, onTalk: onTalk, onSettings: onSettings)
+            HeaderView(home: home, listening: listening, onTalk: onTalk, onSettings: onSettings)
             if panel.blocks.isEmpty {
                 Spacer()
                 Text("Set up the panel in Settings").foregroundStyle(Theme.secondary)

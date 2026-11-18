@@ -16,10 +16,8 @@ enum PanelBuildCheck {
                 ["ei": "switch.child_lock", "ai": "zal", "ec": 0],
                 ["ei": "climate.floor", "di": "d1"],
                 ["ei": "light.nowhere", "di": "d2"],
-                ["ei": "weather.home"],
             ["ei": "todo.shopping"],
             ])
-        assert(panel.weather == "weather.home")
         assert(panel.blocks.map(\.title) == ["Living room", "Thermostats", ""], "\(panel.blocks.map(\.title))")
         assert(panel.blocks[2].kind == .list && panel.blocks[2].items.first?.entity == "todo.shopping")
         assert(panel.blocks[0].items.map(\.entity) == ["light.main", "switch.sync"])

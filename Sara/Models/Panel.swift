@@ -1,8 +1,7 @@
 import Foundation
 
-/// What the main screen shows: the weather entity and a list of blocks. Stored as JSON in the app settings.
+/// What the main screen shows: a list of blocks. Stored as JSON in the app settings.
 struct Panel: Codable, Equatable {
-    var weather: String?
     var blocks: [PanelBlock] = []
 
     static func load() -> Panel {
@@ -42,7 +41,7 @@ struct Panel: Codable, Equatable {
     }
 
     /// A first layout from Home Assistant: a room block per area with its lights, switches and fans,
-    /// thermostats on the right, and the weather. The user edits it from there.
+    /// thermostats and to-do lists on the right. The user edits it from there.
     static func build(from socket: HomeAssistantSocket) async throws -> Panel {
         let results = try await socket.call([
             "config/area_registry/list", "config/device_registry/list", "config/entity_registry/list_for_display",
@@ -83,10 +82,8 @@ struct Panel: Codable, Equatable {
     static func build(areas: [[String: Any]], devices: [[String: Any]], entities: [[String: Any]]) -> Panel {
         let deviceArea = Dictionary(devices.compactMap { d in (d["id"] as? String).map { ($0, d["area_id"] as? String) } }) { a, _ in a }
         var byArea: [String: [String]] = [:]
-        var weather: String?
         for entity in entities {
             guard let id = entity["ei"] as? String, entity["hb"] as? Bool != true, entity["ec"] == nil else { continue }
-            if weather == nil, id.hasPrefix("weather.") { weather = id }
             let area = entity["ai"] as? String ?? (entity["di"] as? String).flatMap { deviceArea[$0] ?? nil }
             if let area { byArea[area, default: []].append(id) }
         }
@@ -110,6 +107,6 @@ struct Panel: Codable, Equatable {
             blocks.append(PanelBlock(kind: .climate, title: String(localized: "Thermostats"), column: 1, items: thermostats))
         }
         blocks += lists.map { PanelBlock(kind: .list, title: "", column: 1, items: [PanelItem(entity: $0)]) }
-        return Panel(weather: weather, blocks: blocks)
+        return Panel(blocks: blocks)
     }
 }

@@ -14,6 +14,8 @@ import Foundation
     private var subscription: Task<Void, Never>?
     /// The WebSocket subscription is delivering states, so Home Assistant needs no polling.
     private var live = false
+    /// Counts subscription events, so a slower REST answer can't undo a newer one.
+    private var events = 0
     private var connectedURL = ""
     private(set) var platforms: [String: String] = [:]
     // Their Home Assistant integrations can't play speech: tts.speak to an Apple TV even drops its connection.
@@ -24,10 +26,7 @@ import Foundation
         return token.isEmpty ? nil : YandexHome(token: token)
     }
 
-    private var api: HomeAssistant? {
-        let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
-        return url.isEmpty ? nil : HomeAssistant(baseURL: url, token: Keychain.get("haToken"))
-    }
+    private var api: HomeAssistant? { .saved }
 
     /// Subscribes to Home Assistant states (reconnecting after 5 s when the connection drops) and polls the rest
     /// every few seconds: Yandex, and Home Assistant itself while the subscription is down.
@@ -66,6 +65,7 @@ import Foundation
 
     /// One event of the subscription: entities added, changed or removed.
     private func apply(_ event: [String: Any]) {
+        events += 1
         if !live {
             live = true
             #if DEBUG
@@ -92,7 +92,8 @@ import Foundation
 
     /// Home Assistant by REST unless the subscription is live, Yandex every third time (slower, rate limited).
     func refresh(yandexNow: Bool = false) async {
-        if !live, let fresh = try? await api?.states(), !Task.isCancelled { haStates = fresh }
+        let seen = events
+        if !live, let fresh = try? await api?.states(), !Task.isCancelled, events == seen { haStates = fresh }
         if yandexNow || polls % 3 == 0, let info = try? await yandex?.info() { yandexStates = YandexHome.states(from: info) }
         polls += 1
         states = haStates.merging(yandexStates) { ha, _ in ha }
@@ -136,6 +137,24 @@ import Foundation
         return false
     }
 
+    /// A thermostat without hvac_action heats while it is colder than the target.
+    func isHeating(_ id: String, target: Double?) -> Bool {
+        if let action = attribute(id, "hvac_action") as? String { return action == "heating" }
+        guard ["heat", "heat_cool", "auto"].contains(state(id)), let target,
+              let current = attribute(id, "current_temperature") as? Double else { return false }
+        return current < target
+    }
+
+    /// A thermostat's target one step up or down, within its limits.
+    func stepped(_ id: String, _ target: Double, up: Bool) -> Double {
+        let reported = attribute(id, "target_temp_step") as? Double ?? 0.5
+        let step = reported.isFinite && reported > 0 ? reported : 0.5
+        let low = attribute(id, "min_temp") as? Double ?? 5
+        let high = attribute(id, "max_temp") as? Double ?? 35
+        let next = ((target + (up ? step : -step)) / step).rounded() * step
+        return min(high, max(low, next))
+    }
+
     /// Slider position 0-100.
     func value(_ item: PanelItem) -> Double? {
         if item.entity.hasPrefix("media_player.") { return (attribute(item.entity, "volume_level") as? Double).map { $0 * 100 } }
@@ -177,6 +196,12 @@ import Foundation
                 "actions": [["capability": "range", "instance": "brightness", "value": Int(value.rounded())]],
             ])
         }
+        await refresh()
+    }
+
+    func setTemperature(_ entity: String, _ value: Double) async throws {
+        guard let api else { throw SaraError("Home Assistant is not set up") }
+        try await api.call("climate", "set_temperature", ["entity_id": entity, "temperature": value])
         await refresh()
     }
 

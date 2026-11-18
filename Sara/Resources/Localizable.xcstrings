@@ -1,6 +1,36 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Couldn't change the temperature" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось изменить температуру"
+          }
+        }
+      }
+    },
+    "“%@…”" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@…»"
+          }
+        }
+      }
+    },
+    "“%@”" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@»"
+          }
+        }
+      }
+    },
     "%@ is done" : {
       "localizations" : {
         "ru" : {
@@ -31,6 +61,28 @@
         }
       }
     },
+    "%@ today" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ сегодня"
+          }
+        }
+      }
+    },
+    "%@, gusts up to %lld" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, порывы до %lld"
+          }
+        }
+      }
+    },
     "%@, highest since launch: %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -38,6 +90,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@, максимум с запуска: %@"
+          }
+        }
+      }
+    },
+    "10-day forecast" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогноз на 10 дней"
           }
         }
       }
@@ -183,6 +245,28 @@
         }
       }
     },
+    "City" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Город"
+          }
+        }
+      }
+    },
+    "Clear" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить"
+          }
+        }
+      }
+    },
     "Close" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -302,6 +386,39 @@
         }
       }
     },
+    "Couldn't find this address." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось найти этот адрес."
+          }
+        }
+      }
+    },
+    "Couldn't get the location." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось определить местоположение."
+          }
+        }
+      }
+    },
+    "Country" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Страна"
+          }
+        }
+      }
+    },
     "critical" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -357,6 +474,17 @@
         }
       }
     },
+    "Dew point %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Точка росы %@"
+          }
+        }
+      }
+    },
     "Done" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -400,6 +528,38 @@
         }
       }
     },
+    "Extreme" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Экстремальный"
+          }
+        }
+      }
+    },
+    "Falling" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Падает"
+          }
+        }
+      }
+    },
+    "Feels like %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ощущается как %@"
+          }
+        }
+      }
+    },
     "Finish time" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -431,6 +591,27 @@
         }
       }
     },
+    "For the weather. When it's empty, Sara takes the home zone of Home Assistant." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для погоды. Если не задано, Сара берёт домашнюю зону Home Assistant."
+          }
+        }
+      }
+    },
+    "From Home Assistant" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Из Home Assistant"
+          }
+        }
+      }
+    },
     "Get a token" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -449,6 +630,27 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нагрев"
+          }
+        }
+      }
+    },
+    "High" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Высокий"
+          }
+        }
+      }
+    },
+    "High %@ · low %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Макс %@ · мин %@"
           }
         }
       }
@@ -485,6 +687,17 @@
         }
       }
     },
+    "Home location" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расположение дома"
+          }
+        }
+      }
+    },
     "hot" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -492,6 +705,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "горячо"
+          }
+        }
+      }
+    },
+    "House" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дом"
           }
         }
       }
@@ -512,6 +736,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Насколько греется этот iPad. Если часто горячо, постоянная прослушка для него может быть тяжеловата."
+          }
+        }
+      }
+    },
+    "Humidity" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Влажность"
           }
         }
       }
@@ -613,6 +848,28 @@
         }
       }
     },
+    "Low" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Низкий"
+          }
+        }
+      }
+    },
+    "Lower temperature: %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Понизить температуру: %@"
+          }
+        }
+      }
+    },
     "Memory" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -631,6 +888,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Модель"
+          }
+        }
+      }
+    },
+    "Moderate" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Умеренный"
           }
         }
       }
@@ -730,6 +998,60 @@
         }
       }
     },
+    "Now" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас"
+          }
+        }
+      }
+    },
+    "Now %@, cooling" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас %@, остывает"
+          }
+        }
+      }
+    },
+    "Now %@, heating" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас %@, греет"
+          }
+        }
+      }
+    },
+    "Now %@, holding" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас %@, держит"
+          }
+        }
+      }
+    },
+    "Now %@, off" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас %@, выключен"
+          }
+        }
+      }
+    },
     "Off" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -783,6 +1105,17 @@
         }
       }
     },
+    "Opens the forecast" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открывает прогноз"
+          }
+        }
+      }
+    },
     "Panel" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -805,6 +1138,28 @@
         }
       }
     },
+    "Precipitation" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Осадки"
+          }
+        }
+      }
+    },
+    "Pressure" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Давление"
+          }
+        }
+      }
+    },
     "Progress" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -812,6 +1167,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Прогресс"
+          }
+        }
+      }
+    },
+    "Rain today from %@ to %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня дождь с %@ до %@"
+          }
+        }
+      }
+    },
+    "Rain tomorrow from %@ to %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завтра дождь с %@ до %@"
+          }
+        }
+      }
+    },
+    "Raise temperature: %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повысить температуру: %@"
           }
         }
       }
@@ -889,6 +1277,17 @@
         }
       }
     },
+    "Rising" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Растёт"
+          }
+        }
+      }
+    },
     "Room" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -932,6 +1331,28 @@
         }
       }
     },
+    "Sara has no access to the location. Allow it in the Settings app, or type the address." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У Сары нет доступа к местоположению. Разреши его в приложении «Настройки» или введи адрес."
+          }
+        }
+      }
+    },
+    "Sara is answering" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сара отвечает"
+          }
+        }
+      }
+    },
     "Sara is listening" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -943,12 +1364,45 @@
         }
       }
     },
+    "Sara is thinking" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сара думает"
+          }
+        }
+      }
+    },
     "Sara reads them before every conversation: what things are called, what not to touch." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сара читает их перед каждым разговором: как что называется, что не трогать."
+          }
+        }
+      }
+    },
+    "Sara turns the address into coordinates with Apple Maps. The weather service gets only the coordinates." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сара превращает адрес в координаты через Карты Apple. Сервис погоды получает только координаты."
+          }
+        }
+      }
+    },
+    "Save" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить"
           }
         }
       }
@@ -1083,6 +1537,28 @@
         }
       }
     },
+    "Snow today from %@ to %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня снег с %@ до %@"
+          }
+        }
+      }
+    },
+    "Snow tomorrow from %@ to %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завтра снег с %@ до %@"
+          }
+        }
+      }
+    },
     "Speak" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1116,6 +1592,17 @@
         }
       }
     },
+    "Steady" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стабильное"
+          }
+        }
+      }
+    },
     "Stop" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1138,6 +1625,39 @@
         }
       }
     },
+    "Street" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Улица"
+          }
+        }
+      }
+    },
+    "Sun" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Солнце"
+          }
+        }
+      }
+    },
+    "Sunset at %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закат в %@"
+          }
+        }
+      }
+    },
     "Talk to Sara" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1145,16 +1665,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Поговорить с Сарой"
-          }
-        }
-      }
-    },
-    "target %@" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "цель %@"
           }
         }
       }
@@ -1296,6 +1806,16 @@
         }
       }
     },
+    "Today" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня"
+          }
+        }
+      }
+    },
     "Too many steps, try something simpler" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1313,6 +1833,49 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не помещается в QR-код. Сократи заметки о доме."
+          }
+        }
+      }
+    },
+    "Updated at %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновлено в %@"
+          }
+        }
+      }
+    },
+    "Use this device's location" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Взять местоположение устройства"
+          }
+        }
+      }
+    },
+    "UV index" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "УФ-индекс"
+          }
+        }
+      }
+    },
+    "Very high" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очень высокий"
           }
         }
       }
@@ -1350,7 +1913,6 @@
       }
     },
     "Weather" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1441,23 +2003,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Град"
-          }
-        }
-      }
-    },
-    "weather.lightning" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thunderstorm"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Гроза"
           }
         }
       }
@@ -1581,40 +2126,6 @@
         }
       }
     },
-    "weather.windy" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Windy"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ветрено"
-          }
-        }
-      }
-    },
-    "weather.windy-variant" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Windy, cloudy"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ветрено, облачно"
-          }
-        }
-      }
-    },
     "What Sara remembers about the home and you. Swipe left to delete." : {
       "localizations" : {
         "ru" : {
@@ -1631,6 +2142,153 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Если комната не названа, Сара считает, что это она. Выбери на каждой панели свою."
+          }
+        }
+      }
+    },
+    "Wind" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ветер"
+          }
+        }
+      }
+    },
+    "wind.E" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В"
+          }
+        }
+      }
+    },
+    "wind.N" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "N"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "С"
+          }
+        }
+      }
+    },
+    "wind.NE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NE"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "СВ"
+          }
+        }
+      }
+    },
+    "wind.NW" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NW"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "СЗ"
+          }
+        }
+      }
+    },
+    "wind.S" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "S"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ю"
+          }
+        }
+      }
+    },
+    "wind.SE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SE"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ЮВ"
+          }
+        }
+      }
+    },
+    "wind.SW" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SW"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ЮЗ"
+          }
+        }
+      }
+    },
+    "wind.W" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "З"
           }
         }
       }
@@ -1664,6 +2322,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Токен Яндекса"
+          }
+        }
+      }
+    },
+    "You" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ты"
           }
         }
       }

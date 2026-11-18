@@ -11,7 +11,7 @@ struct ContentView: View {
     @State private var home = Home()
     /// The panel follows its saved JSON, so lists Sara adds and editor changes show up right away.
     @AppStorage("panel") private var panelData: Data?
-    private var panel: Panel { Panel.decoded(panelData) }
+    @State private var panel = Panel.load()
     @State private var showTalk = false
     @State private var showSettings = false
     /// A tap at night wakes the panel for a while.
@@ -63,7 +63,11 @@ struct ContentView: View {
             SettingsView().presentationSizing(.page)
         }
         .preferredColorScheme(.dark)
-        .onChange(of: haURL) { home.start() }
+        .onChange(of: haURL) {
+            home.start()
+            if PowerSaver.isWallPanel { BatteryReporter.report() }
+        }
+        .onChange(of: panelData) { panel = Panel.decoded(panelData) }
         .onAppear {
             Keychain.moveLocalSecretsToICloud()
             CloudSettings.start()
@@ -71,6 +75,8 @@ struct ContentView: View {
             home.start()
             Alarms.shared.start()
             PowerSaver.shared.start()
+            if PowerSaver.isWallPanel { BatteryReporter.start() }
+            Weather.shared.start(home: home)
             sara.extractLeftovers(in: context)
             // A timer or alarm rang while Sara is on screen: say it and show the card.
             Alarms.shared.onFire = { label in

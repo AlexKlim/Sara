@@ -120,6 +120,7 @@ import SwiftData
             let lists = Lists(context: context)
             let listSummary = lists.summary()
             if !listSummary.isEmpty { content.insert(["type": "text", "text": listSummary], at: 0) }
+            if let forecast = Weather.shared.forecast { content.insert(["type": "text", "text": forecast.summary()], at: 0) }
             if let yandex {
                 let t = clock.now
                 if let state = try? await yandex.stateText() {

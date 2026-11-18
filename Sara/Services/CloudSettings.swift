@@ -1,7 +1,7 @@
 import Foundation
 
 enum CloudSettings {
-    static let homeWideKeys = ["haURL", "model", "houseNotes"]
+    static let homeWideKeys = ["haURL", "model", "houseNotes", "homeLocation"]
     private static var store: NSUbiquitousKeyValueStore { .default }
 
     static func start() {
