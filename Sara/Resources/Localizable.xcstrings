@@ -67,7 +67,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ за сутки"
+            "value" : "%@ сегодня"
           }
         }
       }
@@ -2158,7 +2158,7 @@
       }
     },
     "wind.E" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2175,7 +2175,7 @@
       }
     },
     "wind.N" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2192,7 +2192,7 @@
       }
     },
     "wind.NE" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2209,7 +2209,7 @@
       }
     },
     "wind.NW" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2226,7 +2226,7 @@
       }
     },
     "wind.S" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2243,7 +2243,7 @@
       }
     },
     "wind.SE" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2260,7 +2260,7 @@
       }
     },
     "wind.SW" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2277,7 +2277,7 @@
       }
     },
     "wind.W" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {

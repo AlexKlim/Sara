@@ -24,7 +24,7 @@ struct WeatherView: View {
             }
         }
         .padding(wide ? 32 : 20)
-        .frame(width: wide ? 1060 : nil)
+        .frame(idealWidth: wide ? 1060 : nil, maxWidth: wide ? 1060 : nil)
         .foregroundStyle(Theme.text)
         .background(Theme.sheet)
     }
@@ -116,7 +116,6 @@ struct WeatherView: View {
         let current = forecast.current
         let daily = forecast.daily
         let change = forecast.pressureChange()
-        let uv = current.uvIndex ?? 0
         let gusts = Int(current.windGusts.rounded())
         var rows: [Detail] = [
             ("Wind", Self.measure(current.windSpeed, UnitSpeed.kilometersPerHour),
@@ -126,7 +125,7 @@ struct WeatherView: View {
              change > 1 ? String(localized: "Rising") : change < -1 ? String(localized: "Falling") : String(localized: "Steady")),
             ("Precipitation", "\(daily.rainChance.first.flatMap { $0 } ?? 0)%",
              String(localized: "\(Self.measure(daily.rainSum.first.flatMap { $0 } ?? 0, UnitLength.millimeters)) today")),
-            ("UV index", "\(Int(uv.rounded()))", Self.uvLevel(uv)),
+            ("UV index", current.uvIndex.map { "\(Int($0.rounded()))" } ?? "-", current.uvIndex.map(Self.uvLevel) ?? ""),
         ]
         if let sunrise = daily.sunrise.first, let sunset = daily.sunset.first {
             rows.append(("Sun", sunrise.formatted(date: .omitted, time: .shortened),
@@ -146,7 +145,7 @@ struct WeatherView: View {
             VStack(spacing: 4) {
                 ForEach(daily.time.indices, id: \.self) { index in
                     let chance = daily.rainChance[index] ?? 0
-                    HStack(spacing: 16) {
+                    HStack(spacing: wide ? 16 : 8) {
                         VStack(alignment: .leading, spacing: 2) {
                             Group {
                                 if index == 0 { Text("Today") } else { Text(verbatim: daily.time[index].formatted(.dateTime.weekday(.abbreviated)).capitalizedFirst) }
@@ -154,10 +153,10 @@ struct WeatherView: View {
                             .font(.system(size: 18, weight: index == 0 ? .semibold : .medium))
                             Text(daily.time[index], format: .dateTime.day().month(.abbreviated)).font(.system(size: 14)).foregroundStyle(Theme.secondary)
                         }
-                        .frame(width: 96, alignment: .leading)
+                        .frame(width: wide ? 96 : 64, alignment: .leading)
                         WeatherIcon(condition: Forecast.condition(daily.code[index])).frame(width: 28)
                         Text(verbatim: chance >= 20 ? "\(chance)%" : "").font(.system(size: 15, weight: .medium)).foregroundStyle(Theme.blue)
-                            .frame(width: 44, alignment: .leading)
+                            .frame(width: wide ? 44 : 36, alignment: .leading)
                         Text(verbatim: daily.low[index].rounded().degrees).font(.system(size: 18)).foregroundStyle(Theme.secondary)
                             .monospacedDigit().frame(width: 40, alignment: .trailing)
                         GeometryReader { bar in
@@ -172,7 +171,7 @@ struct WeatherView: View {
                         Text(verbatim: daily.high[index].rounded().degrees).font(.system(size: 18, weight: .semibold))
                             .monospacedDigit().frame(width: 40, alignment: .leading)
                     }
-                    .padding(.horizontal, 14)
+                    .padding(.horizontal, wide ? 14 : 8)
                     .frame(height: 60)
                     .background(index == 0 ? Theme.highlight : .clear, in: .rect(cornerRadius: 14))
                 }

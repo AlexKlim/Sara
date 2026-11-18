@@ -20,6 +20,7 @@ struct HomeLocationView: View {
             } footer: {
                 Text(problem ?? "Sara turns the address into coordinates with Apple Maps. The weather service gets only the coordinates.")
             }
+            .disabled(busy)
             Section {
                 Button("Use this device's location", systemImage: "location") { Task { await fillFromDevice() } }
                     .disabled(busy)
@@ -31,6 +32,7 @@ struct HomeLocationView: View {
                         CloudSettings.push("homeLocation")
                         dismiss()
                     }
+                    .disabled(busy)
                 }
             }
         }
@@ -72,8 +74,10 @@ struct HomeLocationView: View {
         defer { busy = false }
         let session = CLServiceSession(authorization: .whenInUse)
         defer { session.invalidate() }
+        let deadline = Date.now + 20
         do {
             for try await update in CLLocationUpdate.liveUpdates() {
+                guard Date.now < deadline else { break }
                 if update.authorizationDenied || update.authorizationDeniedGlobally {
                     problem = "Sara has no access to the location. Allow it in the Settings app, or type the address."
                     return
@@ -84,8 +88,7 @@ struct HomeLocationView: View {
                 problem = nil
                 return
             }
-        } catch {
-            problem = "Couldn't get the location."
-        }
+        } catch {}
+        problem = "Couldn't get the location."
     }
 }

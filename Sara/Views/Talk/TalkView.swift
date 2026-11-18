@@ -30,7 +30,7 @@ struct TalkView: View {
                 ScrollView {
                     VStack(spacing: compact ? 24 : 48) {
                         SaraOrb(stage: stage, size: compact ? 160 : 240)
-                        if let status = sara.status { Text(verbatim: status).foregroundStyle(Theme.teal) }
+                        if let status = sara.status, (lastTurn?.reply ?? "").isEmpty { Text(verbatim: status).foregroundStyle(Theme.teal) }
                         exchange.frame(maxWidth: 980)
                     }
                     .padding(.top, compact ? 0 : 24)
@@ -70,21 +70,19 @@ struct TalkView: View {
     @ViewBuilder private var exchange: some View {
         let userSize: CGFloat = compact ? 28 : 44
         VStack(spacing: 20) {
-            if voice.listening {
+            if voice.listening && !voice.text.isEmpty {
                 Text("You").blockTitle()
-                if voice.text.isEmpty {
-                    Text("Listening...").font(.system(size: userSize, weight: .medium)).foregroundStyle(Theme.secondary)
-                } else {
-                    Text("“\(voice.text)…”").font(.system(size: userSize, weight: .medium))
-                }
+                Text("“\(voice.text)…”").font(.system(size: userSize, weight: .medium))
             } else if let turn = lastTurn {
                 Text("You").blockTitle()
                 Text("“\(turn.user)”").font(.system(size: userSize, weight: .medium)).foregroundStyle(Theme.soft)
                 if let reply = turn.reply, !reply.isEmpty {
                     Text("Sara").blockTitle(Theme.teal).padding(.top, 24)
                     Text(reply).font(.system(size: compact ? 22 : 34)).lineSpacing(compact ? 4 : 8)
-                    CenteredFlow { ForEach(turn.actions, id: \.self, content: actionChip) }.padding(.top, 12)
+                    CenteredFlow { ForEach(turn.actions.indices, id: \.self) { actionChip(turn.actions[$0]) } }.padding(.top, 12)
                 }
+            } else if voice.listening {
+                Text("Listening...").font(.system(size: userSize, weight: .medium)).foregroundStyle(Theme.secondary)
             }
         }
         .multilineTextAlignment(.center)

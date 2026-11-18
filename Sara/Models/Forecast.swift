@@ -79,7 +79,15 @@ struct Forecast: Decodable {
     static func decode(_ data: Data) throws -> Forecast {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .secondsSince1970
-        return try decoder.decode(Forecast.self, from: data)
+        let forecast = try decoder.decode(Forecast.self, from: data)
+        let hourly = forecast.hourly, daily = forecast.daily
+        let hourlyCounts = [hourly.temperature.count, hourly.pressure.count, hourly.code.count, hourly.isDay.count, hourly.rainChance.count]
+        let dailyCounts = [daily.sunrise.count, daily.sunset.count, daily.code.count, daily.high.count, daily.low.count,
+                           daily.rainSum.count, daily.rainChance.count]
+        guard hourlyCounts.allSatisfy({ $0 == hourly.time.count }), dailyCounts.allSatisfy({ $0 == daily.time.count }) else {
+            throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Forecast series of different lengths"))
+        }
+        return forecast
     }
 
     static func condition(_ code: Int, day: Bool = true) -> String {
@@ -92,7 +100,7 @@ struct Forecast: Decodable {
         case 65, 82: "pouring"
         case 66, 67: "snowy-rainy"
         case 71...77, 85, 86: "snowy"
-        case 95: "lightning-rainy"
+        case 95, 97: "lightning-rainy"
         case 96, 99: "hail"
         default: "exceptional"
         }

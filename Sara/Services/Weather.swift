@@ -15,8 +15,17 @@ import Foundation
         task = Task {
             while !Task.isCancelled {
                 let location = Self.location(home)
-                if let location, location != loadedFor || Date.now.timeIntervalSince(updated ?? .distantPast) > 20 * 60 {
-                    await load(location)
+                if location != loadedFor { forecast = nil }
+                if let location, location != loadedFor || Date.now.timeIntervalSince(updated ?? .distantPast) > 20 * 60,
+                   let fresh = await Self.fetch(location), Self.location(home) == location {
+                    forecast = fresh
+                    updated = .now
+                    loadedFor = location
+                }
+                // An old observation is worse than none: Sara would tell it as the weather now.
+                if let updated, Date.now.timeIntervalSince(updated) > 3 * 3600 {
+                    forecast = nil
+                    self.updated = nil
                 }
                 try? await Task.sleep(for: .seconds(location == nil ? 2 : 60))
             }
@@ -30,17 +39,18 @@ import Foundation
         return HomeLocation(latitude: latitude, longitude: longitude)
     }
 
-    private func load(_ location: HomeLocation) async {
-        guard let url = Forecast.url(latitude: location.latitude, longitude: location.longitude) else { return }
+    private static func fetch(_ location: HomeLocation) async -> Forecast? {
+        guard let url = Forecast.url(latitude: location.latitude, longitude: location.longitude) else { return nil }
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            forecast = try Forecast.decode(data)
-            updated = .now
-            loadedFor = location
+            let (data, response) = try await URLSession.shared.data(from: url)
+            let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            guard status == 200 else { throw SaraError("Open-Meteo: HTTP \(status)") }
+            return try Forecast.decode(data)
         } catch {
             #if DEBUG
             print("[weather] not loaded:", error)
             #endif
+            return nil
         }
     }
 }

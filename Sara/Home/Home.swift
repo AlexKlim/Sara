@@ -136,7 +136,8 @@ import Foundation
     /// A thermostat without hvac_action heats while it is colder than the target.
     func isHeating(_ id: String, target: Double?) -> Bool {
         if let action = attribute(id, "hvac_action") as? String { return action == "heating" }
-        guard state(id) != "off", let target, let current = attribute(id, "current_temperature") as? Double else { return false }
+        guard ["heat", "heat_cool", "auto"].contains(state(id)), let target,
+              let current = attribute(id, "current_temperature") as? Double else { return false }
         return current < target
     }
 
@@ -145,7 +146,8 @@ import Foundation
         let step = attribute(id, "target_temp_step") as? Double ?? 0.5
         let low = attribute(id, "min_temp") as? Double ?? 5
         let high = attribute(id, "max_temp") as? Double ?? 35
-        return min(high, max(low, target + (up ? step : -step)))
+        let next = ((target + (up ? step : -step)) / step).rounded() * step
+        return min(high, max(low, next))
     }
 
     /// Slider position 0-100.

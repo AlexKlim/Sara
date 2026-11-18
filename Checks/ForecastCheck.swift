@@ -26,6 +26,8 @@ enum ForecastCheck {
         let wet = forecast.wetHours(from: morning, calendar: calendar)
         assert(wet?.start == Date(timeIntervalSince1970: TimeInterval(hours[32])), "\(String(describing: wet))")
         assert(wet?.end == Date(timeIntervalSince1970: TimeInterval(hours[38])) && wet?.snow == false)
+        let short = json.replacingOccurrences(of: "\"precipitation_probability_max\":[null]", with: "\"precipitation_probability_max\":[]")
+        assert((try? Forecast.decode(Data(short.utf8))) == nil, "series of different lengths must be refused")
         print("Forecast OK")
     }
 }

@@ -6,6 +6,7 @@ import UIKit
     private static var registered = false
     private static var sending: Task<Void, Never>?
     private static var sent: [String: Any]?
+    private static var retry: Task<Void, Never>?
 
     static func start() {
         guard !started else { return }
@@ -39,20 +40,36 @@ import UIKit
         do {
             let webhook = try await webhookID(api)
             if registered {
-                try await api.webhook(webhook, ["type": "update_sensor_states", "data": [sensor]])
+                let reply = try await api.webhook(webhook, ["type": "update_sensor_states", "data": [sensor]])
+                guard !reply.isEmpty else { throw HomeAssistant.StatusError(status: 410) }
+                guard (reply["battery_level"] as? [String: Any])?["success"] as? Bool == true else {
+                    registered = false
+                    throw SaraError("Sensor not registered")
+                }
             } else {
                 let registration = sensor.merging([
                     "name": "Battery", "device_class": "battery", "unit_of_measurement": "%",
                     "state_class": "measurement", "entity_category": "diagnostic",
                 ]) { $1 }
-                try await api.webhook(webhook, ["type": "register_sensor", "data": registration])
+                let reply = try await api.webhook(webhook, ["type": "register_sensor", "data": registration])
+                guard reply["success"] as? Bool == true else { throw HomeAssistant.StatusError(status: 410) }
                 registered = true
             }
             sent = state
         } catch {
+            // 410: the device was deleted in Home Assistant, so the next send registers it again.
+            if (error as? HomeAssistant.StatusError)?.status == 410 {
+                Keychain.set("batteryWebhookID", "", synced: false)
+                registered = false
+            }
             #if DEBUG
-            print("[battery] not sent:", error)
+            print("[battery] not sent:", (error as NSError).domain, (error as NSError).code)
             #endif
+            retry?.cancel()
+            retry = Task {
+                try? await Task.sleep(for: .seconds(60))
+                if !Task.isCancelled { queueSend() }
+            }
         }
     }
 

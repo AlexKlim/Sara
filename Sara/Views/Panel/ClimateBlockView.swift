@@ -50,6 +50,8 @@ struct ClimateBlockView: View {
                         .contentTransition(.numericText())
                     stepButton(id, name: name, target: target, up: true)
                 }
+            } else if let target {
+                Text(verbatim: target.degreesTenths).font(.system(size: 28, weight: .semibold)).monospacedDigit()
             }
         }
     }
@@ -82,7 +84,7 @@ struct ClimateBlockView: View {
                 var heldSince: Date?
 
                 while Date.now < deadline {
-                    if home.attribute(id, "temperature") as? Double != target {
+                    if abs((home.attribute(id, "temperature") as? Double ?? .nan) - target) >= 0.01 {
                         heldSince = nil
                     } else if let since = heldSince, Date.now.timeIntervalSince(since) >= 3 {
                         pending[id] = nil
