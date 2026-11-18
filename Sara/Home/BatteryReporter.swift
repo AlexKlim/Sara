@@ -14,13 +14,14 @@ import UIKit
         UIDevice.current.isBatteryMonitoringEnabled = true
         for name in [UIDevice.batteryLevelDidChangeNotification, UIDevice.batteryStateDidChangeNotification] {
             NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { _ in
-                Task { @MainActor in queueSend() }
+                Task { @MainActor in report() }
             }
         }
-        queueSend()
+        report()
     }
 
-    private static func queueSend() {
+    /// Sends the battery now, after the ones already on their way: also when Home Assistant gets set up.
+    static func report() {
         let previous = sending
         sending = Task {
             await previous?.value
@@ -68,7 +69,7 @@ import UIKit
             retry?.cancel()
             retry = Task {
                 try? await Task.sleep(for: .seconds(60))
-                if !Task.isCancelled { queueSend() }
+                if !Task.isCancelled { report() }
             }
         }
     }

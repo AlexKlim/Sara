@@ -144,7 +144,7 @@ struct Forecast: Decodable {
         var lines = [
             "Now: \(celsius(current.temperature)), feels like \(celsius(current.feelsLike)), \(condition), "
                 + "wind \(Int(current.windSpeed.rounded())) km/h from \(Self.compass(current.windDirection)), "
-                + "gusts \(Int(current.windGusts.rounded())) km/h, humidity \(Int(current.humidity.rounded()))%, UV \(Int((current.uvIndex ?? 0).rounded()))",
+                + "gusts \(Int(current.windGusts.rounded())) km/h, humidity \(Int(current.humidity.rounded()))%, UV \(current.uvIndex.map { "\(Int($0.rounded()))" } ?? "unknown")",
             "Next hours: " + hours(6, from: now).map { index in
                 "\(hourly.time[index].formatted(hour)) \(celsius(hourly.temperature[index])) \(hourCondition(index)) precipitation \(hourly.rainChance[index] ?? 0)%"
             }.joined(separator: ", "),

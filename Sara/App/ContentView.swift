@@ -63,7 +63,10 @@ struct ContentView: View {
             SettingsView().presentationSizing(.page)
         }
         .preferredColorScheme(.dark)
-        .onChange(of: haURL) { home.start() }
+        .onChange(of: haURL) {
+            home.start()
+            if PowerSaver.isWallPanel { BatteryReporter.report() }
+        }
         .onChange(of: panelData) { panel = Panel.decoded(panelData) }
         .onAppear {
             Keychain.moveLocalSecretsToICloud()

@@ -30,7 +30,7 @@ struct TalkView: View {
                 ScrollView {
                     VStack(spacing: compact ? 24 : 48) {
                         SaraOrb(stage: stage, size: compact ? 160 : 240)
-                        if let status = sara.status, (lastTurn?.reply ?? "").isEmpty { Text(verbatim: status).foregroundStyle(Theme.teal) }
+                        if let status = sara.status { Text(verbatim: status).foregroundStyle(Theme.teal) }
                         exchange.frame(maxWidth: 980)
                     }
                     .padding(.top, compact ? 0 : 24)

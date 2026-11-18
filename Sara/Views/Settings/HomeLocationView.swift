@@ -74,21 +74,38 @@ struct HomeLocationView: View {
         defer { busy = false }
         let session = CLServiceSession(authorization: .whenInUse)
         defer { session.invalidate() }
-        let deadline = Date.now + 20
-        do {
-            for try await update in CLLocationUpdate.liveUpdates() {
-                guard Date.now < deadline else { break }
-                if update.authorizationDenied || update.authorizationDeniedGlobally {
-                    problem = "Sara has no access to the location. Allow it in the Settings app, or type the address."
-                    return
-                }
-                guard let location = update.location else { continue }
-                draft = await HomeLocation.at(location)
-                known = draft
-                problem = nil
-                return
+        // Core Location may stop sending updates without a fix, so the 20 s limit runs on its own.
+        let fix = await withTaskGroup(of: Fix.self) { group in
+            group.addTask {
+                try? await Task.sleep(for: .seconds(20))
+                return .none
             }
-        } catch {}
-        problem = "Couldn't get the location."
+            group.addTask {
+                do {
+                    for try await update in CLLocationUpdate.liveUpdates() {
+                        if update.authorizationDenied || update.authorizationDeniedGlobally { return .denied }
+                        if let location = update.location { return .found(location) }
+                    }
+                } catch {}
+                return .none
+            }
+            let first = await group.next() ?? .none
+            group.cancelAll()
+            return first
+        }
+        switch fix {
+        case .found(let location):
+            draft = await HomeLocation.at(location)
+            known = draft
+            problem = nil
+        case .denied:
+            problem = "Sara has no access to the location. Allow it in the Settings app, or type the address."
+        case .none:
+            problem = "Couldn't get the location."
+        }
+    }
+
+    private enum Fix: Sendable {
+        case found(CLLocation), denied, none
     }
 }

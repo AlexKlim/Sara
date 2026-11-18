@@ -59,7 +59,8 @@ import Speech
         stopSpeaking()
         pushToTalk = true
         begin()
-        listening = true
+        // begin() gives up without a recognizer; then the old text must not show as a new phrase.
+        listening = request != nil
     }
 
     /// Stops listening and returns what was heard. Wake word listening, if on, goes on.

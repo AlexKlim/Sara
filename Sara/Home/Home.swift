@@ -89,7 +89,7 @@ import Foundation
 
     /// Home Assistant by REST unless the subscription is live, Yandex every third time (slower, rate limited).
     func refresh(yandexNow: Bool = false) async {
-        if !live, let fresh = try? await api?.states(), !Task.isCancelled { haStates = fresh }
+        if !live, let fresh = try? await api?.states(), !Task.isCancelled, !live { haStates = fresh }
         if yandexNow || polls % 3 == 0, let info = try? await yandex?.info() { yandexStates = YandexHome.states(from: info) }
         polls += 1
         states = haStates.merging(yandexStates) { ha, _ in ha }
@@ -143,7 +143,8 @@ import Foundation
 
     /// A thermostat's target one step up or down, within its limits.
     func stepped(_ id: String, _ target: Double, up: Bool) -> Double {
-        let step = attribute(id, "target_temp_step") as? Double ?? 0.5
+        let reported = attribute(id, "target_temp_step") as? Double ?? 0.5
+        let step = reported.isFinite && reported > 0 ? reported : 0.5
         let low = attribute(id, "min_temp") as? Double ?? 5
         let high = attribute(id, "max_temp") as? Double ?? 35
         let next = ((target + (up ? step : -step)) / step).rounded() * step
