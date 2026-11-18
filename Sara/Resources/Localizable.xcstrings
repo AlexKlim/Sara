@@ -1,6 +1,36 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Couldn't change the temperature" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось изменить температуру"
+          }
+        }
+      }
+    },
+    "“%@…”" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@…»"
+          }
+        }
+      }
+    },
+    "“%@”" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@»"
+          }
+        }
+      }
+    },
     "%@ is done" : {
       "localizations" : {
         "ru" : {
@@ -2312,26 +2342,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Твои устройства с тем же Apple ID получат ключи и адрес через iCloud сами. Для человека со своим Apple ID: покажи код здесь, а на его устройстве нажми «Сканировать подключение»."
-          }
-        }
-      }
-    },
-    "“%@”" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«%@»"
-          }
-        }
-      }
-    },
-    "“%@…”" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«%@…»"
           }
         }
       }

@@ -6,4 +6,5 @@ extension String {
 
 extension Double {
     var degrees: String { formatted(.number.precision(.fractionLength(0...1))) + "°" }
+    var degreesTenths: String { formatted(.number.precision(.fractionLength(1))) + "°" }
 }

@@ -187,10 +187,8 @@ struct WeatherView: View {
             .formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(0))))
     }
 
-    /// Where the wind blows from: one of eight points.
     private static func direction(_ degrees: Double) -> String {
-        let points = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
-        return String(localized: String.LocalizationValue("wind." + points[Int((degrees / 45).rounded()) % 8]))
+        String(localized: String.LocalizationValue("wind." + Forecast.compass(degrees)))
     }
 
     private static func uvLevel(_ index: Double) -> String {

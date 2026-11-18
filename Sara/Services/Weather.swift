@@ -14,11 +14,11 @@ import Foundation
         guard task == nil else { return }
         task = Task {
             while !Task.isCancelled {
-                if let location = Self.location(home),
-                   location != loadedFor || Date.now.timeIntervalSince(updated ?? .distantPast) > 20 * 60 {
+                let location = Self.location(home)
+                if let location, location != loadedFor || Date.now.timeIntervalSince(updated ?? .distantPast) > 20 * 60 {
                     await load(location)
                 }
-                try? await Task.sleep(for: .seconds(60))
+                try? await Task.sleep(for: .seconds(location == nil ? 2 : 60))
             }
         }
     }

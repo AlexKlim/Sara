@@ -125,4 +125,28 @@ struct Forecast: Decodable {
         }
         return WetHours(start: hourly.time[first], end: hourly.time[last].addingTimeInterval(3600), snow: hourCondition(first).hasPrefix("snowy"))
     }
+
+    static func compass(_ degrees: Double) -> String {
+        ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Int((degrees / 45).rounded()) % 8]
+    }
+
+    func summary(from now: Date = .now) -> String {
+        func celsius(_ value: Double) -> String { "\(Int(value.rounded()))°C" }
+        let hour = Date.FormatStyle(date: .omitted, time: .shortened)
+        var lines = [
+            "Now: \(celsius(current.temperature)), feels like \(celsius(current.feelsLike)), \(condition), "
+                + "wind \(Int(current.windSpeed.rounded())) km/h from \(Self.compass(current.windDirection)), "
+                + "gusts \(Int(current.windGusts.rounded())) km/h, humidity \(Int(current.humidity.rounded()))%, UV \(Int((current.uvIndex ?? 0).rounded()))",
+            "Next hours: " + hours(6, from: now).map { index in
+                "\(hourly.time[index].formatted(hour)) \(celsius(hourly.temperature[index])) \(hourCondition(index)) precipitation \(hourly.rainChance[index] ?? 0)%"
+            }.joined(separator: ", "),
+        ]
+        for index in daily.time.indices.prefix(7) {
+            lines.append("\(daily.time[index].formatted(.dateTime.weekday(.wide).day().month(.wide))): "
+                + "\(celsius(daily.low[index]))..\(celsius(daily.high[index])), \(Self.condition(daily.code[index])), "
+                + "precipitation \(daily.rainChance[index] ?? 0)%, \((daily.rainSum[index] ?? 0).formatted(.number.precision(.fractionLength(0...1)))) mm, "
+                + "sunrise \(daily.sunrise[index].formatted(hour)), sunset \(daily.sunset[index].formatted(hour))")
+        }
+        return "<weather>\n\(lines.joined(separator: "\n"))\n</weather>"
+    }
 }

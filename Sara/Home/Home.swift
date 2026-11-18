@@ -192,8 +192,9 @@ import Foundation
         await refresh()
     }
 
-    func setTemperature(_ entity: String, _ value: Double) async {
-        try? await api?.call("climate", "set_temperature", ["entity_id": entity, "temperature": value])
+    func setTemperature(_ entity: String, _ value: Double) async throws {
+        guard let api else { throw SaraError("Home Assistant is not set up") }
+        try await api.call("climate", "set_temperature", ["entity_id": entity, "temperature": value])
         await refresh()
     }
 
