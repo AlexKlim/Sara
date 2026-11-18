@@ -150,7 +150,7 @@ struct ContentView: View {
         }
         let task = Task { [followUp] in
             _ = await previous?.value // a cancelled request cleans up first
-            return await sara.ask(text, in: context, speak: say, bySentence: speaker.isEmpty, withoutWakeWord: followUp)
+            return await sara.ask(text, in: context, speak: say, bySentence: speaker.isEmpty, withoutWakeWord: followUp, note: musicNote)
         }
         inFlight = task
         inFlightText = text
@@ -170,6 +170,13 @@ struct ContentView: View {
             case .ended: voice.endFollowUp(); showTalk = false
             case .interrupted: break
             }
+        }
+    }
+
+    private var musicNote: String? {
+        pausedMusicOn.map { player in
+            "<music>\(home.attribute(player, "friendly_name") as? String ?? player) was playing music. The app paused it only while you listen "
+                + "and plays it again after your reply. If the user wants the music stopped or turned off, pause or stop that player.</music>"
         }
     }
 
