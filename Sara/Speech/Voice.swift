@@ -32,6 +32,8 @@ import Speech
     private var pushToTalk = false
 
     private var wakeWord: String?
+    /// Numbers listen() calls, so an older one finishing its authorization late can't restart recognition.
+    private var listenRequest = 0
     private var onWake: (() -> Void)?
     /// The command, and whether it came without the wake word (a follow-up).
     private var onCommand: ((String, Bool) -> Void)?
@@ -79,7 +81,10 @@ import Speech
         wakeWord = word.lowercased()
         self.onWake = onWake
         self.onCommand = onCommand
-        guard await authorized() else { return }
+        listenRequest += 1
+        let request = listenRequest
+        // stopListening() or a newer listen() may have run while authorization was asked.
+        guard await authorized(), wakeWord != nil, request == listenRequest else { return }
         if !pushToTalk { begin() }
     }
 

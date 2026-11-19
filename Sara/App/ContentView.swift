@@ -72,6 +72,7 @@ struct ContentView: View {
             if PowerSaver.isWallPanel { BatteryReporter.report() }
         }
         .onChange(of: panelData) { panel = Panel.decoded(panelData) }
+        .onChange(of: home.saraAsleep) { applyWakeWord() }
         .onAppear {
             Keychain.moveLocalSecretsToICloud()
             CloudSettings.start()
@@ -247,7 +248,7 @@ struct ContentView: View {
     private func applyWakeWord() {
         let speaker = speakerEntity.trimmingCharacters(in: .whitespaces)
         voice.onStopExternal = speaker.isEmpty ? nil : { Task { await home.stop(speaker) } }
-        guard wakeEnabled else { voice.stopListening(); return }
+        guard wakeEnabled, !home.saraAsleep else { voice.stopListening(); return }
         let word = wakeWord.trimmingCharacters(in: .whitespaces)
         Task {
             await voice.listen(for: word.isEmpty ? String(localized: "Sara") : word,

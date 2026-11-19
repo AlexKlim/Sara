@@ -20,15 +20,28 @@ struct PanelView: View {
                 Spacer()
                 Text("Set up the panel in Settings").foregroundStyle(Theme.secondary)
                 Spacer()
-            } else if wide {
-                GeometryReader { geometry in
-                    HStack(alignment: .top, spacing: 28) {
-                        column(panel.blocks.filter { $0.column == 0 }).frame(width: (geometry.size.width - 28) * 7 / 12)
-                        column(panel.blocks.filter { $0.column != 0 }, alarms: true)
+            } else {
+                if home.offline {
+                    Label("No connection to Home Assistant", systemImage: "wifi.exclamationmark")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(Theme.amber)
+                        .padding(.vertical, 12).padding(.horizontal, 20)
+                        .background(Theme.amberBackground, in: .capsule)
+                        .overlay(Capsule().stroke(Theme.amberBorder))
+                }
+                Group {
+                    if wide {
+                        GeometryReader { geometry in
+                            HStack(alignment: .top, spacing: 28) {
+                                column(panel.blocks.filter { $0.column == 0 }).frame(width: (geometry.size.width - 28) * 7 / 12)
+                                column(panel.blocks.filter { $0.column != 0 }, alarms: true)
+                            }
+                        }
+                    } else {
+                        column(panel.blocks, alarms: true)
                     }
                 }
-            } else {
-                column(panel.blocks, alarms: true)
+
             }
             if let lastTurn { footer(lastTurn) }
         }
@@ -48,7 +61,18 @@ struct PanelView: View {
         .scrollIndicators(.hidden)
     }
 
-    @ViewBuilder private func block(for block: PanelBlock) -> some View {
+    /// Without Home Assistant its states are unknown, not off: such blocks fade and take no taps.
+    /// Yandex devices, timers and the app's own lists keep working.
+    private func block(for block: PanelBlock) -> some View {
+        let usesHomeAssistant = block.items.contains { block.kind == .list ? $0.entity.hasPrefix("todo.") : !$0.entity.hasPrefix("yandex.") }
+        let unreachable = home.offline && usesHomeAssistant
+        return blockContent(block)
+            .saturation(unreachable ? 0 : 1)
+            .opacity(unreachable ? 0.4 : 1)
+            .allowsHitTesting(!unreachable)
+    }
+
+    @ViewBuilder private func blockContent(_ block: PanelBlock) -> some View {
         switch block.kind {
         case .room:
             VStack(alignment: .leading, spacing: 12) {
