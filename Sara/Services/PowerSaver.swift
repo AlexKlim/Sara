@@ -50,11 +50,11 @@ import SwiftUI
         (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen
     }
 
+    /// Full brightness while someone is here; the user's own level comes back only when Sara leaves the screen.
     private func apply() {
         guard Self.isWallPanel, let screen else { return }
-        guard night || idle else { return restoreBrightness() }
         if userBrightness == nil { userBrightness = screen.brightness }
-        screen.brightness = night ? 0.03 : 0.15
+        screen.brightness = night ? 0.03 : idle ? 0.15 : 1
     }
 
     private func updateThermal() {

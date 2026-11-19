@@ -45,14 +45,20 @@ struct HeaderView: View {
                 }
             }
             Button(action: onTalk) {
+                let asleep = listening && home.saraAsleep
                 HStack(spacing: 12) {
-                    Circle().fill(Theme.teal).frame(width: 10, height: 10)
-                    Text(listening ? "Sara is listening" : "Talk to Sara")
+                    if asleep {
+                        Image(systemName: "moon.zzz.fill").font(.system(size: 16)).foregroundStyle(Theme.secondary)
+                        Text("Sara is asleep").foregroundStyle(Theme.secondary)
+                    } else {
+                        Circle().fill(Theme.teal).frame(width: 10, height: 10)
+                        Text(listening ? "Sara is listening" : "Talk to Sara")
+                    }
                 }
                 .font(.system(size: 18, weight: .medium))
                 .padding(.horizontal, 22).padding(.vertical, 14)
-                .background(Theme.tealBackground, in: .capsule)
-                .overlay(Capsule().stroke(Theme.tealBorder))
+                .background(asleep ? Theme.card : Theme.tealBackground, in: .capsule)
+                .overlay(Capsule().stroke(asleep ? Theme.border : Theme.tealBorder))
             }
             .buttonStyle(.plain)
             Button("Settings", systemImage: "gearshape", action: onSettings)

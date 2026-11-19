@@ -12,7 +12,7 @@ struct HomeAssistant {
     }
 
     func states() async throws -> [String: [String: Any]] {
-        let data = try await request("GET", "/api/states")
+        let data = try await request("GET", "/api/states", timeout: 10)
         let list = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
         return Dictionary(list.compactMap { state in (state["entity_id"] as? String).map { ($0, state) } }) { first, _ in first }
     }
@@ -46,9 +46,9 @@ struct HomeAssistant {
         var errorDescription: String? { "Home Assistant: HTTP \(status)" }
     }
 
-    private func request(_ method: String, _ path: String, body: [String: Any]? = nil) async throws -> Data {
+    private func request(_ method: String, _ path: String, body: [String: Any]? = nil, timeout: TimeInterval = 60) async throws -> Data {
         guard let url = URL(string: baseURL + path) else { throw SaraError("Bad Home Assistant address") }
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: url, timeoutInterval: timeout)
         request.httpMethod = method
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

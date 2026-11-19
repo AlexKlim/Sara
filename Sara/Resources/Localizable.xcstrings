@@ -1,12 +1,12 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Couldn't change the temperature" : {
+    "No connection to Home Assistant" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Не удалось изменить температуру"
+            "value" : "Нет связи с Home Assistant"
           }
         }
       }
@@ -382,6 +382,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Продолжается %lld с после ответа"
+          }
+        }
+      }
+    },
+    "Couldn't change the temperature" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось изменить температуру"
           }
         }
       }
@@ -1353,6 +1364,16 @@
         }
       }
     },
+    "Sara is asleep" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сара спит"
+          }
+        }
+      }
+    },
     "Sara is listening" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1517,6 +1538,7 @@
       }
     },
     "Show older" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {

@@ -14,12 +14,16 @@ import Foundation
     private var subscription: Task<Void, Never>?
     /// The WebSocket subscription is delivering states, so Home Assistant needs no polling.
     private var live = false
+    /// Home Assistant is set up, but neither the subscription nor the last poll got through.
+    private(set) var offline = false
     /// Counts subscription events, so a slower REST answer can't undo a newer one.
     private var events = 0
     private var connectedURL = ""
     private(set) var platforms: [String: String] = [:]
     // Their Home Assistant integrations can't play speech: tts.speak to an Apple TV even drops its connection.
     static let platformsWithoutSpeech: Set = ["apple_tv", "braviatv"]
+    /// While this Home Assistant switch is off, Sara sleeps: she doesn't listen for her name.
+    static let listenSwitch = "input_boolean.sara_listening"
 
     private var yandex: YandexHome? {
         let token = Keychain.get("yandexToken")
@@ -36,6 +40,7 @@ import Foundation
         live = false
         let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
         if url != connectedURL {
+            offline = false
             haStates = [:]
             todoItems = [:]
             platforms = [:]
@@ -66,6 +71,7 @@ import Foundation
     /// One event of the subscription: entities added, changed or removed.
     private func apply(_ event: [String: Any]) {
         events += 1
+        offline = false
         if !live {
             live = true
             #if DEBUG
@@ -93,13 +99,23 @@ import Foundation
     /// Home Assistant by REST unless the subscription is live, Yandex every third time (slower, rate limited).
     func refresh(yandexNow: Bool = false) async {
         let seen = events
-        if !live, let fresh = try? await api?.states(), !Task.isCancelled, events == seen { haStates = fresh }
+        if !live, let api {
+            if let fresh = try? await api.states() {
+                offline = false
+                if !Task.isCancelled, events == seen { haStates = fresh }
+            } else {
+                offline = true
+            }
+        }
         if yandexNow || polls % 3 == 0, let info = try? await yandex?.info() { yandexStates = YandexHome.states(from: info) }
         polls += 1
         states = haStates.merging(yandexStates) { ha, _ in ha }
     }
 
     // MARK: Reading
+
+    /// A missing or unavailable switch keeps Sara awake.
+    var saraAsleep: Bool { state(Self.listenSwitch) == "off" }
 
     func state(_ id: String?) -> String? { id.flatMap { states[$0]?["state"] as? String } }
     func attribute(_ id: String, _ key: String) -> Any? { (states[id]?["attributes"] as? [String: Any])?[key] }

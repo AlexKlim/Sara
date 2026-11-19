@@ -20,15 +20,31 @@ struct PanelView: View {
                 Spacer()
                 Text("Set up the panel in Settings").foregroundStyle(Theme.secondary)
                 Spacer()
-            } else if wide {
-                GeometryReader { geometry in
-                    HStack(alignment: .top, spacing: 28) {
-                        column(panel.blocks.filter { $0.column == 0 }).frame(width: (geometry.size.width - 28) * 7 / 12)
-                        column(panel.blocks.filter { $0.column != 0 }, alarms: true)
+            } else {
+                if home.offline {
+                    Label("No connection to Home Assistant", systemImage: "wifi.exclamationmark")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(Theme.amber)
+                        .padding(.vertical, 12).padding(.horizontal, 20)
+                        .background(Theme.amberBackground, in: .capsule)
+                        .overlay(Capsule().stroke(Theme.amberBorder))
+                }
+                Group {
+                    if wide {
+                        GeometryReader { geometry in
+                            HStack(alignment: .top, spacing: 28) {
+                                column(panel.blocks.filter { $0.column == 0 }).frame(width: (geometry.size.width - 28) * 7 / 12)
+                                column(panel.blocks.filter { $0.column != 0 }, alarms: true)
+                            }
+                        }
+                    } else {
+                        column(panel.blocks, alarms: true)
                     }
                 }
-            } else {
-                column(panel.blocks, alarms: true)
+                // The states are unknown, not off: show them faded and keep taps from sending commands into the void.
+                .saturation(home.offline ? 0 : 1)
+                .opacity(home.offline ? 0.4 : 1)
+                .allowsHitTesting(!home.offline)
             }
             if let lastTurn { footer(lastTurn) }
         }
