@@ -38,15 +38,18 @@ struct SliderBlockView: View {
             // Moves in a row send one level.
             try? await Task.sleep(for: .seconds(1))
             guard !Task.isCancelled else { return }
+            let before = home.value(item)
             await home.setValue(item, level)
+            // The old value close to the new one is no confirmation: wait for a report that changed.
+            let unchanged = before.map { abs($0 - level) < 1.5 } ?? false
             let deadline = Date.now + 30
             while !Task.isCancelled, Date.now < deadline {
-                if let reported = home.value(item), abs(reported - level) < 1.5 { break }
+                if let reported = home.value(item), abs(reported - level) < 1.5, unchanged || reported != before { break }
                 try? await Task.sleep(for: .milliseconds(500))
             }
             guard !Task.isCancelled else { return }
             pending = nil
-            if let reported = home.value(item) { value = reported }
+            if !dragging, let reported = home.value(item) { value = reported }
         }
     }
 }

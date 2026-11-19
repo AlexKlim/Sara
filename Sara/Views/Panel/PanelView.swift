@@ -41,10 +41,7 @@ struct PanelView: View {
                         column(panel.blocks, alarms: true)
                     }
                 }
-                // The states are unknown, not off: show them faded and keep taps from sending commands into the void.
-                .saturation(home.offline ? 0 : 1)
-                .opacity(home.offline ? 0.4 : 1)
-                .allowsHitTesting(!home.offline)
+
             }
             if let lastTurn { footer(lastTurn) }
         }
@@ -64,7 +61,18 @@ struct PanelView: View {
         .scrollIndicators(.hidden)
     }
 
-    @ViewBuilder private func block(for block: PanelBlock) -> some View {
+    /// Without Home Assistant its states are unknown, not off: such blocks fade and take no taps.
+    /// Yandex devices, timers and the app's own lists keep working.
+    private func block(for block: PanelBlock) -> some View {
+        let usesHomeAssistant = block.items.contains { block.kind == .list ? $0.entity.hasPrefix("todo.") : !$0.entity.hasPrefix("yandex.") }
+        let unreachable = home.offline && usesHomeAssistant
+        return blockContent(block)
+            .saturation(unreachable ? 0 : 1)
+            .opacity(unreachable ? 0.4 : 1)
+            .allowsHitTesting(!unreachable)
+    }
+
+    @ViewBuilder private func blockContent(_ block: PanelBlock) -> some View {
         switch block.kind {
         case .room:
             VStack(alignment: .leading, spacing: 12) {

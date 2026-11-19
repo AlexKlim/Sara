@@ -79,7 +79,8 @@ import Speech
         wakeWord = word.lowercased()
         self.onWake = onWake
         self.onCommand = onCommand
-        guard await authorized() else { return }
+        // stopListening() may have run while authorization was asked.
+        guard await authorized(), wakeWord != nil else { return }
         if !pushToTalk { begin() }
     }
 

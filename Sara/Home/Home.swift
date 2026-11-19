@@ -103,7 +103,7 @@ import Foundation
             if let fresh = try? await api.states() {
                 offline = false
                 if !Task.isCancelled, events == seen { haStates = fresh }
-            } else {
+            } else if !Task.isCancelled, events == seen, !live {
                 offline = true
             }
         }

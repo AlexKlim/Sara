@@ -52,7 +52,7 @@ import SwiftUI
 
     /// Full brightness while someone is here; the user's own level comes back only when Sara leaves the screen.
     private func apply() {
-        guard Self.isWallPanel, let screen else { return }
+        guard Self.isWallPanel, let screen, UIApplication.shared.applicationState == .active else { return }
         if userBrightness == nil { userBrightness = screen.brightness }
         screen.brightness = night ? 0.03 : idle ? 0.15 : 1
     }
