@@ -39,7 +39,7 @@ struct TargetStepper: View {
         .buttonStyle(.plain)
         .disabled(next == value)
         .opacity(next == value ? 0.4 : 1)
-        .accessibilityLabel(up ? "Raise temperature: \(name)" : "Lower temperature: \(name)")
+        .accessibilityLabel(up ? "Raise: \(name)" : "Lower: \(name)")
     }
 
     private func set(_ target: Double) {
@@ -52,10 +52,11 @@ struct TargetStepper: View {
                 try await send(target)
 
                 let deadline = Date.now + 30
+                let tolerance = home.step(id) / 2
                 var heldSince: Date?
 
                 while Date.now < deadline {
-                    if let now = reported(), abs(now - target) < 0.01 {
+                    if let now = reported(), abs(now - target) < tolerance {
                         if let since = heldSince {
                             if Date.now.timeIntervalSince(since) >= 3 {
                                 pending = nil

@@ -16,6 +16,7 @@ struct PanelView: View {
         let wide = sizeClass == .regular
         VStack(spacing: 28) {
             HeaderView(home: home, listening: listening, onTalk: onTalk, onSettings: onSettings)
+            if let device = NewDevices.shared.found.first { NewDeviceBanner(device: device) }
             if panel.blocks.isEmpty {
                 Spacer()
                 Text("Set up the panel in Settings").foregroundStyle(Theme.secondary)
@@ -29,7 +30,6 @@ struct PanelView: View {
                         .background(Theme.amberBackground, in: .capsule)
                         .overlay(Capsule().stroke(Theme.amberBorder))
                 }
-                if let device = NewDevices.shared.found.first { NewDeviceBanner(device: device) }
                 Group {
                     if wide {
                         GeometryReader { geometry in

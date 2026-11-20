@@ -19,13 +19,16 @@ import Foundation
         checking = true
         repeat {
             recheck = false
-            await scan()
+            // Home Assistant out of reach: try again in a minute, entities may not change to trigger a check.
+            while !(await scan()) { try? await Task.sleep(for: .seconds(60)) }
         } while recheck
         checking = false
     }
 
-    private func scan() async {
-        guard let socket = Self.socket, let devices = try? await Self.devices(socket) else { return }
+    /// False when Home Assistant didn't answer.
+    private func scan() async -> Bool {
+        guard let socket = Self.socket else { return true }
+        guard let devices = try? await Self.devices(socket) else { return false }
         var known = Set(defaults.stringArray(forKey: "knownDevices") ?? [])
         if defaults.stringArray(forKey: "knownDevices") == nil {
             known = Set(devices.filter { $0.created < .now - 86_400 }.map(\.id))
@@ -39,10 +42,14 @@ import Foundation
             onFound?(device)
         }
         defaults.set(Array(announced), forKey: "announcedDevices")
+        return true
     }
 
     /// Puts the device on the panel as its own block, with its entities as Home Assistant has them now.
     func add(_ device: NewDevice) async {
+        // Known and off the banner at once, so a second tap or a check meanwhile can't add the block twice.
+        guard found.contains(device) else { return }
+        skip(device)
         var entities = device.entities
         if let socket = Self.socket, let fresh = try? await Self.devices(socket).first(where: { $0.id == device.id }) {
             entities = fresh.entities
@@ -50,7 +57,6 @@ import Foundation
         var panel = Panel.load()
         panel.blocks.append(Panel.block(device: device.name, entities: entities))
         panel.save()
-        skip(device)
     }
 
     func skip(_ device: NewDevice) {

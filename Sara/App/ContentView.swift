@@ -74,7 +74,7 @@ struct ContentView: View {
         .onChange(of: panelData) { panel = Panel.decoded(panelData) }
         .onChange(of: home.saraAsleep) { applyWakeWord() }
         // Entities come and go when a device is added: look for new devices then, and on every start.
-        .onChange(of: home.states.count, initial: true) { Task { await NewDevices.shared.check() } }
+        .onChange(of: home.entityIDs, initial: true) { Task { await NewDevices.shared.check() } }
         .onAppear {
             Keychain.moveLocalSecretsToICloud()
             CloudSettings.start()

@@ -944,13 +944,12 @@
         }
       }
     },
-    "Lower temperature: %@" : {
-      "extractionState" : "stale",
+    "Lower: %@" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Понизить температуру: %@"
+            "value" : "Уменьшить: %@"
           }
         }
       }
@@ -1298,13 +1297,12 @@
         }
       }
     },
-    "Raise temperature: %@" : {
-      "extractionState" : "stale",
+    "Raise: %@" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Повысить температуру: %@"
+            "value" : "Увеличить: %@"
           }
         }
       }

@@ -210,6 +210,7 @@ import SwiftData
                         let t = clock.now
                         do { (output, failed) = try await mcp.callTool(name, args) }
                         catch { (output, failed) = (error.localizedDescription, true) }
+                        if !failed, name.hasSuffix("GetLiveContext") { homeState = output }
                         turn.haSeconds += (clock.now - t) / .seconds(1)
                     } else {
                         (output, failed) = ("unknown tool", true)

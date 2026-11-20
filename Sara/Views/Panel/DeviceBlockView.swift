@@ -98,7 +98,10 @@ struct DeviceBlockView: View {
     private func text(_ id: String, _ value: Double?) -> String {
         guard let value else { return "-" }
         if unit(id) == "°C" { return value.degrees }
-        return value.formatted(.number.precision(.fractionLength(0...1))) + (unit(id).map { " " + $0 } ?? "")
+        // As many decimals as the step has: 0.25 shows two. A sensor has no step: one.
+        let step = home.attribute(id, "step") as? Double ?? 0.1
+        let decimals = (0...3).first { abs(step * pow(10, Double($0)) - (step * pow(10, Double($0))).rounded()) < 1e-6 } ?? 3
+        return value.formatted(.number.precision(.fractionLength(0...decimals))) + (unit(id).map { " " + $0 } ?? "")
     }
 
     private func isOpening(_ id: String) -> Bool {
