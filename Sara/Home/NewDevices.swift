@@ -8,6 +8,7 @@ import Foundation
     /// Called once per device, the first time it is found.
     var onFound: ((NewDevice) -> Void)?
     private var checking = false
+    private var adding: Set<String> = []
     /// Something changed during a check: check again right after it.
     private var recheck = false
     private let defaults = UserDefaults.standard
@@ -47,9 +48,11 @@ import Foundation
 
     /// Puts the device on the panel as its own block, with its entities as Home Assistant has them now.
     func add(_ device: NewDevice) async {
-        // Known and off the banner at once, so a second tap or a check meanwhile can't add the block twice.
-        guard found.contains(device) else { return }
-        skip(device)
+        // Reserved until the block is saved: a second tap can't add it twice.
+        guard !adding.contains(device.id) else { return }
+        adding.insert(device.id)
+        defer { adding.remove(device.id) }
+        found.removeAll { $0.id == device.id }
         var entities = device.entities
         if let socket = Self.socket, let fresh = try? await Self.devices(socket).first(where: { $0.id == device.id }) {
             entities = fresh.entities
@@ -57,6 +60,7 @@ import Foundation
         var panel = Panel.load()
         panel.blocks.append(Panel.block(device: device.name, entities: entities))
         panel.save()
+        skip(device)
     }
 
     func skip(_ device: NewDevice) {

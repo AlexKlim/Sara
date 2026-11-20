@@ -13,7 +13,7 @@ enum Numbers {
         guard let api = HomeAssistant.saved else { return "error: Home Assistant is not set up" }
         let wanted = args["name"] as? String ?? ""
         guard let value = args["value"] as? Double else { return "error: no value" }
-        guard LiveContext.names(in: exposed, domains: ["number", "input_number"]).contains(wanted) else { return "error: no such number or input_number in home_state: \(wanted)" }
+        guard LiveContext.exposes(wanted, in: exposed, domains: ["number", "input_number"]) else { return "error: no such number or input_number in home_state: \(wanted)" }
         guard let states = try? await api.states() else { return "error: Home Assistant is unreachable" }
         let matches = states.filter { id, state in
             ["number", "input_number"].contains(PanelItem.domain(id))
