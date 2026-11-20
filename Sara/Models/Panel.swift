@@ -52,6 +52,17 @@ struct Panel: Codable, Equatable {
             entities: (results[2] as? [String: Any])?["entities"] as? [[String: Any]] ?? [])
     }
 
+    /// A block for one device: setpoints first, then sensors, doors and switches. A sensor named like a setpoint
+    /// (number.fridge_temperature and sensor.fridge_temperature) is shown as that setpoint's current value.
+    static func block(device name: String, entities: [String]) -> PanelBlock {
+        let order = PanelBlock.Kind.device.domains
+        let setpoints = Set(entities.filter { $0.hasPrefix("number.") || $0.hasPrefix("input_number.") }.map(PanelItem.objectID))
+        let items = entities
+            .filter { !($0.hasPrefix("sensor.") && setpoints.contains(PanelItem.objectID($0))) }
+            .sorted { (order.firstIndex(of: PanelItem.domain($0)) ?? 0, $0) < (order.firstIndex(of: PanelItem.domain($1)) ?? 0, $1) }
+        return PanelBlock(kind: .device, title: name, column: 1, items: items.map { PanelItem(entity: $0) })
+    }
+
     /// A first layout from Yandex Smart Home: a room block per room with its switchable devices, thermostats on the right.
     static func build(fromYandex info: [String: Any]) -> Panel {
         let devices = info["devices"] as? [[String: Any]] ?? []

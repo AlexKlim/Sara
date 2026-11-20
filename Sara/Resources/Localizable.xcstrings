@@ -114,6 +114,16 @@
         }
       }
     },
+    "A new device appeared: %@. You can add it to the panel." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Появилось новое устройство: %@. Его можно добавить на панель."
+          }
+        }
+      }
+    },
     "A Yandex Station reads replies itself. Other speakers need a text-to-speech engine in Home Assistant and its local network address. If the speaker fails, Sara speaks with this device." : {
       "localizations" : {
         "ru" : {
@@ -142,6 +152,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Добавить устройство"
+          }
+        }
+      }
+    },
+    "Add to panel" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить на панель"
           }
         }
       }
@@ -386,6 +406,16 @@
         }
       }
     },
+    "Couldn't change the setting" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не получилось изменить"
+          }
+        }
+      }
+    },
     "Couldn't change the temperature" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -474,6 +504,16 @@
         }
       }
     },
+    "Device" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Устройство"
+          }
+        }
+      }
+    },
     "Devices" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -503,6 +543,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Готово"
+          }
+        }
+      }
+    },
+    "door.closed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыто"
+          }
+        }
+      }
+    },
+    "door.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыто"
           }
         }
       }
@@ -936,6 +1010,16 @@
         }
       }
     },
+    "New device: %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новое устройство: %@"
+          }
+        }
+      }
+    },
     "Night mode" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1015,6 +1099,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сейчас"
+          }
+        }
+      }
+    },
+    "Now %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас %@"
           }
         }
       }
@@ -1544,6 +1638,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Показать старые"
+          }
+        }
+      }
+    },
+    "Skip" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не добавлять"
           }
         }
       }

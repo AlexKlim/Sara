@@ -161,12 +161,12 @@ import Foundation
         return current < target
     }
 
-    /// A thermostat's target one step up or down, within its limits.
+    /// A thermostat's target or a number's value one step up or down, within its limits.
     func stepped(_ id: String, _ target: Double, up: Bool) -> Double {
-        let reported = attribute(id, "target_temp_step") as? Double ?? 0.5
+        let reported = attribute(id, "target_temp_step") as? Double ?? attribute(id, "step") as? Double ?? 0.5
         let step = reported.isFinite && reported > 0 ? reported : 0.5
-        let low = attribute(id, "min_temp") as? Double ?? 5
-        let high = attribute(id, "max_temp") as? Double ?? 35
+        let low = attribute(id, "min_temp") as? Double ?? attribute(id, "min") as? Double ?? 5
+        let high = attribute(id, "max_temp") as? Double ?? attribute(id, "max") as? Double ?? 35
         let next = ((target + (up ? step : -step)) / step).rounded() * step
         return min(high, max(low, next))
     }
@@ -218,6 +218,13 @@ import Foundation
     func setTemperature(_ entity: String, _ value: Double) async throws {
         guard let api else { throw SaraError("Home Assistant is not set up") }
         try await api.call("climate", "set_temperature", ["entity_id": entity, "temperature": value])
+        await refresh()
+    }
+
+    /// A number or input_number, such as a fridge temperature setpoint.
+    func setNumber(_ entity: String, _ value: Double) async throws {
+        guard let api else { throw SaraError("Home Assistant is not set up") }
+        try await api.call(PanelItem.domain(entity), "set_value", ["entity_id": entity, "value": value])
         await refresh()
     }
 

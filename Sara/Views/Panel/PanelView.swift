@@ -29,6 +29,7 @@ struct PanelView: View {
                         .background(Theme.amberBackground, in: .capsule)
                         .overlay(Capsule().stroke(Theme.amberBorder))
                 }
+                if let device = NewDevices.shared.found.first { NewDeviceBanner(device: device) }
                 Group {
                     if wide {
                         GeometryReader { geometry in
@@ -87,6 +88,8 @@ struct PanelView: View {
             RunningBlockView(block: block, home: home)
         case .climate:
             ClimateBlockView(block: block, home: home)
+        case .device:
+            DeviceBlockView(block: block, home: home)
         case .list:
             if let todo = block.items.first?.entity, todo.hasPrefix("todo.") {
                 TodoBlockView(entity: todo, title: block.title, home: home)
