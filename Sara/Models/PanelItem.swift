@@ -23,4 +23,7 @@ struct PanelItem: Codable, Identifiable, Equatable {
     enum CodingKeys: String, CodingKey {
         case entity, name, icon, script, field, active, progress, end, detail
     }
+
+    static func domain(_ entity: String) -> String { entity.components(separatedBy: ".").first ?? "" }
+    static func objectID(_ entity: String) -> String { entity.components(separatedBy: ".").dropFirst().joined(separator: ".") }
 }

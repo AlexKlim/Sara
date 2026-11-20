@@ -6,7 +6,6 @@ struct ClimateBlockView: View {
     let home: Home
     @State private var pending: [String: Double] = [:]
     @State private var failed: Set<String> = []
-    @State private var sending: [String: Task<Void, Never>] = [:]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -42,65 +41,15 @@ struct ClimateBlockView: View {
             }
             Spacer()
             if let target, id.hasPrefix("climate.") {
-                HStack(spacing: 8) {
-                    stepButton(id, name: name, target: target, up: false)
-                    Text(verbatim: target.degreesTenths)
-                        .font(.system(size: 28, weight: .semibold)).monospacedDigit()
-                        .frame(width: 76)
-                        .contentTransition(.numericText())
-                    stepButton(id, name: name, target: target, up: true)
-                }
+                TargetStepper(
+                    id: id, name: name, value: target, home: home,
+                    pending: Binding(get: { pending[id] }, set: { pending[id] = $0 }),
+                    failed: Binding(get: { failed.contains(id) }, set: { if $0 { failed.insert(id) } else { failed.remove(id) } }),
+                    format: \.degreesTenths,
+                    reported: { home.attribute(id, "temperature") as? Double },
+                    send: { try await home.setTemperature(id, $0) })
             } else if let target {
                 Text(verbatim: target.degreesTenths).font(.system(size: 28, weight: .semibold)).monospacedDigit()
-            }
-        }
-    }
-
-    private func stepButton(_ id: String, name: String, target: Double, up: Bool) -> some View {
-        let next = home.stepped(id, target, up: up)
-        return Button { set(id, next) } label: {
-            Image(systemName: up ? "plus" : "minus")
-                .font(.system(size: 20, weight: .semibold))
-                .frame(width: 52, height: 52)
-                .background(Theme.border, in: .circle)
-                .overlay(Circle().stroke(Theme.ring))
-        }
-        .buttonStyle(.plain)
-        .disabled(next == target)
-        .opacity(next == target ? 0.4 : 1)
-        .accessibilityLabel(up ? "Raise temperature: \(name)" : "Lower temperature: \(name)")
-    }
-
-    private func set(_ id: String, _ target: Double) {
-        pending[id] = target
-        failed.remove(id)
-        sending[id]?.cancel()
-        sending[id] = Task {
-            do {
-                try await Task.sleep(for: .seconds(1))
-                try await home.setTemperature(id, target)
-
-                let deadline = Date.now + 30
-                var heldSince: Date?
-
-                while Date.now < deadline {
-                    if abs((home.attribute(id, "temperature") as? Double ?? .nan) - target) >= 0.01 {
-                        heldSince = nil
-                    } else if let since = heldSince, Date.now.timeIntervalSince(since) >= 3 {
-                        pending[id] = nil
-                        return
-                    } else if heldSince == nil {
-                        heldSince = .now
-                    }
-                    try await Task.sleep(for: .milliseconds(500))
-                }
-                throw SaraError("Not confirmed")
-            } catch {
-                guard pending[id] == target, !Task.isCancelled else { return }
-                pending[id] = nil
-                failed.insert(id)
-                try? await Task.sleep(for: .seconds(5))
-                failed.remove(id)
             }
         }
     }

@@ -1,0 +1,16 @@
+[
+  {
+    "name": "set_number",
+    "description": "Set a numeric setting of a device in home_state that the home tools can't change: its domain is number or input_number, e.g. a fridge or freezer temperature setpoint. Thermostats (climate) use the home tools.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string", "description": "The setting's name exactly as in home_state."},
+        "value": {"type": "number", "description": "The new value, within the setting's min and max."}
+      },
+      "required": ["name", "value"],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+]

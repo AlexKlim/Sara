@@ -109,7 +109,7 @@ import SwiftData
             if newChat {
                 let t = clock.now
                 let homeTools = (try await mcp?.claudeTools() ?? []) + (yandex == nil ? [] : YandexHome.tools)
-                tools = homeTools + Memory.tools + Lists.tools + Alarms.tools + Self.conversationTools + [claude.webSearchTool]
+                tools = homeTools + (mcp == nil ? [] : Numbers.tools) + Memory.tools + Lists.tools + Alarms.tools + Self.conversationTools + [claude.webSearchTool]
                 turn.haSeconds += (clock.now - t) / .seconds(1)
                 let room = defaults.string(forKey: "deviceRoom") ?? ""
                 system = [Self.prompt, room.isEmpty ? "" : Self.roomPrompt.replacingOccurrences(of: "{room}", with: room),
@@ -132,9 +132,11 @@ import SwiftData
                 }
                 turn.haSeconds += (clock.now - t) / .seconds(1)
             }
+            var homeState = ""
             if let mcp, let live = tools.lazy.compactMap({ $0["name"] as? String }).first(where: { $0.hasSuffix("GetLiveContext") }) {
                 let t = clock.now
                 if let (state, failed) = try? await mcp.callTool(live, [:]), !failed {
+                    homeState = state
                     content.insert(["type": "text", "text": "<home_state>\n\(state)\n</home_state>"], at: 0)
                 }
                 turn.haSeconds += (clock.now - t) / .seconds(1)
@@ -200,12 +202,15 @@ import SwiftData
                         (output, failed) = (result, result.hasPrefix("error"))
                     } else if let alarm = await Alarms.shared.run(name, args) {
                         (output, failed) = (alarm, alarm.hasPrefix("error"))
+                    } else if let result = await Numbers.run(name, args, exposed: homeState) {
+                        (output, failed) = (result, result.hasPrefix("error"))
                     } else if let result = await yandex?.run(name, args) {
                         (output, failed) = (result, result.hasPrefix("error"))
                     } else if let mcp {
                         let t = clock.now
                         do { (output, failed) = try await mcp.callTool(name, args) }
                         catch { (output, failed) = (error.localizedDescription, true) }
+                        if !failed, name.hasSuffix("GetLiveContext") { homeState = output }
                         turn.haSeconds += (clock.now - t) / .seconds(1)
                     } else {
                         (output, failed) = ("unknown tool", true)

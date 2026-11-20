@@ -73,6 +73,8 @@ struct ContentView: View {
         }
         .onChange(of: panelData) { panel = Panel.decoded(panelData) }
         .onChange(of: home.saraAsleep) { applyWakeWord() }
+        // Entities come and go when a device is added: look for new devices then, and on every start.
+        .onChange(of: home.entityIDs, initial: true) { Task { await NewDevices.shared.check() } }
         .onAppear {
             Keychain.moveLocalSecretsToICloud()
             CloudSettings.start()
@@ -87,6 +89,9 @@ struct ContentView: View {
             Alarms.shared.onFire = { label in
                 done = label
                 if !isNight(.now) { voice.say(String(localized: "Timer: \(label)")) }
+            }
+            NewDevices.shared.onFound = { device in
+                if !home.saraAsleep && !isNight(.now) { voice.say(String(localized: "A new device appeared: \(device.name). You can add it to the panel.")) }
             }
             applyWakeWord()
             if haURL.isEmpty { showSettings = true }

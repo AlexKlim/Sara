@@ -16,6 +16,7 @@ struct PanelView: View {
         let wide = sizeClass == .regular
         VStack(spacing: 28) {
             HeaderView(home: home, listening: listening, onTalk: onTalk, onSettings: onSettings)
+            if let device = NewDevices.shared.found.first { NewDeviceBanner(device: device) }
             if panel.blocks.isEmpty {
                 Spacer()
                 Text("Set up the panel in Settings").foregroundStyle(Theme.secondary)
@@ -87,6 +88,8 @@ struct PanelView: View {
             RunningBlockView(block: block, home: home)
         case .climate:
             ClimateBlockView(block: block, home: home)
+        case .device:
+            DeviceBlockView(block: block, home: home)
         case .list:
             if let todo = block.items.first?.entity, todo.hasPrefix("todo.") {
                 TodoBlockView(entity: todo, title: block.title, home: home)

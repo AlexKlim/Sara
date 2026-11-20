@@ -1,9 +1,9 @@
 import Foundation
 
-/// One block of the panel: a room with tiles, a slider, running devices or thermostats.
+/// One block of the panel: a room with tiles, a slider, running devices, thermostats, a list or one device.
 struct PanelBlock: Codable, Identifiable, Equatable {
     enum Kind: String, Codable, CaseIterable {
-        case room, slider, running, climate, list
+        case room, slider, running, climate, list, device
 
         var name: LocalizedStringResource {
             switch self {
@@ -12,6 +12,7 @@ struct PanelBlock: Codable, Identifiable, Equatable {
             case .running: "Running devices"
             case .climate: "Thermostats"
             case .list: "List"
+            case .device: "Device"
             }
         }
 
@@ -23,6 +24,7 @@ struct PanelBlock: Codable, Identifiable, Equatable {
             case .running: ["sensor"]
             case .climate: ["climate", "yandex"]
             case .list: ["todo"]
+            case .device: ["number", "input_number", "sensor", "binary_sensor", "switch", "input_boolean"]
             }
         }
     }
