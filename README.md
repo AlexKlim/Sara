@@ -218,6 +218,11 @@ Checks/           self-checks that run with swiftc
 - **Every user-visible string** goes to `Resources/Localizable.xcstrings` with its translations.
 - **One type per file.**
 - Run the checks: see the command at the top of `Checks/PanelBuildCheck.swift`.
+- **Debug builds keep a log** of the microphone, wake word and speech recognition in the app container. It helps when something goes wrong away from Xcode, such as Sara stopping to react to the wake word overnight. Fetch it over the network, no cable needed:
+  ```
+  xcrun devicectl device copy from --device <device id> --domain-type appDataContainer \
+    --domain-identifier <bundle id> --source Library/Logs/sara.log --destination sara.log
+  ```
 
 ## Roadmap
 
