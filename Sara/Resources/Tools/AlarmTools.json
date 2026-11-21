@@ -28,14 +28,29 @@
     "strict": true
   },
   {
+    "name": "schedule_command",
+    "description": "Run a home command later, e.g. \"turn off all the lights in 5 hours\" or \"in 4 hours set the floor back to 23\". Do the part for now right away with the home tools and schedule only the later part. The command runs without this conversation, so make it self-contained: device names, rooms and exact values, never \"back\" or \"it\". At that time you carry it out silently and the panel shows what you did. It runs only while the app is open. For reminders use set_timer or set_alarm.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "command": {"type": "string", "description": "The command in the user's language, e.g. \"Set the warm floor in the living room to 23 degrees\"."},
+        "minutes": {"type": "number", "description": "In how many minutes. 0 when time is given."},
+        "time": {"type": "string", "description": "24-hour local time HH:mm, the next occurrence. Empty when minutes is given."}
+      },
+      "required": ["command", "minutes", "time"],
+      "additionalProperties": false
+    },
+    "strict": true
+  },
+  {
     "name": "list_timers",
-    "description": "List the timers and alarms that are set, with their ids and when they ring.",
+    "description": "List the timers, alarms and scheduled commands that are set, with their ids and when they ring or run.",
     "input_schema": {"type": "object", "properties": {}, "additionalProperties": false},
     "strict": true
   },
   {
     "name": "cancel_timer",
-    "description": "Cancel a timer or alarm by its id from list_timers, or all of them with id \"all\".",
+    "description": "Cancel a timer, alarm or scheduled command by its id from list_timers, or all of them with id \"all\".",
     "input_schema": {
       "type": "object",
       "properties": {"id": {"type": "string"}},

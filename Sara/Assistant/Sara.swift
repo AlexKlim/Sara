@@ -49,6 +49,8 @@ import SwiftData
     /// The app paused "{player}" while Sara listens; and the note for a later phrase once that pause is over.
     static let musicPausedNote = resource("MusicPausedNote", "md")
     static let musicResumedNote = resource("MusicResumedNote", "md")
+    /// Sent with a scheduled command when it is due.
+    static let scheduledNote = resource("ScheduledNote", "md")
     static let extractionPrompt = resource("ExtractionPrompt", "md")
     static let extractionSchema = try! JSONSerialization.jsonObject(with: Data(resource("ExtractionSchema", "json").utf8)) as! [String: Any]
 

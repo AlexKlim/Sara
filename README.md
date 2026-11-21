@@ -35,6 +35,7 @@ Sara:  Enjoy the movie!                         (the conversation closes by itse
 - Knows the state of the whole home with every question, so "is the window open?" takes one round trip.
 - Knows which room each panel is in: "Sara, lights" means the lights here.
 - **Timers and alarms** that ring even when the app is in the background, shown on the panel with a live countdown.
+- **Delayed commands**: "turn on the warm floor at 28 and set it back to 23 in 4 hours". Sara does the later part herself at that time, silently, and the panel shows what she did. It needs the app open, as on a wall panel; a command missed while the app was closed is not run late, a notification says so.
 - **Lists** (to-do, shopping, packing), created and edited by voice and shown on the panel. Home Assistant lists stay shared with other assistants.
 - **Web search** for news, weather and facts.
 - Plays videos and music on an Apple TV through a Home Assistant script (see [Tips](#tips)).
@@ -141,6 +142,7 @@ The station can be interrupted too: Sara stops it when you start talking.
 | Home | "Sara, turn off the lights in the kitchen", "make it warmer and dimmer", "set the TV volume to 30", "is the window in the bathroom open?" |
 | Devices | "how long until the washer is done?", "is the printer still going?" |
 | Timers | "a timer for 10 minutes for the pasta", "wake me up at 7:30", "what timers are set?", "cancel the timer" |
+| Later | "turn on the light and turn off all the lights in the house in 5 hours", "at 23:00 set the warm floor to 20" |
 | Lists | "make a weekend to-do list: wash the car, buy paint", "what's on the list?", "cross off the paint", "add milk to the shopping list" |
 | Memory | "I like warm light in the evening", "the ceiling light in the hall is called 'the big light'", "forget that" |
 | Anything | "what's the news?", "what's the weather tomorrow?", "how do I descale a kettle?" |

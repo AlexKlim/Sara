@@ -90,6 +90,15 @@ struct ContentView: View {
                 done = label
                 if !isNight(.now) { voice.say(String(localized: "Timer: \(label)")) }
             }
+            // A scheduled command is due: Sara does it silently, after whatever she is doing, and the panel shows it.
+            Alarms.shared.onCommand = { command in
+                Task {
+                    while sara.busy { try? await Task.sleep(for: .seconds(1)) }
+                    // Closed while waiting: missed, like any command that comes due with the app closed.
+                    guard UIApplication.shared.applicationState == .active else { return }
+                    respond(command, spoken: false, scheduled: true)
+                }
+            }
             NewDevices.shared.onFound = { device in
                 if !home.saraAsleep && !isNight(.now) { voice.say(String(localized: "A new device appeared: \(device.name). You can add it to the panel.")) }
             }
@@ -99,6 +108,15 @@ struct ContentView: View {
         }
         // The conversation ran out: back to the panel.
         .onChange(of: sara.timedOutAt) { showTalk = false }
+        // An open dialog means Sara hears you without the wake word: when she stops listening, back to the panel.
+        // The delay lets a finished phrase turn into work before the check.
+        .onChange(of: voice.listening) {
+            guard !voice.listening, wakeEnabled else { return }
+            Task {
+                try? await Task.sleep(for: .seconds(1))
+                if !voice.listening, !sara.busy, !voice.speaking, queued == nil { showTalk = false }
+            }
+        }
         .onChange(of: done) { if done != nil { wakePanel() } }
         .onChange(of: scenePhase) {
             Log.write("[app] \(scenePhase)")
@@ -119,9 +137,10 @@ struct ContentView: View {
 
     /// Sends a phrase to Sara. A spoken phrase gets a spoken answer, except at night.
     /// `followUp`: heard without the wake word, so Sara may decide it was not for her.
-    private func respond(_ text: String, spoken: Bool, followUp: Bool = false) {
+    /// `scheduled`: a command the user set for now; it doesn't wake the panel.
+    private func respond(_ text: String, spoken: Bool, followUp: Bool = false, scheduled: Bool = false) {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        PowerSaver.shared.activity()
+        if !scheduled { PowerSaver.shared.activity() }
         var text = text, followUp = followUp
         let previous = inFlight
         if sara.busy {
@@ -140,8 +159,8 @@ struct ContentView: View {
         }
         let speak = spoken && !isNight(.now)
         let speaker = speakerEntity.trimmingCharacters(in: .whitespaces)
-        // A new answer: speech of an earlier, interrupted one is dropped.
-        let token = voice.newSpeech()
+        // A new answer: speech of an earlier, interrupted one is dropped. Silent scheduled work leaves speech playing.
+        let token = scheduled ? 0 : voice.newSpeech()
         var say: ((String) -> Void)? = speak ? { voice.say($0, token: token) } : nil
         if speak, !speaker.isEmpty {
             // A Home Assistant speaker (e.g. Yandex Station) gets the whole reply. If it fails, this device speaks.
@@ -166,9 +185,9 @@ struct ContentView: View {
                 try? await Task.sleep(for: .milliseconds(100))
                 waited += 1
             }
-            let note = musicNote
+            let note = scheduled ? Sara.scheduledNote : musicNote
             let outcome = await sara.ask(text, in: context, speak: say, bySentence: speaker.isEmpty, withoutWakeWord: followUp, note: note)
-            if note != nil { musicNoteChat = pausedMusicOn == nil ? nil : sara.chatID }
+            if !scheduled, note != nil { musicNoteChat = pausedMusicOn == nil ? nil : sara.chatID }
             return outcome
         }
         inFlight = task

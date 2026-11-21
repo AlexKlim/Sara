@@ -17,7 +17,7 @@ struct NightView: View {
                     .font(.system(size: 26)).foregroundStyle(Color(hex: 0x565D68))
                 Spacer()
                 HStack {
-                    if let alarm = Alarms.shared.pending.first {
+                    if let alarm = Alarms.shared.pending.first(where: { !$0.isCommand }) {
                         Label { Text(verbatim: "\(alarm.label) \(alarm.fireDate.formatted(date: .omitted, time: .shortened))") }
                             icon: { Image(systemName: alarm.isTimer ? "timer" : "alarm") }
                         Spacer()

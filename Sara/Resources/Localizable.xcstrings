@@ -1509,6 +1509,16 @@
         }
       }
     },
+    "Sara was closed and didn't do this" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сара была закрыта и не выполнила это"
+          }
+        }
+      }
+    },
     "Save" : {
       "extractionState" : "stale",
       "localizations" : {
