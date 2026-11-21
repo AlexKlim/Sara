@@ -22,13 +22,15 @@ enum Log {
                let data = try? Data(contentsOf: url) {
                 try? data.suffix(500_000).write(to: url)
             }
-            guard let handle = try? FileHandle(forWritingTo: url) else {
+            guard files.fileExists(atPath: url.path) else {
                 try? Data(line.utf8).write(to: url)
                 return
             }
-            handle.seekToEndOfFile()
-            handle.write(Data(line.utf8))
-            try? handle.close()
+            // The throwing calls: the old ones raise an exception that ends the app when the disk is full.
+            guard let handle = try? FileHandle(forWritingTo: url) else { return }
+            defer { try? handle.close() }
+            _ = try? handle.seekToEnd()
+            try? handle.write(contentsOf: Data(line.utf8))
         }
         #endif
     }

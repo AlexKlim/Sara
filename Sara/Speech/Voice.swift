@@ -269,7 +269,8 @@ import Speech
         do { try engine.inputNode.setVoiceProcessingEnabled(true) } catch {
             Log.write("[voice] voice processing failed: \(error)")
         }
-        engine.attach(player)
+        // A failed start leaves the player attached, and attaching it twice ends the app.
+        if player.engine == nil { engine.attach(player) }
         engine.connect(player, to: engine.mainMixerNode, format: nil)
         installMicTap()
         engine.prepare()
@@ -314,15 +315,20 @@ import Speech
         try? AVAudioSession.sharedInstance().setActive(true)
         installMicTap()
         engine.prepare()
-        try? engine.start()
+        do { try engine.start() } catch {
+            // play() on a stopped engine raises an exception that ends the app.
+            Log.write("[voice] engine restart failed: \(error)")
+            return
+        }
         player.play()
-        Log.write("[voice] engine restarted, running: \(engine.isRunning)")
+        Log.write("[voice] engine restarted")
     }
 
     /// Starts a fresh recognition: the old transcript is dropped.
     private func begin() {
-        guard startEngine() else { return }
+        // Ended first: with a stale task the watchdog would think recognition is still on.
         endRecognition()
+        guard startEngine() else { return }
         guard let recognizer, recognizer.isAvailable else {
             Log.write("[voice] recognizer not available")
             return
