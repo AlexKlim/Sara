@@ -1,0 +1,1 @@
+<scheduled_command>The user set this command earlier for this time. Carry it out now with the home tools, without questions, and do not schedule it again. Reply in a few words with what you did.</scheduled_command>
