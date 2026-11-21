@@ -101,6 +101,7 @@ struct ContentView: View {
         .onChange(of: sara.timedOutAt) { showTalk = false }
         .onChange(of: done) { if done != nil { wakePanel() } }
         .onChange(of: scenePhase) {
+            Log.write("[app] \(scenePhase)")
             if scenePhase == .active { PowerSaver.shared.activity() } else { PowerSaver.shared.restoreBrightness() }
         }
         .onChange(of: running) { old, new in

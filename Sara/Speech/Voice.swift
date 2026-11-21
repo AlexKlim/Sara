@@ -34,6 +34,7 @@ import Speech
     private var wakeWord: String?
     /// Numbers listen() calls, so an older one finishing its authorization late can't restart recognition.
     private var listenRequest = 0
+    private var watchdog: Task<Void, Never>?
     private var onWake: (() -> Void)?
     /// The command, and whether it came without the wake word (a follow-up).
     private var onCommand: ((String, Bool) -> Void)?
@@ -85,11 +86,26 @@ import Speech
         let request = listenRequest
         // stopListening() or a newer listen() may have run while authorization was asked.
         guard await authorized(), wakeWord != nil, request == listenRequest else { return }
+        Log.write("[voice] listening for the wake word")
         if !pushToTalk { begin() }
+        watchdog?.cancel()
+        watchdog = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(30))
+                guard let self, self.wakeWord != nil else { return }
+                // After a call, Siri or another app took the audio, or the recognizer wasn't ready, nothing else restarts these.
+                if !self.pushToTalk, !self.listening, !self.engine.isRunning || self.task == nil {
+                    Log.write("[voice] watchdog: engine running: \(self.engine.isRunning), recognition: \(self.task != nil)")
+                    self.begin()
+                }
+            }
+        }
     }
 
     func stopListening() {
+        if wakeWord != nil { Log.write("[voice] stopped listening for the wake word") }
         wakeWord = nil
+        watchdog?.cancel()
         if !pushToTalk { endRecognition() }
     }
 
@@ -242,34 +258,43 @@ import Speech
 
     /// The engine runs all the time: the microphone with voice processing, and Sara's voice.
     private func startEngine() -> Bool {
-        if engineReady { return true }
+        if engineReady {
+            // An audio interruption stops the engine without a configuration change.
+            if !engine.isRunning { restartEngine() }
+            return engine.isRunning
+        }
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .duckOthers])
         try? session.setActive(true)
         do { try engine.inputNode.setVoiceProcessingEnabled(true) } catch {
-            #if DEBUG
-            print("[voice] voice processing failed:", error)
-            #endif
+            Log.write("[voice] voice processing failed: \(error)")
         }
         engine.attach(player)
         engine.connect(player, to: engine.mainMixerNode, format: nil)
         installMicTap()
         engine.prepare()
         do { try engine.start() } catch {
-            #if DEBUG
-            print("[voice] engine failed:", error)
-            #endif
+            Log.write("[voice] engine failed: \(error)")
             return false
         }
         player.play()
         engineReady = true
         // iOS reconfigures audio right after voice processing comes on (and on route changes) and stops the engine.
         NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak self] _ in
-            MainActor.assumeIsolated { self?.restartEngine() }
+            MainActor.assumeIsolated {
+                Log.write("[voice] audio configuration changed")
+                self?.restartEngine()
+            }
         }
-        #if DEBUG
-        print("[voice] engine started, voice processing:", engine.inputNode.isVoiceProcessingEnabled, "input:", engine.inputNode.outputFormat(forBus: 0))
-        #endif
+        NotificationCenter.default.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: .main) { note in
+            let type = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
+            let reason = note.userInfo?[AVAudioSessionInterruptionReasonKey] as? UInt
+            Log.write("[voice] audio interruption \(type == AVAudioSession.InterruptionType.began.rawValue ? "began" : "ended"), reason: \(reason.map(String.init) ?? "-")")
+        }
+        NotificationCenter.default.addObserver(forName: AVAudioSession.mediaServicesWereResetNotification, object: nil, queue: .main) { _ in
+            Log.write("[voice] media services were reset")
+        }
+        Log.write("[voice] engine started, voice processing: \(engine.inputNode.isVoiceProcessingEnabled), input: \(engine.inputNode.outputFormat(forBus: 0))")
         return true
     }
 
@@ -286,20 +311,22 @@ import Speech
 
     private func restartEngine() {
         guard !engine.isRunning else { return }
+        try? AVAudioSession.sharedInstance().setActive(true)
         installMicTap()
         engine.prepare()
         try? engine.start()
         player.play()
-        #if DEBUG
-        print("[voice] engine restarted after a configuration change, running:", engine.isRunning)
-        #endif
+        Log.write("[voice] engine restarted, running: \(engine.isRunning)")
     }
 
     /// Starts a fresh recognition: the old transcript is dropped.
     private func begin() {
         guard startEngine() else { return }
         endRecognition()
-        guard let recognizer, recognizer.isAvailable else { return }
+        guard let recognizer, recognizer.isAvailable else {
+            Log.write("[voice] recognizer not available")
+            return
+        }
 
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
@@ -316,9 +343,7 @@ import Speech
         task = recognizer.recognitionTask(with: request) { [weak self] result, error in
             let phrase = result?.bestTranscription.formattedString
             let done = error != nil || result?.isFinal == true
-            #if DEBUG
-            if let error { print("[voice] error:", error) }
-            #endif
+            if let error { Log.write("[voice] recognition ended: \(error.localizedDescription) (\((error as NSError).code))") }
             Task { @MainActor in self?.heard(phrase, done: done, generation: current) }
         }
     }
@@ -371,6 +396,7 @@ import Speech
             heardWakeWord = true
             if !listening {
                 listening = true
+                Log.write("[voice] wake word")
                 onWake?()
             }
             // ponytail: assumes lowercasing keeps the length, true for Russian and English
