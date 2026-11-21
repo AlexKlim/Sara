@@ -106,6 +106,15 @@ struct ContentView: View {
         }
         // The conversation ran out: back to the panel.
         .onChange(of: sara.timedOutAt) { showTalk = false }
+        // An open dialog means Sara hears you without the wake word: when she stops listening, back to the panel.
+        // The delay lets a finished phrase turn into work before the check.
+        .onChange(of: voice.listening) {
+            guard !voice.listening, wakeEnabled else { return }
+            Task {
+                try? await Task.sleep(for: .seconds(1))
+                if !voice.listening, !sara.busy, !voice.speaking, queued == nil { showTalk = false }
+            }
+        }
         .onChange(of: done) { if done != nil { wakePanel() } }
         .onChange(of: scenePhase) {
             Log.write("[app] \(scenePhase)")
