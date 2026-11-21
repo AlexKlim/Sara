@@ -94,6 +94,8 @@ struct ContentView: View {
             Alarms.shared.onCommand = { command in
                 Task {
                     while sara.busy { try? await Task.sleep(for: .seconds(1)) }
+                    // Closed while waiting: missed, like any command that comes due with the app closed.
+                    guard UIApplication.shared.applicationState == .active else { return }
                     respond(command, spoken: false, scheduled: true)
                 }
             }
@@ -157,8 +159,8 @@ struct ContentView: View {
         }
         let speak = spoken && !isNight(.now)
         let speaker = speakerEntity.trimmingCharacters(in: .whitespaces)
-        // A new answer: speech of an earlier, interrupted one is dropped.
-        let token = voice.newSpeech()
+        // A new answer: speech of an earlier, interrupted one is dropped. Silent scheduled work leaves speech playing.
+        let token = scheduled ? 0 : voice.newSpeech()
         var say: ((String) -> Void)? = speak ? { voice.say($0, token: token) } : nil
         if speak, !speaker.isEmpty {
             // A Home Assistant speaker (e.g. Yandex Station) gets the whole reply. If it fails, this device speaks.

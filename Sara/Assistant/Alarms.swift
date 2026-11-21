@@ -54,16 +54,14 @@ import UserNotifications
             guard minutes > 0 else { return "error: minutes must be positive" }
             return await schedule(label, UNTimeIntervalNotificationTrigger(timeInterval: minutes * 60, repeats: false))
         case "set_alarm":
-            let parts = (args["time"] as? String ?? "").split(separator: ":").compactMap { Int($0) }
-            guard parts.count == 2 else { return "error: time must be HH:mm" }
-            let when = DateComponents(hour: parts[0], minute: parts[1])
+            guard let when = DateComponents(clockTime: args["time"] as? String ?? "") else { return "error: time must be HH:mm" }
             return await schedule(label, UNCalendarNotificationTrigger(dateMatching: when, repeats: false))
         case "schedule_command":
             let command = args["command"] as? String ?? ""
             guard !command.isEmpty else { return "error: command is empty" }
-            let parts = (args["time"] as? String ?? "").split(separator: ":").compactMap { Int($0) }
-            if parts.count == 2 {
-                let when = DateComponents(hour: parts[0], minute: parts[1])
+            let time = args["time"] as? String ?? ""
+            if !time.isEmpty {
+                guard let when = DateComponents(clockTime: time) else { return "error: time must be HH:mm" }
                 return await schedule(command, UNCalendarNotificationTrigger(dateMatching: when, repeats: false), command: true)
             }
             let minutes = args["minutes"] as? Double ?? 0
