@@ -111,7 +111,7 @@ import SwiftData
             if newChat {
                 let t = clock.now
                 let homeTools = (try await mcp?.claudeTools() ?? []) + (yandex == nil ? [] : YandexHome.tools)
-                tools = homeTools + (mcp == nil ? [] : Numbers.tools) + Memory.tools + Lists.tools + Alarms.tools + Self.conversationTools + [claude.webSearchTool]
+                tools = homeTools + (mcp == nil ? [] : Numbers.tools) + Memory.tools + Lists.tools + Alarms.tools + AppSettings.tools + Self.conversationTools + [claude.webSearchTool]
                 turn.haSeconds += (clock.now - t) / .seconds(1)
                 let room = defaults.string(forKey: "deviceRoom") ?? ""
                 system = [Self.prompt, room.isEmpty ? "" : Self.roomPrompt.replacingOccurrences(of: "{room}", with: room),
@@ -201,6 +201,8 @@ import SwiftData
                     if let saved = memory.run(name, args) {
                         (output, failed) = (saved, false)
                     } else if let result = lists.run(name, args) {
+                        (output, failed) = (result, result.hasPrefix("error"))
+                    } else if let result = await AppSettings.run(name, args) {
                         (output, failed) = (result, result.hasPrefix("error"))
                     } else if let alarm = await Alarms.shared.run(name, args) {
                         (output, failed) = (alarm, alarm.hasPrefix("error"))
