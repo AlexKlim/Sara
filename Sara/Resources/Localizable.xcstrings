@@ -2479,6 +2479,86 @@
           }
         }
       }
+    },
+    "Schedule" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расписание"
+          }
+        }
+      }
+    },
+    "To change it, ask Sara." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чтобы изменить, попросите Сару."
+          }
+        }
+      }
+    },
+    "Comfort %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Комфорт %@"
+          }
+        }
+      }
+    },
+    "Economy %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эконом %@"
+          }
+        }
+      }
+    },
+    "The thermostat follows this schedule." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Термостат работает по этому расписанию."
+          }
+        }
+      }
+    },
+    "The schedule is off: the thermostat keeps one temperature." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расписание выключено: термостат держит одну температуру."
+          }
+        }
+      }
+    },
+    "Economy all day" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Весь день эконом"
+          }
+        }
+      }
+    },
+    "Opens the schedule" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открывает расписание"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

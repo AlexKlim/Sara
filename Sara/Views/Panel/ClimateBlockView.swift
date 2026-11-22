@@ -6,6 +6,8 @@ struct ClimateBlockView: View {
     let home: Home
     @State private var pending: [String: Double] = [:]
     @State private var failed: Set<String> = []
+    /// The thermostat whose own weekly schedule is open.
+    @State private var scheduleOf: PanelItem?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -22,6 +24,13 @@ struct ClimateBlockView: View {
             .padding(.vertical, 4)
             .card(padding: 0)
         }
+        .sheet(item: $scheduleOf) { item in
+            if let serial = DeviSchedule.serial(of: item.entity) {
+                ThermostatScheduleView(name: home.name(item), serial: serial, home: home)
+                    .presentationSizing(.fitted)
+                    .presentationCornerRadius(28)
+            }
+        }
     }
 
     private func row(_ item: PanelItem) -> some View {
@@ -30,14 +39,28 @@ struct ClimateBlockView: View {
         let target = pending[id] ?? home.attribute(id, "temperature") as? Double
         let heating = home.isHeating(id, target: target)
         let status = status(id, heating: heating, target: target)
-        return HStack(spacing: 14) {
+        // A DEVI thermostat keeps its own weekly schedule: then the row opens it.
+        let hasSchedule = DeviSchedule.serial(of: id).map { home.state(DeviSchedule.sensor(serial: $0)) != nil } ?? false
+        let info = HStack(spacing: 14) {
             Image(systemName: "thermometer.medium").font(.system(size: 22))
                 .foregroundStyle(heating ? Theme.amber : Theme.secondary)
             VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: name).font(.system(size: 18, weight: .medium))
+                HStack(spacing: 8) {
+                    Text(verbatim: name).font(.system(size: 18, weight: .medium))
+                    if hasSchedule { Image(systemName: "calendar").font(.system(size: 15)).foregroundStyle(Theme.muted) }
+                }
                 if let status {
                     Text(status).font(.system(size: 15)).foregroundStyle(heating || failed.contains(id) ? Theme.amber : Theme.secondary)
                 }
+            }
+        }
+        return HStack(spacing: 14) {
+            if hasSchedule {
+                Button { scheduleOf = item } label: { info.contentShape(.rect) }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Opens the schedule")
+            } else {
+                info
             }
             Spacer()
             if let target, id.hasPrefix("climate.") {

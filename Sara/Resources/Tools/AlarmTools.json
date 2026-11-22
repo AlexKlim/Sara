@@ -29,15 +29,16 @@
   },
   {
     "name": "schedule_command",
-    "description": "Run a home command later, e.g. \"turn off all the lights in 5 hours\" or \"in 4 hours set the floor back to 23\". Do the part for now right away with the home tools and schedule only the later part. The command runs without this conversation, so make it self-contained: device names, rooms and exact values, never \"back\" or \"it\". At that time you carry it out silently and the panel shows what you did. It runs only while the app is open. For reminders use set_timer or set_alarm.",
+    "description": "Run a home command later, e.g. \"turn off all the lights in 5 hours\" or \"in 4 hours set the floor back to 23\". Do the part for now right away with the home tools and schedule only the later part. The command runs without this conversation, so make it self-contained: device names, rooms and exact values, never \"back\" or \"it\". At that time you carry it out silently and the panel shows what you did. It runs only while the app is open. For a weekly schedule, e.g. \"on Saturdays and Sundays at 9 set the bathroom floor to 28 and at 15:00 back to 23\", schedule each change as its own command with weekdays. If the device has its own weekly schedule in the home tools, like the warm floor schedule script, use that instead: it runs even when the app is closed. For reminders use set_timer or set_alarm.",
     "input_schema": {
       "type": "object",
       "properties": {
         "command": {"type": "string", "description": "The command in the user's language, e.g. \"Set the warm floor in the living room to 23 degrees\"."},
         "minutes": {"type": "number", "description": "In how many minutes. 0 when time is given."},
-        "time": {"type": "string", "description": "24-hour local time HH:mm, the next occurrence. Empty when minutes is given."}
+        "time": {"type": "string", "description": "24-hour local time HH:mm: the next occurrence, or the time on each of the weekdays. Empty when minutes is given."},
+        "weekdays": {"type": "array", "items": {"type": "string", "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]}, "description": "Repeat every week on these days at time. Empty for a one-time command."}
       },
-      "required": ["command", "minutes", "time"],
+      "required": ["command", "minutes", "time", "weekdays"],
       "additionalProperties": false
     },
     "strict": true
@@ -50,7 +51,7 @@
   },
   {
     "name": "cancel_timer",
-    "description": "Cancel a timer, alarm or scheduled command by its id from list_timers, or all of them with id \"all\".",
+    "description": "Cancel a timer, alarm or scheduled command by its id from list_timers, or all of them with id \"all\". A weekly command has one id per day (\"ab12cd34-sat\"): the part before the dash cancels all its days.",
     "input_schema": {
       "type": "object",
       "properties": {"id": {"type": "string"}},
