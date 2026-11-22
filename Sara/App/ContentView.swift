@@ -102,6 +102,14 @@ struct ContentView: View {
             NewDevices.shared.onFound = { device in
                 if !home.saraAsleep && !isNight(.now) { voice.say(String(localized: "A new device appeared: \(device.name). You can add it to the panel.")) }
             }
+            // Sara changed how she listens or speaks: restart listening once she has finished answering
+            // and the follow-up is over, so its timeout is kept.
+            AppSettings.onVoiceChange = {
+                Task {
+                    while sara.busy || voice.speaking || voice.listening { try? await Task.sleep(for: .seconds(1)) }
+                    applyWakeWord()
+                }
+            }
             applyWakeWord()
             if haURL.isEmpty { showSettings = true }
             buildPanelIfEmpty()

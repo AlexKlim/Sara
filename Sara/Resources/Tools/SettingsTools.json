@@ -1,0 +1,31 @@
+[
+  {
+    "name": "app_settings",
+    "description": "Read or change Sara's own settings on this device, when the user asks, e.g. \"turn off night mode\", \"listen 10 seconds longer after a reply\", \"speak through the kitchen speaker\". Call with no changes to read the current values. Keys, tokens, the Home Assistant address and the Claude model are not here: only the user changes them in Settings.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "changes": {
+          "type": "array",
+          "description": "Settings to change, in order. Empty to only read them.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "setting": {
+                "type": "string",
+                "enum": ["wake_word_listening", "wake_word", "follow_up_seconds", "conversation_seconds", "night_mode", "night_start_hour", "night_end_hour", "speaker", "room"],
+                "description": "wake_word_listening: true/false, whether Sara listens for her name (off: she hears only a tap on the panel, until the user turns it back on). wake_word: the name she answers to, empty for the default. follow_up_seconds: 0-60, how long she listens without the name after a reply. conversation_seconds: 30-600, how long a conversation stays open after a reply. night_mode: true/false, a dim clock and text-only replies at night. night_start_hour, night_end_hour: 0-23. speaker: the name of a media player from home_state that reads her replies, empty for this device. room: the room this device is in, a Home Assistant area name, empty for none."
+              },
+              "value": {"type": "string", "description": "The new value as text, e.g. \"true\", \"25\", \"Kitchen speaker\"."}
+            },
+            "required": ["setting", "value"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["changes"],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+]
