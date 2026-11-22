@@ -60,6 +60,19 @@ import UserNotifications
             let command = args["command"] as? String ?? ""
             guard !command.isEmpty else { return "error: command is empty" }
             let time = args["time"] as? String ?? ""
+            let weekdays = args["weekdays"] as? [String] ?? []
+            if !weekdays.isEmpty {
+                guard var when = DateComponents(clockTime: time) else { return "error: a weekly command needs time HH:mm" }
+                let id = String(UUID().uuidString.prefix(8))
+                var results: [String] = []
+                for day in weekdays {
+                    // Calendar weekdays count from Sunday = 1.
+                    guard let index = Self.weekdays.firstIndex(of: day) else { return "error: unknown weekday \(day)" }
+                    when.weekday = index + 1
+                    results.append(await schedule(command, UNCalendarNotificationTrigger(dateMatching: when, repeats: true), command: true, id: "\(id)-\(day)"))
+                }
+                return results.joined(separator: "\n")
+            }
             if !time.isEmpty {
                 guard let when = DateComponents(clockTime: time) else { return "error: time must be HH:mm" }
                 return await schedule(command, UNCalendarNotificationTrigger(dateMatching: when, repeats: false), command: true)
@@ -73,12 +86,17 @@ import UserNotifications
             return pending.map { request in
                 let when = (request.trigger as? UNTimeIntervalNotificationTrigger)?.nextTriggerDate()
                     ?? (request.trigger as? UNCalendarNotificationTrigger)?.nextTriggerDate()
-                let kind = request.content.userInfo[Self.commandKey] != nil ? "command" : "timer"
+                let kind = request.content.userInfo[Self.commandKey] == nil ? "timer" : request.trigger?.repeats == true ? "weekly command" : "command"
                 return "\(request.identifier) (\(kind)): \(request.content.body) at \(when?.formatted(date: .abbreviated, time: .shortened) ?? "?")"
             }.joined(separator: "\n")
         case "cancel_timer":
             let id = args["id"] as? String ?? ""
-            if id == "all" { center.removeAllPendingNotificationRequests() } else { center.removePendingNotificationRequests(withIdentifiers: [id]) }
+            if id == "all" {
+                center.removeAllPendingNotificationRequests()
+            } else {
+                let ids = await center.pendingNotificationRequests().map(\.identifier).filter { $0 == id || $0.hasPrefix(id + "-") }
+                center.removePendingNotificationRequests(withIdentifiers: ids)
+            }
             await refresh()
             return "cancelled"
         default:
@@ -87,8 +105,10 @@ import UserNotifications
     }
 
     private static let commandKey = "command"
+    private static let weekdays = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
 
-    private func schedule(_ label: String, _ trigger: UNNotificationTrigger, command: Bool = false) async -> String {
+    private func schedule(_ label: String, _ trigger: UNNotificationTrigger, command: Bool = false,
+                          id: String = String(UUID().uuidString.prefix(8))) async -> String {
         guard (try? await center.requestAuthorization(options: [.alert, .sound])) == true else {
             return "error: notifications are not allowed for Sara in iOS Settings"
         }
@@ -103,7 +123,6 @@ import UserNotifications
             content.sound = .default
             content.interruptionLevel = .timeSensitive
         }
-        let id = String(UUID().uuidString.prefix(8))
         do {
             try await center.add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
         } catch {

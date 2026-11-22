@@ -18,7 +18,8 @@ struct AlarmsBlockView: View {
                                 if alarm.isTimer && !alarm.isCommand {
                                     Text(timerInterval: Date.now...max(alarm.fireDate, .now), countsDown: true)
                                 } else {
-                                    Text(alarm.fireDate, format: .dateTime.hour().minute())
+                                    Text(alarm.fireDate, format: Calendar.current.isDateInToday(alarm.fireDate)
+                                         ? .dateTime.hour().minute() : .dateTime.weekday(.abbreviated).hour().minute())
                                 }
                             }
                             .font(.system(size: 28, weight: .semibold)).monospacedDigit()
