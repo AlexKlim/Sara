@@ -94,7 +94,8 @@ import SwiftData
             lastExchange = .now
             currentTurn = nil
             if !turn.isDeleted { turn.totalSeconds = (clock.now - started) / .seconds(1) }
-            scheduleClose(after: window, in: context)
+            // Read again: Sara may have just changed it.
+            scheduleClose(after: defaults.object(forKey: "window") as? Double ?? 150, in: context)
         }
 
         do {
@@ -113,9 +114,7 @@ import SwiftData
                 let homeTools = (try await mcp?.claudeTools() ?? []) + (yandex == nil ? [] : YandexHome.tools)
                 tools = homeTools + (mcp == nil ? [] : Numbers.tools) + Memory.tools + Lists.tools + Alarms.tools + AppSettings.tools + Self.conversationTools + [claude.webSearchTool]
                 turn.haSeconds += (clock.now - t) / .seconds(1)
-                let room = defaults.string(forKey: "deviceRoom") ?? ""
-                system = [Self.prompt, room.isEmpty ? "" : Self.roomPrompt.replacingOccurrences(of: "{room}", with: room),
-                          defaults.string(forKey: "houseNotes") ?? "", memory.promptBlock()].joined(separator: "\n\n")
+                system = [Self.prompt, defaults.string(forKey: "houseNotes") ?? "", memory.promptBlock()].joined(separator: "\n\n")
             }
             // Send the current home state with the phrase, so Sara doesn't spend a Claude round trip on GetLiveContext.
             // The current local time: Claude doesn't know it, and timers, alarms and "tonight" need it.
@@ -148,10 +147,13 @@ import SwiftData
             }
             messages.append(["role": "user", "content": content])
 
+            // Read for every phrase: Sara may have moved this device to another room mid-conversation.
+            let room = defaults.string(forKey: "deviceRoom") ?? ""
+            let roomNote = room.isEmpty ? "" : "\n\n" + Self.roomPrompt.replacingOccurrences(of: "{room}", with: room)
             for _ in 0..<10 {
                 status = String(localized: "Thinking...")
                 let t = clock.now
-                let response = try await claude.stream(system: system, tools: tools, messages: messages) { event in
+                let response = try await claude.stream(system: system + roomNote, tools: tools, messages: messages) { event in
                     if turn.firstTextSeconds == nil, Self.isText(event) { turn.firstTextSeconds = (clock.now - started) / .seconds(1) }
                     self.handle(event, turn: turn)
                 }
