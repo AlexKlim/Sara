@@ -55,15 +55,16 @@ struct PanelEditorView: View {
     /// A new block of running devices comes filled with the printers, washers and the like Home Assistant has,
     /// already set up, so nobody has to look for their sensors.
     private func add(_ kind: PanelBlock.Kind) {
-        let index = panel.blocks.count
         let title = kind == .running ? String(localized: "Running now") : String(localized: kind.name)
-        panel.blocks.append(PanelBlock(kind: kind, title: title, column: kind == .running ? 1 : 0))
+        let block = PanelBlock(kind: kind, title: title, column: kind == .running ? 1 : 0)
+        panel.blocks.append(block)
         guard kind == .running else { return }
         Task {
             guard let found = try? await Panel.build(from: HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken")))
                 .blocks.first(where: { $0.kind == .running })?.items,
-                  index < panel.blocks.count, panel.blocks[index].kind == .running, panel.blocks[index].items.isEmpty else { return }
+                  let index = panel.blocks.firstIndex(where: { $0.id == block.id }), panel.blocks[index].items.isEmpty else { return }
             panel.blocks[index].items = found
+            panel.save()
         }
     }
 }

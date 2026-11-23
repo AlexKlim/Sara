@@ -41,7 +41,7 @@ struct RunningBlockView: View {
                     .background(accent.opacity(0.15), in: .rect(cornerRadius: 10))
                 VStack(alignment: .leading, spacing: 1) {
                     Text(home.name(item)).font(.system(size: 15, weight: .semibold)).lineLimit(1)
-                    if let end = home.date(item.end) {
+                    if !home.isWaiting(item), let end = home.date(item.end) {
                         Text("Until \(end.formatted(date: .omitted, time: .shortened))").font(.system(size: 13)).foregroundStyle(Theme.secondary)
                     } else if let detail = detail(item) {
                         Text(verbatim: detail).font(.system(size: 13)).foregroundStyle(Theme.secondary).lineLimit(1)

@@ -54,8 +54,11 @@ struct ItemEditorView: View {
               let services = try? await HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken")).call(["get_services"]).first as? [String: Any],
               let fields = ((services["script"] as? [String: Any])?[PanelItem.objectID(script)] as? [String: Any])?["fields"] as? [String: Any]
         else { scriptFields = []; return }
+        // The user may have picked another script while this one loaded.
+        guard script == item.script else { return }
         scriptFields = fields.keys.sorted()
-        if scriptFields.count == 1 || (item.field.map { !scriptFields.contains($0) } ?? true) { item.field = scriptFields.first }
+        // A field typed by hand stays: a script can use a variable it does not declare.
+        if item.field?.isEmpty ?? true { item.field = scriptFields.first }
     }
 
     /// An optional text field as a plain one: empty means nil.

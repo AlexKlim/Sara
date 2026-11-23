@@ -80,7 +80,7 @@ struct Panel: Codable, Equatable {
         return PanelItem(
             entity: remaining, name: name.isEmpty ? nil : name,
             icon: kinds.first { remaining.contains($0.0) }?.1,
-            active: find("binary_sensor", ["_status", "_running"]) ?? find("sensor", ["print_status", "machine_state", "run_state", "operation_state"]),
+            active: find("binary_sensor", ["_running", "_status"]) ?? find("sensor", ["print_status", "machine_state", "run_state", "operation_state"]),
             progress: find("sensor", ["print_progress", "_progress"]),
             end: find("sensor", ["end_time", "finish_time", "completion_time"]),
             detail: find("sensor", ["task_name", "current_program"]))
