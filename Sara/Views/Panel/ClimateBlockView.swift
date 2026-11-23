@@ -8,21 +8,22 @@ struct ClimateBlockView: View {
     @State private var failed: Set<String> = []
     /// The thermostat whose own weekly schedule is open.
     @State private var scheduleOf: PanelItem?
+    @Environment(\.compactPanel) private var compact
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(block.title).blockTitle()
+        VStack(alignment: .leading, spacing: compact ? 8 : 12) {
+            Text(block.title).blockTitle(size: compact ? 13 : 15)
             VStack(spacing: 0) {
                 ForEach(block.items) { item in
-                    row(item).padding(.vertical, 14)
+                    row(item).padding(.vertical, compact ? 10 : 14)
                     if item.id != block.items.last?.id { Divider().overlay(Theme.border) }
                 }
             }
             .foregroundStyle(Theme.text)
-            .padding(.leading, 24)
-            .padding(.trailing, 20)
-            .padding(.vertical, 4)
-            .card(padding: 0)
+            .padding(.leading, compact ? 14 : 24)
+            .padding(.trailing, compact ? 12 : 20)
+            .padding(.vertical, compact ? 0 : 4)
+            .card(padding: 0, cornerRadius: compact ? 18 : 20)
         }
         .sheet(item: $scheduleOf) { item in
             if let serial = DeviSchedule.serial(of: item.entity) {
@@ -41,20 +42,21 @@ struct ClimateBlockView: View {
         let status = status(id, heating: heating, target: target)
         // A DEVI thermostat keeps its own weekly schedule: then the row opens it.
         let hasSchedule = DeviSchedule.serial(of: id).map { home.state(DeviSchedule.sensor(serial: $0)) != nil } ?? false
-        let info = HStack(spacing: 14) {
-            Image(systemName: "thermometer.medium").font(.system(size: 22))
+        let info = HStack(spacing: compact ? 10 : 14) {
+            Image(systemName: "thermometer.medium").font(.system(size: compact ? 20 : 22))
                 .foregroundStyle(heating ? Theme.amber : Theme.secondary)
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: compact ? 1 : 2) {
                 HStack(spacing: 8) {
-                    Text(verbatim: name).font(.system(size: 18, weight: .medium))
-                    if hasSchedule { Image(systemName: "calendar").font(.system(size: 15)).foregroundStyle(Theme.muted) }
+                    Text(verbatim: name).font(.system(size: compact ? 16 : 18, weight: compact ? .semibold : .medium))
+                    if hasSchedule { Image(systemName: "calendar").font(.system(size: compact ? 13 : 15)).foregroundStyle(Theme.muted) }
                 }
                 if let status {
-                    Text(status).font(.system(size: 15)).foregroundStyle(heating || failed.contains(id) ? Theme.amber : Theme.secondary)
+                    Text(status).font(.system(size: compact ? 13 : 15)).lineLimit(1)
+                        .foregroundStyle(heating || failed.contains(id) ? Theme.amber : Theme.secondary)
                 }
             }
         }
-        return HStack(spacing: 14) {
+        return HStack(spacing: compact ? 10 : 14) {
             if hasSchedule {
                 Button { scheduleOf = item } label: { info.contentShape(.rect) }
                     .buttonStyle(.plain)

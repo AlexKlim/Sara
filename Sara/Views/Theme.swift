@@ -42,8 +42,15 @@ extension View {
             .overlay(RoundedRectangle(cornerRadius: cornerRadius).stroke(Theme.border))
     }
 
-    func blockTitle(_ color: Color = Theme.secondary) -> some View {
-        self.font(.system(size: 15, weight: .semibold)).tracking(1.5).textCase(.uppercase).foregroundStyle(color)
+    func blockTitle(_ color: Color = Theme.secondary, size: CGFloat = 15) -> some View {
+        self.font(.system(size: size, weight: .semibold)).tracking(size / 10).textCase(.uppercase).foregroundStyle(color)
+    }
+
+    /// Without Home Assistant its states are unknown, not off: such blocks fade and take no taps.
+    func unreachable(_ unreachable: Bool) -> some View {
+        self.saturation(unreachable ? 0 : 1)
+            .opacity(unreachable ? 0.4 : 1)
+            .allowsHitTesting(!unreachable)
     }
 
     func pill() -> some View {

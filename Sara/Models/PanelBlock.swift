@@ -36,6 +36,12 @@ struct PanelBlock: Codable, Identifiable, Equatable {
     var column = 0
     var items: [PanelItem] = []
 
+    /// Its states come from Home Assistant, so they are unknown while it is offline.
+    /// Yandex devices and the app's own lists keep working.
+    var usesHomeAssistant: Bool {
+        items.contains { kind == .list ? $0.entity.hasPrefix("todo.") : !$0.entity.hasPrefix("yandex.") }
+    }
+
     enum CodingKeys: String, CodingKey {
         case kind, title, column, items
     }

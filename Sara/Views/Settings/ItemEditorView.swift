@@ -5,6 +5,9 @@ struct ItemEditorView: View {
     @Binding var item: PanelItem
     let kind: PanelBlock.Kind
     let home: Home
+    @AppStorage("haURL") private var haURL = ""
+    /// The fields the chosen script takes, from Home Assistant. Empty when unknown: then the field is typed in.
+    @State private var scriptFields: [String] = []
 
     var body: some View {
         Form {
@@ -15,7 +18,13 @@ struct ItemEditorView: View {
             if kind == .slider {
                 Section {
                     EntityRow(title: "Script", home: home, domains: ["script"], selection: $item.script)
-                    TextField("Script field", text: text(\.field), prompt: Text(verbatim: "value"))
+                    if scriptFields.count > 1 {
+                        Picker("Script field", selection: text(\.field)) {
+                            ForEach(scriptFields, id: \.self) { Text(verbatim: $0).tag($0) }
+                        }
+                    } else if item.script != nil {
+                        TextField("Script field", text: text(\.field), prompt: Text(verbatim: "value"))
+                    }
                 } footer: {
                     Text("The value comes from the entity. To change it, set a script, e.g. a TV volume script. Without one, media players and lights are set directly.")
                 }
@@ -32,9 +41,21 @@ struct ItemEditorView: View {
                 }
             }
         }
+        .task(id: item.script) { await loadScriptFields() }
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
         .navigationTitle(home.name(item))
+    }
+
+    /// Reads the chosen script's fields from Home Assistant. A script with one field gets it filled in,
+    /// so nobody has to know its name; with several, they are offered to pick from.
+    private func loadScriptFields() async {
+        guard kind == .slider, let script = item.script,
+              let services = try? await HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken")).call(["get_services"]).first as? [String: Any],
+              let fields = ((services["script"] as? [String: Any])?[PanelItem.objectID(script)] as? [String: Any])?["fields"] as? [String: Any]
+        else { scriptFields = []; return }
+        scriptFields = fields.keys.sorted()
+        if scriptFields.count == 1 || (item.field.map { !scriptFields.contains($0) } ?? true) { item.field = scriptFields.first }
     }
 
     /// An optional text field as a plain one: empty means nil.

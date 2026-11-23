@@ -18,12 +18,17 @@ struct WeatherView: View {
                     days
                 }
             } else {
+                // The list runs to the bottom edge of the sheet instead of stopping short above it.
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) { now; days }
                 }
+                .contentMargins(.bottom, 20, for: .scrollContent)
+                .ignoresSafeArea(edges: .bottom)
             }
         }
-        .padding(wide ? 32 : 20)
+        .padding(.horizontal, wide ? 32 : 20)
+        .padding(.top, wide ? 32 : 20)
+        .padding(.bottom, wide ? 32 : 0)
         .frame(idealWidth: wide ? 1060 : nil, maxWidth: wide ? 1060 : nil)
         .foregroundStyle(Theme.text)
         .background(Theme.sheet)

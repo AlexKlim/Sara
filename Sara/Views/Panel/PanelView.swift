@@ -22,14 +22,7 @@ struct PanelView: View {
                 Text("Set up the panel in Settings").foregroundStyle(Theme.secondary)
                 Spacer()
             } else {
-                if home.offline {
-                    Label("No connection to Home Assistant", systemImage: "wifi.exclamationmark")
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundStyle(Theme.amber)
-                        .padding(.vertical, 12).padding(.horizontal, 20)
-                        .background(Theme.amberBackground, in: .capsule)
-                        .overlay(Capsule().stroke(Theme.amberBorder))
-                }
+                if home.offline { OfflineBanner() }
                 Group {
                     if wide {
                         GeometryReader { geometry in
@@ -56,47 +49,10 @@ struct PanelView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 if alarms { AlarmsBlockView(alarms: .shared) }
-                ForEach(blocks) { block(for: $0) }
+                ForEach(blocks) { BlockView(block: $0, home: home) }
             }
         }
         .scrollIndicators(.hidden)
-    }
-
-    /// Without Home Assistant its states are unknown, not off: such blocks fade and take no taps.
-    /// Yandex devices, timers and the app's own lists keep working.
-    private func block(for block: PanelBlock) -> some View {
-        let usesHomeAssistant = block.items.contains { block.kind == .list ? $0.entity.hasPrefix("todo.") : !$0.entity.hasPrefix("yandex.") }
-        let unreachable = home.offline && usesHomeAssistant
-        return blockContent(block)
-            .saturation(unreachable ? 0 : 1)
-            .opacity(unreachable ? 0.4 : 1)
-            .allowsHitTesting(!unreachable)
-    }
-
-    @ViewBuilder private func blockContent(_ block: PanelBlock) -> some View {
-        switch block.kind {
-        case .room:
-            VStack(alignment: .leading, spacing: 12) {
-                Text(block.title).blockTitle()
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: sizeClass == .regular ? 3 : 2), spacing: 12) {
-                    ForEach(block.items) { TileView(item: $0, home: home) }
-                }
-            }
-        case .slider:
-            ForEach(block.items) { SliderBlockView(title: block.title, item: $0, home: home) }
-        case .running:
-            RunningBlockView(block: block, home: home)
-        case .climate:
-            ClimateBlockView(block: block, home: home)
-        case .device:
-            DeviceBlockView(block: block, home: home)
-        case .list:
-            if let todo = block.items.first?.entity, todo.hasPrefix("todo.") {
-                TodoBlockView(entity: todo, title: block.title, home: home)
-            } else {
-                ListBlockView(name: block.title)
-            }
-        }
     }
 
     /// The conversation in progress, one line. Tap to open it.
