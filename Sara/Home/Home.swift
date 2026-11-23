@@ -154,10 +154,23 @@ import Foundation
     /// A running device is shown while its `active` sensor says so, or, without one,
     /// while it has time left or is between 0 and 100 percent.
     func isRunning(_ item: PanelItem) -> Bool {
+        if finished(item) { return false }
         if let active = item.active { return ["on", "running", "pause", "prepare"].contains(state(active)) }
         if let minutes = minutesLeft(item.entity), minutes > 0 { return true }
         if let progress = number(item.progress), progress > 0, progress < 100 { return true }
         return false
+    }
+
+    /// Done but still on: a washer waits like this to be unloaded. Not running, so the "done" alert has already played.
+    func isWaiting(_ item: PanelItem) -> Bool {
+        guard finished(item), let active = item.active else { return false }
+        return ["on", "running", "pause", "prepare"].contains(state(active))
+    }
+
+    /// Nothing left, and the progress, if there is one, is full. A washer stays "on" after this until it is switched off.
+    private func finished(_ item: PanelItem) -> Bool {
+        guard let minutes = minutesLeft(item.entity), minutes <= 0 else { return false }
+        return item.progress == nil || (number(item.progress) ?? 0) >= 100
     }
 
     /// A thermostat without hvac_action heats while it is colder than the target.

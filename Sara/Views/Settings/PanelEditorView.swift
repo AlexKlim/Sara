@@ -30,7 +30,7 @@ struct PanelEditorView: View {
                 }
                 Menu("Add block") {
                     ForEach(PanelBlock.Kind.allCases, id: \.self) { kind in
-                        Button { panel.blocks.append(PanelBlock(kind: kind, title: String(localized: kind.name))) } label: { Text(kind.name) }
+                        Button { add(kind) } label: { Text(kind.name) }
                     }
                 }
             }
@@ -50,5 +50,21 @@ struct PanelEditorView: View {
         .toolbar { EditButton() }
         .task { await home.refresh() }
         .onChange(of: panel) { panel.save() }
+    }
+
+    /// A new block of running devices comes filled with the printers, washers and the like Home Assistant has,
+    /// already set up, so nobody has to look for their sensors.
+    private func add(_ kind: PanelBlock.Kind) {
+        let title = kind == .running ? String(localized: "Running now") : String(localized: kind.name)
+        let block = PanelBlock(kind: kind, title: title, column: kind == .running ? 1 : 0)
+        panel.blocks.append(block)
+        guard kind == .running else { return }
+        Task {
+            guard let found = try? await Panel.build(from: HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken")))
+                .blocks.first(where: { $0.kind == .running })?.items,
+                  let index = panel.blocks.firstIndex(where: { $0.id == block.id }), panel.blocks[index].items.isEmpty else { return }
+            panel.blocks[index].items = found
+            panel.save()
+        }
     }
 }

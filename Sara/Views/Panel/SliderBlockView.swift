@@ -10,13 +10,14 @@ struct SliderBlockView: View {
     /// The level sent last: a TV reports its volume seconds late, so the slider must not jump back meanwhile.
     @State private var pending: Double?
     @State private var sending: Task<Void, Never>?
+    @Environment(\.compactPanel) private var compact
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: compact ? 6 : 12) {
             HStack(alignment: .firstTextBaseline) {
-                Text(title).font(.system(size: 18, weight: .semibold))
+                Text(title).font(.system(size: compact ? 16 : 18, weight: .semibold))
                 Spacer()
-                Text(verbatim: "\(Int(value.rounded()))").font(.system(size: 28, weight: .semibold)).monospacedDigit()
+                Text(verbatim: "\(Int(value.rounded()))").font(.system(size: compact ? 20 : 28, weight: .semibold)).monospacedDigit()
             }
             Slider(value: $value, in: 0...100) { editing in
                 dragging = editing
@@ -26,7 +27,7 @@ struct SliderBlockView: View {
             .accessibilityLabel(title)
         }
         .foregroundStyle(Theme.text)
-        .card(padding: 22)
+        .card(padding: compact ? 15 : 22, cornerRadius: compact ? 18 : 20)
         .onAppear { value = home.value(item) ?? value }
         .onChange(of: home.value(item)) { if !dragging, pending == nil, let new = $1 { value = new } }
     }

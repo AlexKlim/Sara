@@ -24,6 +24,32 @@ enum PanelBuildCheck {
         assert(panel.blocks[1].column == 1 && panel.blocks[1].items.first?.name == "Bathroom")
         print("Panel.build OK")
 
+        // Running devices: found by their remaining-time sensor, with the device's other sensors filled in.
+        let withRunning = Panel.build(
+            areas: [],
+            devices: [["id": "p", "name": "Printer"], ["id": "w", "name": "Washer", "name_by_user": "My washer"], ["id": "l", "name": "Lamp"]],
+            entities: [
+                ["ei": "sensor.kabinet_printer_remaining_time", "di": "p"],
+                ["ei": "sensor.kabinet_printer_print_progress", "di": "p"],
+                ["ei": "sensor.kabinet_printer_end_time", "di": "p"],
+                ["ei": "sensor.kabinet_printer_task_name", "di": "p"],
+                ["ei": "sensor.kabinet_printer_print_status", "di": "p"],
+                ["ei": "sensor.kabinet_printer_sd_card_status", "di": "p"],
+                ["ei": "sensor.tualet_stiralka_remaining_time", "di": "w"],
+                ["ei": "sensor.tualet_stiralka_program_phase", "di": "w"],
+                ["ei": "binary_sensor.tualet_stiralka_status", "di": "w"],
+                ["ei": "light.lamp", "di": "l"],
+            ])
+        assert(withRunning.blocks.first?.kind == .running && withRunning.blocks.first?.column == 1)
+        let printer = withRunning.blocks[0].items[1], washer = withRunning.blocks[0].items[0]
+        assert(washer.name == "My washer" && washer.icon == "washer" && washer.active == "binary_sensor.tualet_stiralka_status")
+        assert(washer.detail == nil && washer.progress == nil)
+        assert(printer.icon == "cube" && printer.active == "sensor.kabinet_printer_print_status")
+        assert(printer.progress == "sensor.kabinet_printer_print_progress" && printer.end == "sensor.kabinet_printer_end_time")
+        assert(printer.detail == "sensor.kabinet_printer_task_name")
+        assert(Panel.runningItem(device: "Lamp", entities: ["light.lamp"]) == nil)
+        print("Running devices OK")
+
         // Yandex: user/info in the shape of the docs.
         let info: [String: Any] = [
             "rooms": [["id": "r1", "name": "Kitchen"], ["id": "r2", "name": "Bathroom"]],

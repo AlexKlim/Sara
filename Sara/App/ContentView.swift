@@ -43,11 +43,16 @@ struct ContentView: View {
                     .onTapGesture { wakePanel() }
                     .onAppear { PowerSaver.shared.night = true }
             } else {
-                PanelView(
-                    home: home, panel: panel,
-                    lastTurn: latestTurns.first { $0.chatID == sara.chatID },
-                    listening: wakeEnabled,
-                    onTalk: { showTalk = true }, onSettings: { showSettings = true })
+                let lastTurn = latestTurns.first { $0.chatID == sara.chatID }
+                Group {
+                    if !PowerSaver.isWallPanel {
+                        PhoneView(home: home, panel: panel, lastTurn: lastTurn, date: timeline.date, onTalk: { showTalk = true }, onSettings: { showSettings = true })
+                    } else {
+                        PanelView(
+                            home: home, panel: panel, lastTurn: lastTurn, listening: wakeEnabled,
+                            onTalk: { showTalk = true }, onSettings: { showSettings = true })
+                    }
+                }
                 .onAppear { PowerSaver.shared.night = false }
             }
         }

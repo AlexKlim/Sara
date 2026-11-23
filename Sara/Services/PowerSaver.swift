@@ -4,7 +4,8 @@ import SwiftUI
 /// brings it back on touch, voice or an alert, and keeps an eye on how hot the device gets.
 @MainActor @Observable final class PowerSaver {
     static let shared = PowerSaver()
-    static let isWallPanel = UIDevice.current.userInterfaceIdiom == .pad
+    /// By the model, not the interface idiom: an unfolded iPhone Duo reports the iPad idiom.
+    static let isWallPanel = UIDevice.current.model.hasPrefix("iPad")
 
     /// Nobody touched the screen or talked to Sara for a while.
     private(set) var idle = false

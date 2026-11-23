@@ -15,13 +15,14 @@ struct TargetStepper: View {
     let reported: () -> Double?
     let send: (Double) async throws -> Void
     @State private var sending: Task<Void, Never>?
+    @Environment(\.compactPanel) private var compact
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: compact ? 4 : 8) {
             button(up: false)
             Text(verbatim: format(value))
-                .font(.system(size: 28, weight: .semibold)).monospacedDigit()
-                .frame(width: 76)
+                .font(.system(size: compact ? 22 : 28, weight: .semibold)).monospacedDigit()
+                .frame(width: compact ? 62 : 76)
                 .contentTransition(.numericText())
             button(up: true)
         }
@@ -31,8 +32,8 @@ struct TargetStepper: View {
         let next = home.stepped(id, value, up: up)
         return Button { set(next) } label: {
             Image(systemName: up ? "plus" : "minus")
-                .font(.system(size: 20, weight: .semibold))
-                .frame(width: 52, height: 52)
+                .font(.system(size: compact ? 18 : 20, weight: .semibold))
+                .frame(width: compact ? 44 : 52, height: compact ? 44 : 52)
                 .background(Theme.border, in: .circle)
                 .overlay(Circle().stroke(Theme.ring))
         }
