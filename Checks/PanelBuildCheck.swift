@@ -55,6 +55,11 @@ enum PanelBuildCheck {
         assert(dishwasher?.entity == "sensor.electrolux_dishwasher_timetoend" && dishwasher?.icon == "dishwasher")
         assert(dishwasher?.active == "sensor.electrolux_dishwasher_appliancestate")
         assert(dishwasher?.detail == "select.electrolux_dishwasher_userselections_programuid")
+        var placed = Panel(blocks: [PanelBlock(kind: .room, title: "Kitchen")])
+        placed.addRunning([dishwasher!])
+        placed.addRunning([dishwasher!, washer])
+        assert(placed.blocks.map(\.kind) == [.running, .room] && placed.blocks[0].column == 1)
+        assert(placed.blocks[0].items.map(\.entity) == ["sensor.electrolux_dishwasher_timetoend", "sensor.tualet_stiralka_remaining_time"])
         print("Running devices OK")
 
         // Yandex: user/info in the shape of the docs.

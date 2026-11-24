@@ -8,4 +8,5 @@ struct NewDevice: Identifiable, Equatable {
     /// What a device block can show of it: setpoints, sensors, switches.
     let entities: [String]
     let created: Date
+    var running: PanelItem?
 }
