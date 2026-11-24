@@ -37,7 +37,7 @@ import Foundation
         }
         addRunning(devices)
         let onPanel = Set(Panel.load().blocks.flatMap(\.items).map(\.entity))
-        found = devices.filter { !known.contains($0.id) && onPanel.isDisjoint(with: $0.entities) }
+        found = devices.filter { !known.contains($0.id) && onPanel.isDisjoint(with: $0.entities + [$0.running?.entity].compactMap { $0 }) }
         var announced = Set(defaults.stringArray(forKey: "announcedDevices") ?? [])
         for device in found where !announced.contains(device.id) {
             announced.insert(device.id)
