@@ -112,7 +112,7 @@ import SwiftData
             if newChat {
                 let t = clock.now
                 let homeTools = (try await mcp?.claudeTools() ?? []) + (yandex == nil ? [] : YandexHome.tools)
-                tools = homeTools + (mcp == nil ? [] : Numbers.tools) + Memory.tools + Lists.tools + Alarms.tools + AppSettings.tools + Self.conversationTools + [claude.webSearchTool]
+                tools = homeTools + (mcp == nil ? [] : Numbers.tools + HomeDirectory.tools) + Memory.tools + Lists.tools + Alarms.tools + AppSettings.tools + Self.conversationTools + [claude.webSearchTool]
                 turn.haSeconds += (clock.now - t) / .seconds(1)
                 system = [Self.prompt, defaults.string(forKey: "houseNotes") ?? "", memory.promptBlock()].joined(separator: "\n\n")
             }
@@ -141,6 +141,9 @@ import SwiftData
                     content.insert(["type": "text", "text": "<home_state>\n\(state)\n</home_state>"], at: 0)
                 }
                 turn.haSeconds += (clock.now - t) / .seconds(1)
+            }
+            if mcp != nil, let devices = await HomeDirectory.index() {
+                content.insert(["type": "text", "text": "<devices>\n\(devices)\n</devices>"], at: 0)
             }
             if withoutWakeWord {
                 content.append(["type": "text", "text": "<heard_without_wake_word/>"])
@@ -208,6 +211,8 @@ import SwiftData
                         (output, failed) = (result, result.hasPrefix("error"))
                     } else if let alarm = await Alarms.shared.run(name, args) {
                         (output, failed) = (alarm, alarm.hasPrefix("error"))
+                    } else if let result = await HomeDirectory.run(name, args) {
+                        (output, failed) = (result, result.hasPrefix("error"))
                     } else if let result = await Numbers.run(name, args, exposed: homeState) {
                         (output, failed) = (result, result.hasPrefix("error"))
                     } else if let result = await yandex?.run(name, args) {

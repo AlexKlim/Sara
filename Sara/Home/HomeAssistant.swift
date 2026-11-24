@@ -17,6 +17,24 @@ struct HomeAssistant {
         return Dictionary(list.compactMap { state in (state["entity_id"] as? String).map { ($0, state) } }) { first, _ in first }
     }
 
+    func history(_ ids: [String], from: Date, to: Date) async throws -> [String: [(date: Date, state: String)]] {
+        let iso = ISO8601DateFormatter()
+        let path = "/api/history/period/\(iso.string(from: from))?filter_entity_id=\(ids.joined(separator: ","))"
+            + "&end_time=\(iso.string(from: to))&minimal_response&no_attributes"
+        let data = try await request("GET", path, timeout: 30)
+        var result: [String: [(date: Date, state: String)]] = [:]
+        for list in try JSONSerialization.jsonObject(with: data) as? [[[String: Any]]] ?? [] {
+            guard let id = list.first?["entity_id"] as? String else { continue }
+            result[id] = list.compactMap { item in
+                guard let state = item["state"] as? String,
+                      let changed = (item["last_changed"] as? String)?.replacingOccurrences(of: #"\.\d+"#, with: "", options: .regularExpression),
+                      let date = iso.date(from: changed) else { return nil }
+                return (date, state)
+            }
+        }
+        return result
+    }
+
     func call(_ domain: String, _ service: String, _ data: [String: Any]) async throws {
         _ = try await request("POST", "/api/services/\(domain)/\(service)", body: data)
     }
