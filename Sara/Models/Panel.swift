@@ -73,17 +73,17 @@ struct Panel: Codable, Equatable {
             }
             return nil
         }
-        guard let remaining = find("sensor", ["remaining_time", "time_remaining", "time_left"]) else { return nil }
+        guard let remaining = find("sensor", ["remaining_time", "time_remaining", "time_left", "timetoend"]) else { return nil }
         // Entity ids are Latin (transliterated from other languages), so they tell what kind of device it is.
         let kinds = [("print", "cube"), ("dish", "dishwasher"), ("posud", "dishwasher"), ("wash", "washer"), ("stiral", "washer"),
                      ("dry", "dryer"), ("sushil", "dryer")]
         return PanelItem(
             entity: remaining, name: name.isEmpty ? nil : name,
             icon: kinds.first { remaining.contains($0.0) }?.1,
-            active: find("binary_sensor", ["_running", "_status"]) ?? find("sensor", ["print_status", "machine_state", "run_state", "operation_state"]),
+            active: find("binary_sensor", ["_running", "_status"]) ?? find("sensor", ["print_status", "machine_state", "run_state", "operation_state", "appliancestate"]),
             progress: find("sensor", ["print_progress", "_progress"]),
             end: find("sensor", ["end_time", "finish_time", "completion_time"]),
-            detail: find("sensor", ["task_name", "current_program"]))
+            detail: find("sensor", ["task_name", "current_program"]) ?? find("select", ["programuid"]))
     }
 
     /// A first layout from Yandex Smart Home: a room block per room with its switchable devices, thermostats on the right.
