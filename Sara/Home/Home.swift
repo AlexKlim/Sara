@@ -167,7 +167,6 @@ import Foundation
         return (Self.working + ["end of cycle"]).contains(state(active)?.lowercased() ?? "")
     }
 
-    /// States that mean a device is busy, from washers, printers and Electrolux appliances.
     private static let working = ["on", "running", "pause", "paused", "prepare", "delayed start"]
 
     /// Nothing left, and the progress, if there is one, is full. A washer stays "on" after this until it is switched off.
