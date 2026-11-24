@@ -5,6 +5,7 @@ struct RunningDevicePicker: View {
     let home: Home
     @AppStorage("haURL") private var haURL = ""
     @State private var devices: [PanelItem]?
+    @State private var failed = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -27,6 +28,8 @@ struct RunningDevicePicker: View {
                         }
                         .foregroundStyle(.primary)
                     }
+                } else if failed {
+                    Text("No connection to Home Assistant").foregroundStyle(.secondary)
                 } else {
                     ProgressView()
                 }
@@ -34,14 +37,19 @@ struct RunningDevicePicker: View {
             Section {
                 NavigationLink("Another sensor") {
                     EntityPicker(title: "Add device", home: home, domains: block.kind.domains,
+                                 allows: { id in home.fits(id, block.kind) && !block.items.contains { $0.entity == id } },
                                  selection: Binding(get: { nil }, set: { if let id = $0 { block.items.append(PanelItem(entity: id)) } }))
                 }
             }
         }
         .navigationTitle("Add device")
         .task {
-            let built = try? await Panel.build(from: HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken")))
-            devices = built?.blocks.first { $0.kind == .running }?.items ?? []
+            do {
+                let built = try await Panel.build(from: HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken")))
+                devices = built.blocks.first { $0.kind == .running }?.items ?? []
+            } catch {
+                failed = true
+            }
         }
     }
 }
