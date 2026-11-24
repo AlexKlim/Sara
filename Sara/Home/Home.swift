@@ -129,6 +129,19 @@ import Foundation
     func number(_ id: String?) -> Double? { state(id).flatMap(Double.init) }
     func isOn(_ id: String) -> Bool { state(id) == "on" }
 
+    func fits(_ id: String, _ kind: PanelBlock.Kind) -> Bool {
+        let domain = PanelItem.domain(id)
+        guard kind.domains.contains(domain) else { return false }
+        switch (kind, domain) {
+        case (.slider, "light"): return (attribute(id, "supported_color_modes") as? [String])?.contains { $0 != "onoff" } ?? false
+        case (.slider, "media_player"): return (attribute(id, "supported_features") as? Int ?? 0) & 4 != 0
+        case (.slider, "sensor"): return number(id) != nil
+        case (.slider, "yandex"): return attribute(id, "brightness") != nil
+        case (.climate, "yandex"): return (attribute(id, "yandex_type") as? String ?? "").hasPrefix("devices.types.thermostat")
+        default: return true
+        }
+    }
+
     func name(_ item: PanelItem) -> String {
         item.name ?? attribute(item.entity, "friendly_name") as? String ?? item.entity
     }

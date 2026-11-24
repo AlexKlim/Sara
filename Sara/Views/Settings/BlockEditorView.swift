@@ -37,8 +37,12 @@ struct BlockEditorView: View {
             .onMove { block.items.move(fromOffsets: $0, toOffset: $1) }
             .onDelete { block.items.remove(atOffsets: $0) }
             NavigationLink("Add device") {
-                EntityPicker(title: "Add device", home: home, domains: block.kind.domains,
-                             selection: Binding(get: { nil }, set: { if let id = $0 { block.items.append(PanelItem(entity: id)) } }))
+                if block.kind == .running {
+                    RunningDevicePicker(block: $block, home: home)
+                } else {
+                    EntityPicker(title: "Add device", home: home, domains: block.kind.domains, allows: { home.fits($0, block.kind) },
+                                 selection: Binding(get: { nil }, set: { if let id = $0 { block.items.append(PanelItem(entity: id)) } }))
+                }
             }
         }
     }
