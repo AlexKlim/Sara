@@ -88,28 +88,23 @@ import Foundation
 
     /// Enabled devices of integrations (not services like the sun) with something a device block can show.
     private static func devices(_ socket: HomeAssistantSocket) async throws -> [NewDevice] {
-        let results = try await socket.call(["config/device_registry/list", "config/entity_registry/list_for_display", "config/area_registry/list"])
-        let entities = (results[1] as? [String: Any])?["entities"] as? [[String: Any]] ?? []
-        let areas = Dictionary((results[2] as? [[String: Any]] ?? []).compactMap { a in
-            (a["area_id"] as? String).map { ($0, a["name"] as? String ?? $0) }
-        }) { first, _ in first }
+        let registry = try await socket.registry()
+        let areas = Dictionary(registry.areas.map { ($0.id, $0.name) }) { first, _ in first }
         let domains = PanelBlock.Kind.device.domains
-        return (results[0] as? [[String: Any]] ?? []).compactMap { device in
-            guard let id = device["id"] as? String, !(device["disabled_by"] is String),
-                  device["entry_type"] as? String != "service" else { return nil }
-            let own = entities.filter { $0["di"] as? String == id }
-            let ids = own.filter { $0["hb"] as? Bool != true && $0["ec"] == nil }
-                .compactMap { $0["ei"] as? String }
+        return registry.devices.compactMap { device in
+            guard device.disabledBy == nil, device.entryType != "service" else { return nil }
+            let own = registry.entities.filter { $0.device == device.id }
+            let ids = own.filter { $0.hidden != true && $0.category == nil }
+                .map(\.id)
                 .filter { id in domains.contains { id.hasPrefix($0 + ".") } }
             guard !ids.isEmpty else { return nil }
-            let name = device["name_by_user"] as? String ?? device["name"] as? String ?? ""
             return NewDevice(
-                id: id,
-                name: name,
-                area: (device["area_id"] as? String).flatMap { areas[$0] },
+                id: device.id,
+                name: device.displayName,
+                area: device.areaID.flatMap { areas[$0] },
                 entities: ids,
-                created: Date(timeIntervalSince1970: device["created_at"] as? Double ?? 0),
-                running: Panel.runningItem(device: name, entities: own.compactMap { $0["ei"] as? String }))
+                created: Date(timeIntervalSince1970: device.createdAt ?? 0),
+                running: Panel.runningItem(device: device.displayName, entities: own.map(\.id)))
         }
     }
 }

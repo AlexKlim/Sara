@@ -4,7 +4,7 @@ import Foundation
 /// Yandex polled, and taps and sliders.
 @MainActor @Observable final class Home {
     /// Home Assistant states, plus Yandex devices as "yandex.<id>" (see YandexHome.states).
-    private(set) var states: [String: [String: Any]] = [:] {
+    private(set) var states: [String: HAState] = [:] {
         didSet {
             let ids = Set(states.keys)
             if ids != entityIDs { entityIDs = ids }
@@ -12,11 +12,11 @@ import Foundation
     }
     /// Changes only when entities come or go, e.g. when a device is added.
     private(set) var entityIDs: Set<String> = []
-    private var haStates: [String: [String: Any]] = [:]
-    private var yandexStates: [String: [String: Any]] = [:]
+    private var haStates: [String: HAState] = [:]
+    private var yandexStates: [String: HAState] = [:]
     private var polls = 0
     /// Items of Home Assistant to-do lists shown on the panel, by entity id.
-    private(set) var todoItems: [String: [[String: Any]]] = [:]
+    private(set) var todoItems: [String: [HATodoItem]] = [:]
     private var polling: Task<Void, Never>?
     private var subscription: Task<Void, Never>?
     /// The WebSocket subscription is delivering states, so Home Assistant needs no polling.
@@ -76,7 +76,7 @@ import Foundation
     }
 
     /// One event of the subscription: entities added, changed or removed.
-    private func apply(_ event: [String: Any]) {
+    private func apply(_ event: HAStatesEvent) {
         events += 1
         offline = false
         if !live {
@@ -85,21 +85,15 @@ import Foundation
             print("[home] live subscription")
             #endif
         }
-        for (id, entity) in event["a"] as? [String: [String: Any]] ?? [:] {
-            haStates[id] = ["state": entity["s"] as? String ?? "", "attributes": entity["a"] as? [String: Any] ?? [:]]
-        }
-        for (id, change) in event["c"] as? [String: [String: Any]] ?? [:] {
-            var entity = haStates[id] ?? ["state": "", "attributes": [String: Any]()]
-            var attributes = entity["attributes"] as? [String: Any] ?? [:]
-            if let added = change["+"] as? [String: Any] {
-                if let state = added["s"] as? String { entity["state"] = state }
-                attributes.merge(added["a"] as? [String: Any] ?? [:]) { _, new in new }
-            }
-            for key in (change["-"] as? [String: Any])?["a"] as? [String] ?? [] { attributes[key] = nil }
-            entity["attributes"] = attributes
+        for (id, entity) in event.added { haStates[id] = entity }
+        for (id, change) in event.changed {
+            var entity = haStates[id] ?? HAState(state: "")
+            if let state = change.state { entity.state = state }
+            entity.attributes.merge(change.attributes) { _, new in new }
+            for key in change.removedAttributes { entity.attributes[key] = nil }
             haStates[id] = entity
         }
-        for id in event["r"] as? [String] ?? [] { haStates[id] = nil }
+        for id in event.removed { haStates[id] = nil }
         states = haStates.merging(yandexStates) { ha, _ in ha }
     }
 
@@ -124,8 +118,8 @@ import Foundation
     /// A missing or unavailable switch keeps Sara awake.
     var saraAsleep: Bool { state(Self.listenSwitch) == "off" }
 
-    func state(_ id: String?) -> String? { id.flatMap { states[$0]?["state"] as? String } }
-    func attribute(_ id: String, _ key: String) -> Any? { (states[id]?["attributes"] as? [String: Any])?[key] }
+    func state(_ id: String?) -> String? { id.flatMap { states[$0]?.state } }
+    func attribute(_ id: String, _ key: String) -> Any? { states[id]?.attribute(key) }
     func number(_ id: String?) -> Double? { state(id).flatMap(Double.init) }
     func isOn(_ id: String) -> Bool { state(id) == "on" }
 
@@ -290,8 +284,9 @@ import Foundation
     }
 
     func loadTodo(_ id: String) async {
-        guard let response = try? await api?.callForResponse("todo", "get_items", ["entity_id": id]) else { return }
-        todoItems[id] = (response[id] as? [String: Any])?["items"] as? [[String: Any]] ?? []
+        guard let response: [String: [String: [HATodoItem]]] = try? await api?.callForResponse("todo", "get_items", ["entity_id": id])
+        else { return }
+        todoItems[id] = response[id]?["items"] ?? []
     }
 
     func setTodo(_ id: String, item uid: String, done: Bool) async {
@@ -322,9 +317,7 @@ import Foundation
         let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
         guard !url.isEmpty else { return }
         let socket = HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken"))
-        let entities = (try? await socket.call(["config/entity_registry/list_for_display"]).first as? [String: Any])?["entities"] as? [[String: Any]] ?? []
-        for entity in entities {
-            if let id = entity["ei"] as? String, let platform = entity["pl"] as? String { platforms[id] = platform }
-        }
+        guard let list: HAEntityList = try? await socket.call("config/entity_registry/list_for_display") else { return }
+        for entity in list.entities { if let platform = entity.platform { platforms[entity.id] = platform } }
     }
 }

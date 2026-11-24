@@ -43,13 +43,7 @@ struct Panel: Codable, Equatable {
     /// A first layout from Home Assistant: a room block per area with its lights, switches and fans,
     /// thermostats and to-do lists on the right. The user edits it from there.
     static func build(from socket: HomeAssistantSocket) async throws -> Panel {
-        let results = try await socket.call([
-            "config/area_registry/list", "config/device_registry/list", "config/entity_registry/list_for_display",
-        ])
-        return build(
-            areas: results[0] as? [[String: Any]] ?? [],
-            devices: results[1] as? [[String: Any]] ?? [],
-            entities: (results[2] as? [String: Any])?["entities"] as? [[String: Any]] ?? [])
+        build(try await socket.registry())
     }
 
     /// A block for one device: setpoints first, then sensors, doors and switches. A sensor named like a setpoint
@@ -112,22 +106,19 @@ struct Panel: Codable, Equatable {
         return Panel(blocks: blocks)
     }
 
-    /// `entities` use the compact keys of list_for_display: ei entity id, ai area, di device, hb hidden, ec category.
-    static func build(areas: [[String: Any]], devices: [[String: Any]], entities: [[String: Any]]) -> Panel {
-        let deviceArea = Dictionary(devices.compactMap { d in (d["id"] as? String).map { ($0, d["area_id"] as? String) } }) { a, _ in a }
+    static func build(_ registry: HARegistry) -> Panel {
+        let deviceArea = Dictionary(registry.devices.map { ($0.id, $0.areaID) }) { a, _ in a }
         var byArea: [String: [String]] = [:]
-        for entity in entities {
-            guard let id = entity["ei"] as? String, entity["hb"] as? Bool != true, entity["ec"] == nil else { continue }
-            let area = entity["ai"] as? String ?? (entity["di"] as? String).flatMap { deviceArea[$0] ?? nil }
-            if let area { byArea[area, default: []].append(id) }
+        for entity in registry.entities where entity.hidden != true && entity.category == nil {
+            if let area = entity.area ?? entity.device.flatMap({ deviceArea[$0] ?? nil }) { byArea[area, default: []].append(entity.id) }
         }
 
-        let named = areas.compactMap { a in (a["area_id"] as? String).map { ($0, a["name"] as? String ?? $0) } }
+        let named = registry.areas.map { ($0.id, $0.name) }
             .sorted { $0.1.localizedStandardCompare($1.1) == .orderedAscending }
         var blocks: [PanelBlock] = []
         var thermostats: [PanelItem] = []
         // To-do lists usually have no area: take them all.
-        var lists = entities.compactMap { $0["ei"] as? String }.filter { id in id.hasPrefix("todo.") && !byArea.values.contains { $0.contains(id) } }
+        var lists = registry.entities.map(\.id).filter { id in id.hasPrefix("todo.") && !byArea.values.contains { $0.contains(id) } }
         for (area, name) in named {
             let ids = (byArea[area] ?? []).sorted()
             let tiles = ids.filter { $0.hasPrefix("light.") || $0.hasPrefix("switch.") || $0.hasPrefix("fan.") }
@@ -143,12 +134,10 @@ struct Panel: Codable, Equatable {
         blocks += lists.map { PanelBlock(kind: .list, title: "", column: 1, items: [PanelItem(entity: $0)]) }
 
         // Printers, washers and the like, at the top of the right column. They show only while they work.
-        let deviceNames = Dictionary(devices.compactMap { d in
-            (d["id"] as? String).map { ($0, d["name_by_user"] as? String ?? d["name"] as? String ?? "") }
-        }) { a, _ in a }
+        let deviceNames = Dictionary(registry.devices.map { ($0.id, $0.displayName) }) { a, _ in a }
         var byDevice: [String: [String]] = [:]
-        for entity in entities {
-            if let id = entity["ei"] as? String, let device = entity["di"] as? String { byDevice[device, default: []].append(id) }
+        for entity in registry.entities {
+            if let device = entity.device { byDevice[device, default: []].append(entity.id) }
         }
         let running = byDevice
             .map { (name: deviceNames[$0.key] ?? "", entities: $0.value) }

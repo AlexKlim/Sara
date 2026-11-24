@@ -246,8 +246,8 @@ struct SettingsView: View {
     /// Room names from Home Assistant areas, for the "This device is in" picker.
     private func loadRooms() async {
         let socket = HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken"))
-        guard let areas = try? await socket.call(["config/area_registry/list"]).first as? [[String: Any]] else { return }
-        rooms = areas.compactMap { $0["name"] as? String }
+        guard let areas: [HAArea] = try? await socket.call("config/area_registry/list") else { return }
+        rooms = areas.map(\.name)
     }
 
     /// Asks Home Assistant's MCP Server for Sara's tools: proves the address, the token and the integration at once.

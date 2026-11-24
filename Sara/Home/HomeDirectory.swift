@@ -33,7 +33,7 @@ import Foundation
         var ids = states.keys.filter { fields($0).contains(wanted) }
         if ids.isEmpty {
             ids = states.keys.filter { id in
-                let friendly = (states[id]?["attributes"] as? [String: Any])?["friendly_name"] as? String ?? ""
+                let friendly = states[id]?.attributes["friendly_name"]?.string ?? ""
                 return (fields(id) + [id, friendly.lowercased()]).contains { $0.contains(wanted) }
             }
         }
@@ -46,7 +46,7 @@ import Foundation
             if let found = devices.first(where: { $0.id == device }) {
                 place = found.name + (found.area.map { " (\($0))" } ?? "")
             }
-            let lines = groups[device, default: []].sorted().map { line($0, states[$0] ?? [:]) }
+            let lines = groups[device, default: []].sorted().map { line($0, states[$0] ?? HAState(state: "")) }
             return place + ":\n" + lines.joined(separator: "\n")
         }.joined(separator: "\n\n")
     }
@@ -67,18 +67,19 @@ import Foundation
         }.joined(separator: "\n\n")
     }
 
-    private static func line(_ id: String, _ state: [String: Any]) -> String {
-        let attributes = state["attributes"] as? [String: Any] ?? [:]
+    private static func line(_ id: String, _ state: HAState) -> String {
+        let attributes = state.attributes
         let extra = attributes.keys.sorted().compactMap { key -> String? in
             guard !hidden.contains(key), !key.contains("token") else { return nil }
             switch attributes[key] {
-            case let text as String where text.count <= 60: return "\(key): \(text)"
-            case let number as NSNumber: return "\(key): \(number)"
+            case .string(let text)? where text.count <= 60: return "\(key): \(text)"
+            case .number(let number)?: return "\(key): " + (number == number.rounded() && abs(number) < 1e15 ? String(Int(number)) : String(number))
+            case .bool(let flag)?: return "\(key): \(flag)"
             default: return nil
             }
         }
-        var text = "\(id): \(attributes["friendly_name"] as? String ?? id) = \(state["state"] as? String ?? "")"
-        if let unit = attributes["unit_of_measurement"] as? String { text += " \(unit)" }
+        var text = "\(id): \(attributes["friendly_name"]?.string ?? id) = \(state.state)"
+        if let unit = attributes["unit_of_measurement"]?.string { text += " \(unit)" }
         if !extra.isEmpty { text += " (\(extra.joined(separator: ", ")))" }
         return text
     }
@@ -91,23 +92,15 @@ import Foundation
     private static func load() async -> Bool {
         if Date.now.timeIntervalSince(loaded) < 600 { return true }
         let url = UserDefaults.standard.string(forKey: "haURL") ?? ""
-        guard !url.isEmpty, let results = try? await HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken"))
-            .call(["config/device_registry/list", "config/entity_registry/list_for_display", "config/area_registry/list"])
+        guard !url.isEmpty, let registry = try? await HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken")).registry()
         else { return false }
-        let areas = Dictionary((results[2] as? [[String: Any]] ?? []).compactMap { area in
-            (area["area_id"] as? String).map { ($0, area["name"] as? String ?? $0) }
-        }) { first, _ in first }
-        devices = (results[0] as? [[String: Any]] ?? []).compactMap { device in
-            guard let id = device["id"] as? String, !(device["disabled_by"] is String) else { return nil }
-            let name = device["name_by_user"] as? String ?? device["name"] as? String ?? id
-            return (id, name, (device["area_id"] as? String).flatMap { areas[$0] })
+        let areas = Dictionary(registry.areas.map { ($0.id, $0.name) }) { first, _ in first }
+        devices = registry.devices.filter { $0.disabledBy == nil }.map { device in
+            (device.id, device.nameByUser ?? device.name ?? device.id, device.areaID.flatMap { areas[$0] })
         }
         let deviceAreas = Dictionary(devices.map { ($0.id, $0.area) }) { first, _ in first }
-        entities = Dictionary(((results[1] as? [String: Any])?["entities"] as? [[String: Any]] ?? []).compactMap { entity in
-            guard let id = entity["ei"] as? String else { return nil }
-            let device = entity["di"] as? String
-            let area = (entity["ai"] as? String).flatMap { areas[$0] } ?? device.flatMap { deviceAreas[$0] ?? nil }
-            return (id, (device, area))
+        entities = Dictionary(registry.entities.map { entity in
+            (entity.id, (entity.device, entity.area.flatMap { areas[$0] } ?? entity.device.flatMap { deviceAreas[$0] ?? nil }))
         }) { first, _ in first }
         loaded = .now
         return true

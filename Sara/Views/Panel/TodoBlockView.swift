@@ -8,7 +8,7 @@ struct TodoBlockView: View {
     let title: String
     let home: Home
 
-    private var items: [[String: Any]] { home.todoItems[entity] ?? [] }
+    private var items: [HATodoItem] { home.todoItems[entity] ?? [] }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -19,9 +19,8 @@ struct TodoBlockView: View {
                 }
                 ForEach(items.indices, id: \.self) { index in
                     let item = items[index]
-                    let done = item["status"] as? String == "completed"
-                    ChecklistRow(text: item["summary"] as? String ?? "", done: done) {
-                        Task { await home.setTodo(entity, item: item["uid"] as? String ?? "", done: !done) }
+                    ChecklistRow(text: item.summary, done: item.done) {
+                        Task { await home.setTodo(entity, item: item.uid, done: !item.done) }
                     }
                     if index < items.count - 1 { Divider().overlay(Theme.border) }
                 }
