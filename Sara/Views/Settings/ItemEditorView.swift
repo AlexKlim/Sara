@@ -13,7 +13,7 @@ struct ItemEditorView: View {
         Form {
             Section {
                 TextField("Name", text: text(\.name), prompt: Text(verbatim: home.attribute(item.entity, "friendly_name") as? String ?? ""))
-                EntityRow(title: "Entity", home: home, domains: kind.domains, selection: Binding(get: { item.entity }, set: { item.entity = $0 ?? item.entity }))
+                EntityRow(title: "Entity", home: home, domains: kind.domains, allows: { home.fits($0, kind) }, selection: Binding(get: { item.entity }, set: { item.entity = $0 ?? item.entity }))
             }
             if kind == .slider {
                 Section {
