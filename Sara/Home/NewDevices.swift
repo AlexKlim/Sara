@@ -35,6 +35,7 @@ import Foundation
             known = Set(devices.filter { $0.created < .now - 86_400 }.map(\.id))
             defaults.set(Array(known), forKey: "knownDevices")
         }
+        addRunning(devices)
         let onPanel = Set(Panel.load().blocks.flatMap(\.items).map(\.entity))
         found = devices.filter { !known.contains($0.id) && onPanel.isDisjoint(with: $0.entities) }
         var announced = Set(defaults.stringArray(forKey: "announcedDevices") ?? [])
@@ -44,6 +45,18 @@ import Foundation
         }
         defaults.set(Array(announced), forKey: "announcedDevices")
         return true
+    }
+
+    private func addRunning(_ devices: [NewDevice]) {
+        var panel = Panel.load()
+        guard !panel.blocks.isEmpty else { return }
+        let saved = defaults.stringArray(forKey: "runningDevices")
+        let placed = Set(saved ?? devices.filter { $0.created < .now - 86_400 }.map(\.id))
+        let new = devices.filter { $0.running != nil && !placed.contains($0.id) }
+        if saved == nil || !new.isEmpty { defaults.set(Array(placed.union(new.map(\.id))), forKey: "runningDevices") }
+        guard !new.isEmpty else { return }
+        panel.addRunning(new.compactMap(\.running))
+        panel.save()
     }
 
     /// Puts the device on the panel as its own block, with its entities as Home Assistant has them now.
@@ -84,16 +97,19 @@ import Foundation
         return (results[0] as? [[String: Any]] ?? []).compactMap { device in
             guard let id = device["id"] as? String, !(device["disabled_by"] is String),
                   device["entry_type"] as? String != "service" else { return nil }
-            let ids = entities.filter { $0["di"] as? String == id && $0["hb"] as? Bool != true && $0["ec"] == nil }
+            let own = entities.filter { $0["di"] as? String == id }
+            let ids = own.filter { $0["hb"] as? Bool != true && $0["ec"] == nil }
                 .compactMap { $0["ei"] as? String }
                 .filter { id in domains.contains { id.hasPrefix($0 + ".") } }
             guard !ids.isEmpty else { return nil }
+            let name = device["name_by_user"] as? String ?? device["name"] as? String ?? ""
             return NewDevice(
                 id: id,
-                name: device["name_by_user"] as? String ?? device["name"] as? String ?? "",
+                name: name,
                 area: (device["area_id"] as? String).flatMap { areas[$0] },
                 entities: ids,
-                created: Date(timeIntervalSince1970: device["created_at"] as? Double ?? 0))
+                created: Date(timeIntervalSince1970: device["created_at"] as? Double ?? 0),
+                running: Panel.runningItem(device: name, entities: own.compactMap { $0["ei"] as? String }))
         }
     }
 }

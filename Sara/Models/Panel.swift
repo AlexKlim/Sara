@@ -154,9 +154,19 @@ struct Panel: Codable, Equatable {
             .map { (name: deviceNames[$0.key] ?? "", entities: $0.value) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             .compactMap { runningItem(device: $0.name, entities: $0.entities) }
-        if !running.isEmpty {
-            blocks.insert(PanelBlock(kind: .running, title: String(localized: "Running now"), column: 1, items: running), at: 0)
+        var panel = Panel(blocks: blocks)
+        panel.addRunning(running)
+        return panel
+    }
+
+    mutating func addRunning(_ items: [PanelItem]) {
+        let shown = Set(blocks.filter { $0.kind == .running }.flatMap(\.items).map(\.entity))
+        let new = items.filter { !shown.contains($0.entity) }
+        guard !new.isEmpty else { return }
+        if let index = blocks.firstIndex(where: { $0.kind == .running }) {
+            blocks[index].items += new
+        } else {
+            blocks.insert(PanelBlock(kind: .running, title: String(localized: "Running now"), column: 1, items: new), at: 0)
         }
-        return Panel(blocks: blocks)
     }
 }
