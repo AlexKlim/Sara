@@ -68,27 +68,29 @@ struct YandexHome {
 
     /// Yandex devices as Home Assistant-like states, so the panel shows them like any entity:
     /// id "yandex.<device id>", state "on"/"off", friendly_name, brightness 0-255, temperature (target), current_temperature.
-    static func states(from info: [String: Any]) -> [String: [String: Any]] {
-        var states: [String: [String: Any]] = [:]
+    static func states(from info: [String: Any]) -> [String: HAState] {
+        var states: [String: HAState] = [:]
         for device in info["devices"] as? [[String: Any]] ?? [] {
             guard let id = device["id"] as? String else { continue }
-            var attributes: [String: Any] = ["friendly_name": device["name"] as? String ?? id, "yandex_type": device["type"] as? String ?? ""]
+            var attributes: [String: HAValue] = [
+                "friendly_name": .string(device["name"] as? String ?? id), "yandex_type": .string(device["type"] as? String ?? ""),
+            ]
             var state = "unknown"
             for capability in device["capabilities"] as? [[String: Any]] ?? [] {
                 guard let current = capability["state"] as? [String: Any] else { continue }
                 switch (capability["type"] as? String, current["instance"] as? String) {
                 case ("devices.capabilities.on_off", "on"?): state = current["value"] as? Bool == true ? "on" : "off"
-                case ("devices.capabilities.range", "brightness"?): attributes["brightness"] = ((current["value"] as? NSNumber)?.doubleValue ?? 0) * 2.55
-                case ("devices.capabilities.range", "temperature"?): attributes["temperature"] = current["value"]
+                case ("devices.capabilities.range", "brightness"?): attributes["brightness"] = .number(((current["value"] as? NSNumber)?.doubleValue ?? 0) * 2.55)
+                case ("devices.capabilities.range", "temperature"?): attributes["temperature"] = (current["value"] as? NSNumber).map { .number($0.doubleValue) }
                 default: break
                 }
             }
             for property in device["properties"] as? [[String: Any]] ?? [] {
                 if let current = property["state"] as? [String: Any], current["instance"] as? String == "temperature" {
-                    attributes["current_temperature"] = current["value"]
+                    attributes["current_temperature"] = (current["value"] as? NSNumber).map { .number($0.doubleValue) }
                 }
             }
-            states["yandex." + id] = ["state": state, "attributes": attributes]
+            states["yandex." + id] = HAState(state: state, attributes: attributes)
         }
         return states
     }

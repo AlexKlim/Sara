@@ -6,29 +6,22 @@ struct HomeAssistantSocket {
     let baseURL: String
     let token: String
 
-    /// Sends the commands one by one (e.g. "config/area_registry/list") and returns their results in order.
-    func call(_ commands: [String]) async throws -> [Any] {
-        let socket = try await connect()
-        defer { socket.cancel(with: .normalClosure, reason: nil) }
+    func call<Result: Decodable>(_ command: String) async throws -> Result {
+        try result(Result.self, of: try await replies([command])[0], command)
+    }
 
-        var results: [Any] = []
-        for (index, command) in commands.enumerated() {
-            let id = index + 1
-            try await send(socket, ["id": id, "type": command])
-            var reply = try await receive(socket)
-            while reply["id"] as? Int != id { reply = try await receive(socket) }
-            guard reply["success"] as? Bool == true, let result = reply["result"] else {
-                throw SaraError("Home Assistant: \(command) failed")
-            }
-            results.append(result)
-        }
-        return results
+
+    func registry() async throws -> HARegistry {
+        let commands = ["config/area_registry/list", "config/device_registry/list", "config/entity_registry/list_for_display"]
+        let replies = try await replies(commands)
+        return HARegistry(
+            areas: try result([HAArea].self, of: replies[0], commands[0]),
+            devices: try result([HADevice].self, of: replies[1], commands[1]),
+            entities: try result(HAEntityList.self, of: replies[2], commands[2]).entities)
     }
 
     /// Subscribes to all entity states and hands every event to `onEvent` until the connection drops.
-    /// Events are compact: "a" added (the first one has every entity), "c" changed ("+" new values, "-" removed
-    /// attributes), "r" removed. Each entity is {"s": state, "a": attributes}.
-    func subscribeEntities(_ onEvent: @escaping @MainActor ([String: Any]) -> Void) async throws {
+    func subscribeEntities(_ onEvent: @escaping @MainActor (HAStatesEvent) -> Void) async throws {
         let socket = try await connect()
         defer { socket.cancel(with: .normalClosure, reason: nil) }
         try await send(socket, ["id": 1, "type": "subscribe_entities"])
@@ -45,16 +38,43 @@ struct HomeAssistantSocket {
         defer { pinger.cancel() }
 
         while !Task.isCancelled {
-            let message = try await receive(socket)
-            switch message["type"] as? String {
+            let message = try JSONDecoder().decode(HAMessage<HAStatesEvent>.self, from: try await receive(socket))
+            switch message.type {
             case "event":
-                if let event = message["event"] as? [String: Any] { await onEvent(event) }
-            case "result" where message["id"] as? Int == 1 && message["success"] as? Bool == false:
+                if let event = message.event { await onEvent(event) }
+            case "result" where message.id == 1 && message.success == false:
                 throw SaraError("Home Assistant: subscribe_entities failed")
             default:
                 break
             }
         }
+    }
+
+    private func replies(_ commands: [String]) async throws -> [Data] {
+        let socket = try await connect()
+        defer { socket.cancel(with: .normalClosure, reason: nil) }
+
+        var replies: [Data] = []
+        for (index, command) in commands.enumerated() {
+            let id = index + 1
+            try await send(socket, ["id": id, "type": command])
+            var reply = try await receive(socket)
+            var header = try JSONDecoder().decode(HAMessageHeader.self, from: reply)
+            while header.id != id {
+                reply = try await receive(socket)
+                header = try JSONDecoder().decode(HAMessageHeader.self, from: reply)
+            }
+            guard header.success == true else { throw SaraError("Home Assistant: \(command) failed") }
+            replies.append(reply)
+        }
+        return replies
+    }
+
+    private func result<Result: Decodable>(_ type: Result.Type, of reply: Data, _ command: String) throws -> Result {
+        guard let result = try JSONDecoder().decode(HAMessage<Result>.self, from: reply).result else {
+            throw SaraError("Home Assistant: \(command) returned nothing")
+        }
+        return result
     }
 
     private func connect() async throws -> URLSessionWebSocketTask {
@@ -68,7 +88,7 @@ struct HomeAssistantSocket {
         socket.resume()
         _ = try await receive(socket) // auth_required
         try await send(socket, ["type": "auth", "access_token": token])
-        guard try await receive(socket)["type"] as? String == "auth_ok" else {
+        guard try JSONDecoder().decode(HAMessageHeader.self, from: try await receive(socket)).type == "auth_ok" else {
             socket.cancel(with: .normalClosure, reason: nil)
             throw SaraError("Home Assistant: authentication failed")
         }
@@ -80,13 +100,11 @@ struct HomeAssistantSocket {
         try await socket.send(.string(String(decoding: data, as: UTF8.self)))
     }
 
-    private func receive(_ socket: URLSessionWebSocketTask) async throws -> [String: Any] {
-        let data: Data
+    private func receive(_ socket: URLSessionWebSocketTask) async throws -> Data {
         switch try await socket.receive() {
-        case .string(let text): data = Data(text.utf8)
-        case .data(let bytes): data = bytes
-        @unknown default: return [:]
+        case .string(let text): Data(text.utf8)
+        case .data(let bytes): bytes
+        @unknown default: Data()
         }
-        return try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
     }
 }

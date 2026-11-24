@@ -16,12 +16,10 @@ enum Numbers {
         guard LiveContext.exposes(wanted, in: exposed, domains: ["number", "input_number"]) else { return "error: no such number or input_number in home_state: \(wanted)" }
         guard let states = try? await api.states() else { return "error: Home Assistant is unreachable" }
         let matches = states.filter { id, state in
-            ["number", "input_number"].contains(PanelItem.domain(id))
-                && (state["attributes"] as? [String: Any])?["friendly_name"] as? String == wanted
+            ["number", "input_number"].contains(PanelItem.domain(id)) && state.attributes["friendly_name"]?.string == wanted
         }
         guard matches.count == 1, let (id, state) = matches.first else { return "error: \(wanted) is ambiguous or not found" }
-        let attributes = state["attributes"] as? [String: Any] ?? [:]
-        if let low = attributes["min"] as? Double, let high = attributes["max"] as? Double, !(low...high).contains(value) {
+        if let low = state.attributes["min"]?.double, let high = state.attributes["max"]?.double, !(low...high).contains(value) {
             return "error: \(wanted) takes values from \(low) to \(high)"
         }
         do {

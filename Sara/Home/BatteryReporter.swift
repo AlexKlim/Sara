@@ -43,7 +43,7 @@ import UIKit
             if registered {
                 let reply = try await api.webhook(webhook, ["type": "update_sensor_states", "data": [sensor]])
                 guard !reply.isEmpty else { throw HomeAssistant.StatusError(status: 410) }
-                guard (reply["battery_level"] as? [String: Any])?["success"] as? Bool == true else {
+                guard reply["battery_level"]?["success"]?.bool == true else {
                     registered = false
                     throw SaraError("Sensor not registered")
                 }
@@ -53,7 +53,7 @@ import UIKit
                     "state_class": "measurement", "entity_category": "diagnostic",
                 ]) { $1 }
                 let reply = try await api.webhook(webhook, ["type": "register_sensor", "data": registration])
-                guard reply["success"] as? Bool == true else { throw HomeAssistant.StatusError(status: 410) }
+                guard reply["success"]?.bool == true else { throw HomeAssistant.StatusError(status: 410) }
                 registered = true
             }
             sent = state

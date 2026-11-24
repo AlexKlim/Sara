@@ -51,8 +51,8 @@ struct ItemEditorView: View {
     /// so nobody has to know its name; with several, they are offered to pick from.
     private func loadScriptFields() async {
         guard kind == .slider, let script = item.script,
-              let services = try? await HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken")).call(["get_services"]).first as? [String: Any],
-              let fields = ((services["script"] as? [String: Any])?[PanelItem.objectID(script)] as? [String: Any])?["fields"] as? [String: Any]
+              let services: [String: [String: HAValue]] = try? await HomeAssistantSocket(baseURL: haURL, token: Keychain.get("haToken")).call("get_services"),
+              let fields = services["script"]?[PanelItem.objectID(script)]?["fields"]?.object
         else { scriptFields = []; return }
         // The user may have picked another script while this one loaded.
         guard script == item.script else { return }

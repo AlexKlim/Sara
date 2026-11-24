@@ -54,7 +54,7 @@ import Foundation
             guard let states = try? await HomeAssistant.saved?.states() else { return (nil, "Home Assistant is unreachable") }
             let players = states.filter { id, state in
                 PanelItem.domain(id) == "media_player"
-                    && ((state["attributes"] as? [String: Any])?["friendly_name"] as? String)?.caseInsensitiveCompare(value) == .orderedSame
+                    && state.attributes["friendly_name"]?.string?.caseInsensitiveCompare(value) == .orderedSame
             }
             guard players.count == 1, let id = players.first?.key else { return (nil, "no single media player named \(value)") }
             defaults.set(id, forKey: "speakerEntity")
@@ -62,8 +62,8 @@ import Foundation
         case "room":
             if !value.isEmpty {
                 let url = defaults.string(forKey: "haURL") ?? ""
-                let areas = (try? await HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken")).call(["config/area_registry/list"]).first as? [[String: Any]]) ?? []
-                guard let area = areas.compactMap({ $0["name"] as? String }).first(where: { $0.caseInsensitiveCompare(value) == .orderedSame })
+                let areas: [HAArea] = (try? await HomeAssistantSocket(baseURL: url, token: Keychain.get("haToken")).call("config/area_registry/list")) ?? []
+                guard let area = areas.map(\.name).first(where: { $0.caseInsensitiveCompare(value) == .orderedSame })
                 else { return (nil, "no room named \(value)") }
                 defaults.set(area, forKey: "deviceRoom")
             } else {

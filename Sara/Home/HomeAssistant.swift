@@ -11,25 +11,23 @@ struct HomeAssistant {
         return url.isEmpty ? nil : HomeAssistant(baseURL: url, token: Keychain.get("haToken"))
     }
 
-    func states() async throws -> [String: [String: Any]] {
-        let data = try await request("GET", "/api/states", timeout: 10)
-        let list = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
-        return Dictionary(list.compactMap { state in (state["entity_id"] as? String).map { ($0, state) } }) { first, _ in first }
+    func states() async throws -> [String: HAState] {
+        let list = try JSONDecoder().decode([HAState].self, from: try await request("GET", "/api/states", timeout: 10))
+        return Dictionary(list.compactMap { state in state.entityID.map { ($0, state) } }) { first, _ in first }
     }
 
     func history(_ ids: [String], from: Date, to: Date) async throws -> [String: [(date: Date, state: String)]] {
         let iso = ISO8601DateFormatter()
         let path = "/api/history/period/\(iso.string(from: from))?filter_entity_id=\(ids.joined(separator: ","))"
             + "&end_time=\(iso.string(from: to))&minimal_response&no_attributes"
-        let data = try await request("GET", path, timeout: 30)
+        let lists = try JSONDecoder().decode([[HAHistoryPoint]].self, from: try await request("GET", path, timeout: 30))
         var result: [String: [(date: Date, state: String)]] = [:]
-        for list in try JSONSerialization.jsonObject(with: data) as? [[[String: Any]]] ?? [] {
-            guard let id = list.first?["entity_id"] as? String else { continue }
-            result[id] = list.compactMap { item in
-                guard let state = item["state"] as? String,
-                      let changed = (item["last_changed"] as? String)?.replacingOccurrences(of: #"\.\d+"#, with: "", options: .regularExpression),
-                      let date = iso.date(from: changed) else { return nil }
-                return (date, state)
+        for list in lists {
+            guard let id = list.first?.entityID else { continue }
+            result[id] = list.compactMap { point in
+                // ISO8601DateFormatter can't read Home Assistant's microseconds.
+                let changed = point.lastChanged.replacingOccurrences(of: #"\.\d+"#, with: "", options: .regularExpression)
+                return iso.date(from: changed).map { ($0, point.state) }
             }
         }
         return result
@@ -40,23 +38,23 @@ struct HomeAssistant {
     }
 
     /// Calls a service that returns data, e.g. todo.get_items. Returns its service_response.
-    func callForResponse(_ domain: String, _ service: String, _ data: [String: Any]) async throws -> [String: Any] {
+    func callForResponse<Response: Decodable>(_ domain: String, _ service: String, _ data: [String: Any]) async throws -> Response {
         let reply = try await request("POST", "/api/services/\(domain)/\(service)?return_response", body: data)
-        return (try JSONSerialization.jsonObject(with: reply) as? [String: Any])?["service_response"] as? [String: Any] ?? [:]
+        return try JSONDecoder().decode(HAServiceResponse<Response>.self, from: reply).response
     }
 
     func registerMobileApp(_ device: [String: Any]) async throws -> String {
         let reply = try await request("POST", "/api/mobile_app/registrations", body: device)
-        guard let id = (try JSONSerialization.jsonObject(with: reply) as? [String: Any])?["webhook_id"] as? String else {
+        guard let id = try JSONDecoder().decode([String: HAValue].self, from: reply)["webhook_id"]?.string else {
             throw SaraError("Home Assistant: no webhook id")
         }
         return id
     }
 
     /// Home Assistant answers a webhook it doesn't know with an empty 200, so the reply is returned to check.
-    func webhook(_ id: String, _ body: [String: Any]) async throws -> [String: Any] {
+    func webhook(_ id: String, _ body: [String: Any]) async throws -> [String: HAValue] {
         let reply = try await request("POST", "/api/webhook/\(id)", body: body)
-        return (try? JSONSerialization.jsonObject(with: reply)) as? [String: Any] ?? [:]
+        return (try? JSONDecoder().decode([String: HAValue].self, from: reply)) ?? [:]
     }
 
     struct StatusError: LocalizedError {

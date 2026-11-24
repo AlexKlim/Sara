@@ -1,23 +1,20 @@
-// Self-check for Panel.build. Run from the repo root:
-// swiftc -parse-as-library -o /tmp/panelcheck Sara/Models/Panel.swift Sara/Models/PanelBlock.swift Sara/Models/PanelItem.swift Sara/Models/SaraError.swift Sara/Home/HomeAssistantSocket.swift Sara/Home/YandexHome.swift Checks/PanelBuildCheck.swift && /tmp/panelcheck
 import Foundation
 
 @main
 enum PanelBuildCheck {
     static func main() {
-        // Self-check for Panel.build: areas from entities and from devices, hidden/config entities skipped.
-        let panel = Panel.build(
-            areas: [["area_id": "zal", "name": "Living room"], ["area_id": "bath", "name": "Bathroom"], ["area_id": "empty", "name": "Empty"]],
-            devices: [["id": "d1", "area_id": "bath"], ["id": "d2", "area_id": NSNull()]],
+        let panel = Panel.build(HARegistry(
+            areas: [HAArea(id: "zal", name: "Living room"), HAArea(id: "bath", name: "Bathroom"), HAArea(id: "empty", name: "Empty")],
+            devices: [HADevice(id: "d1", areaID: "bath"), HADevice(id: "d2")],
             entities: [
-                ["ei": "light.main", "ai": "zal"],
-                ["ei": "switch.sync", "ai": "zal"],
-                ["ei": "light.hidden", "ai": "zal", "hb": true],
-                ["ei": "switch.child_lock", "ai": "zal", "ec": 0],
-                ["ei": "climate.floor", "di": "d1"],
-                ["ei": "light.nowhere", "di": "d2"],
-            ["ei": "todo.shopping"],
-            ])
+                HAEntityEntry(id: "light.main", area: "zal"),
+                HAEntityEntry(id: "switch.sync", area: "zal"),
+                HAEntityEntry(id: "light.hidden", area: "zal", hidden: true),
+                HAEntityEntry(id: "switch.child_lock", area: "zal", category: 0),
+                HAEntityEntry(id: "climate.floor", device: "d1"),
+                HAEntityEntry(id: "light.nowhere", device: "d2"),
+                HAEntityEntry(id: "todo.shopping"),
+            ]))
         assert(panel.blocks.map(\.title) == ["Living room", "Thermostats", ""], "\(panel.blocks.map(\.title))")
         assert(panel.blocks[2].kind == .list && panel.blocks[2].items.first?.entity == "todo.shopping")
         assert(panel.blocks[0].items.map(\.entity) == ["light.main", "switch.sync"])
@@ -25,21 +22,20 @@ enum PanelBuildCheck {
         print("Panel.build OK")
 
         // Running devices: found by their remaining-time sensor, with the device's other sensors filled in.
-        let withRunning = Panel.build(
-            areas: [],
-            devices: [["id": "p", "name": "Printer"], ["id": "w", "name": "Washer", "name_by_user": "My washer"], ["id": "l", "name": "Lamp"]],
+        let withRunning = Panel.build(HARegistry(
+            devices: [HADevice(id: "p", name: "Printer"), HADevice(id: "w", name: "Washer", nameByUser: "My washer"), HADevice(id: "l", name: "Lamp")],
             entities: [
-                ["ei": "sensor.kabinet_printer_remaining_time", "di": "p"],
-                ["ei": "sensor.kabinet_printer_print_progress", "di": "p"],
-                ["ei": "sensor.kabinet_printer_end_time", "di": "p"],
-                ["ei": "sensor.kabinet_printer_task_name", "di": "p"],
-                ["ei": "sensor.kabinet_printer_print_status", "di": "p"],
-                ["ei": "sensor.kabinet_printer_sd_card_status", "di": "p"],
-                ["ei": "sensor.tualet_stiralka_remaining_time", "di": "w"],
-                ["ei": "sensor.tualet_stiralka_program_phase", "di": "w"],
-                ["ei": "binary_sensor.tualet_stiralka_status", "di": "w"],
-                ["ei": "light.lamp", "di": "l"],
-            ])
+                HAEntityEntry(id: "sensor.kabinet_printer_remaining_time", device: "p"),
+                HAEntityEntry(id: "sensor.kabinet_printer_print_progress", device: "p"),
+                HAEntityEntry(id: "sensor.kabinet_printer_end_time", device: "p"),
+                HAEntityEntry(id: "sensor.kabinet_printer_task_name", device: "p"),
+                HAEntityEntry(id: "sensor.kabinet_printer_print_status", device: "p"),
+                HAEntityEntry(id: "sensor.kabinet_printer_sd_card_status", device: "p"),
+                HAEntityEntry(id: "sensor.tualet_stiralka_remaining_time", device: "w"),
+                HAEntityEntry(id: "sensor.tualet_stiralka_program_phase", device: "w"),
+                HAEntityEntry(id: "binary_sensor.tualet_stiralka_status", device: "w"),
+                HAEntityEntry(id: "light.lamp", device: "l"),
+            ]))
         assert(withRunning.blocks.first?.kind == .running && withRunning.blocks.first?.column == 1)
         let printer = withRunning.blocks[0].items[1], washer = withRunning.blocks[0].items[0]
         assert(washer.name == "My washer" && washer.icon == "washer" && washer.active == "binary_sensor.tualet_stiralka_status")
@@ -77,9 +73,9 @@ enum PanelBuildCheck {
             ],
         ]
         let states = YandexHome.states(from: info)
-        assert(states["yandex.lamp"]?["state"] as? String == "on")
-        assert(abs(((states["yandex.lamp"]?["attributes"] as? [String: Any])?["brightness"] as? Double ?? 0) - 127.5) < 0.01)
-        assert((states["yandex.floor"]?["attributes"] as? [String: Any])?["current_temperature"] as? Double == 26.5)
+        assert(states["yandex.lamp"]?.state == "on")
+        assert(abs((states["yandex.lamp"]?.attributes["brightness"]?.double ?? 0) - 127.5) < 0.01)
+        assert(states["yandex.floor"]?.attributes["current_temperature"]?.double == 26.5)
         let yandexPanel = Panel.build(fromYandex: info)
         assert(yandexPanel.blocks.map(\.title) == ["Kitchen", "Thermostats"], "\(yandexPanel.blocks.map(\.title))")
         assert(yandexPanel.blocks[0].items.map(\.entity) == ["yandex.lamp"])
