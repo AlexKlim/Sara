@@ -17,6 +17,9 @@ struct ThermostatScheduleView: View {
                     ForEach(0..<7, id: \.self) { day in row(day, schedule.days[day]) }
                     hours
                 }
+            } else {
+                Text("The thermostat has not sent its schedule yet. It usually arrives within 5 minutes.")
+                    .font(.system(size: 16)).foregroundStyle(Theme.secondary)
             }
             Text("To change it, ask Sara.").font(.system(size: 16)).foregroundStyle(Theme.secondary)
         }

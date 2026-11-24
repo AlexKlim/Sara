@@ -2688,6 +2688,17 @@
         }
       }
     },
+    "The thermostat has not sent its schedule yet. It usually arrives within 5 minutes." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Термостат ещё не прислал расписание. Обычно оно приходит в течение 5 минут."
+          }
+        }
+      }
+    },
     "To change it, ask Sara." : {
       "localizations" : {
         "ru" : {
