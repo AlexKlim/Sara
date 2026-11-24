@@ -1,0 +1,31 @@
+[
+  {
+    "name": "home_details",
+    "description": "All entities of a Home Assistant device or area with their current state, unit and attributes, including sensors that are not in home_state (energy use, run time, Wi-Fi, diagnostics). Returns entity ids for home_history.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string", "description": "A device or area name exactly as in <devices>, or part of an entity name or id."}
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "strict": true
+  },
+  {
+    "name": "home_history",
+    "description": "Past states of Home Assistant entities, summed up per day or per hour. Numbers: time-weighted mean, min, max, the value at the start and end, and the change (for a growing counter such as a kWh total, the change is the use in that period). Other states (on/off, printing): hours spent in each. Home Assistant keeps about 10 days.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "entity_ids": {"type": "array", "items": {"type": "string"}, "description": "1 to 10 entity ids, e.g. from home_details."},
+        "from": {"type": "string", "description": "Local start: YYYY-MM-DD or YYYY-MM-DDTHH:MM."},
+        "to": {"type": "string", "description": "Local end in the same format, or \"now\"."},
+        "period": {"type": "string", "enum": ["day", "hour"], "description": "hour: at most 3 days. day: at most 31 days."}
+      },
+      "required": ["entity_ids", "from", "to", "period"],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+]
