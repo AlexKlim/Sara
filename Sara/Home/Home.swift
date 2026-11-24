@@ -155,7 +155,7 @@ import Foundation
     /// while it has time left or is between 0 and 100 percent.
     func isRunning(_ item: PanelItem) -> Bool {
         if finished(item) { return false }
-        if let active = item.active { return ["on", "running", "pause", "prepare"].contains(state(active)) }
+        if let active = item.active { return Self.working.contains(state(active)?.lowercased() ?? "") }
         if let minutes = minutesLeft(item.entity), minutes > 0 { return true }
         if let progress = number(item.progress), progress > 0, progress < 100 { return true }
         return false
@@ -164,8 +164,11 @@ import Foundation
     /// Done but still on: a washer waits like this to be unloaded. Not running, so the "done" alert has already played.
     func isWaiting(_ item: PanelItem) -> Bool {
         guard finished(item), let active = item.active else { return false }
-        return ["on", "running", "pause", "prepare"].contains(state(active))
+        return (Self.working + ["end of cycle"]).contains(state(active)?.lowercased() ?? "")
     }
+
+    /// States that mean a device is busy, from washers, printers and Electrolux appliances.
+    private static let working = ["on", "running", "pause", "paused", "prepare", "delayed start"]
 
     /// Nothing left, and the progress, if there is one, is full. A washer stays "on" after this until it is switched off.
     private func finished(_ item: PanelItem) -> Bool {

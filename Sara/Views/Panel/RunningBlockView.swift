@@ -107,9 +107,10 @@ struct RunningBlockView: View {
     }
 
     /// The program or file name. A bare number (a program phase code) means nothing to a person.
+    /// Program names arrive in English; the known ones are translated under "program.".
     private func detail(_ item: PanelItem) -> String? {
         guard let detail = home.state(item.detail), !["unknown", "unavailable"].contains(detail), Double(detail) == nil else { return nil }
-        return detail
+        return Bundle.main.localizedString(forKey: "program." + detail, value: detail, table: nil)
     }
 
     /// 72 -> "1 h 12 min" (localized).

@@ -48,6 +48,13 @@ enum PanelBuildCheck {
         assert(printer.progress == "sensor.kabinet_printer_print_progress" && printer.end == "sensor.kabinet_printer_end_time")
         assert(printer.detail == "sensor.kabinet_printer_task_name")
         assert(Panel.runningItem(device: "Lamp", entities: ["light.lamp"]) == nil)
+        let dishwasher = Panel.runningItem(device: "Dishwasher", entities: [
+            "sensor.electrolux_dishwasher_timetoend", "sensor.electrolux_dishwasher_appliancestate",
+            "select.electrolux_dishwasher_userselections_programuid", "sensor.electrolux_dishwasher_cyclephase",
+        ])
+        assert(dishwasher?.entity == "sensor.electrolux_dishwasher_timetoend" && dishwasher?.icon == "dishwasher")
+        assert(dishwasher?.active == "sensor.electrolux_dishwasher_appliancestate")
+        assert(dishwasher?.detail == "select.electrolux_dishwasher_userselections_programuid")
         print("Running devices OK")
 
         // Yandex: user/info in the shape of the docs.
