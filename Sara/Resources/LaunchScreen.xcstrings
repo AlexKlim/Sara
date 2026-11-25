@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "LSc-nm-001.text" : {
+      "comment" : "Class = \"UILabel\"; text = \"SARA\"; ObjectID = \"LSc-nm-001\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "SARA"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "САРА"
+          }
+        }
+      }
+    },
+    "LSc-tx-001.text" : {
+      "comment" : "Class = \"UILabel\"; text = \"While you're away, I'm here.\"; ObjectID = \"LSc-tx-001\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "While you're away, I'm here."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока вас нет, я есть."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
