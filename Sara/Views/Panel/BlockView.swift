@@ -30,7 +30,13 @@ struct BlockView: View {
             DeviceBlockView(block: block, home: home)
         case .list:
             if let todo = block.items.first?.entity, todo.hasPrefix("todo.") {
-                TodoBlockView(entity: todo, title: block.title, home: home)
+                // The state counts only open items: a list at 0 may still hold checked ones, so it hides only once loaded empty.
+                let loaded = home.todoItems[todo]
+                if home.state(todo) != "0" || loaded?.isEmpty == false {
+                    TodoBlockView(entity: todo, title: block.title, home: home)
+                } else if loaded == nil {
+                    Color.clear.frame(height: 0).task { await home.loadTodo(todo) }
+                }
             } else {
                 ListBlockView(name: block.title)
             }

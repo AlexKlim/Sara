@@ -57,7 +57,6 @@ struct TalkView: View {
             Button("Close") { dismiss() }.pill()
             Spacer()
             Group {
-                NavigationLink { ListsView() } label: { Label("Lists", systemImage: "checklist").pill() }
                 NavigationLink { HistoryView() } label: { Label("History", systemImage: "clock.arrow.circlepath").pill() }
                 Button { sara.startNewChat(in: context) } label: { Label("New conversation", systemImage: "square.and.pencil").pill() }
                     .disabled(sara.busy)

@@ -13,15 +13,15 @@ struct ListBlockView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(verbatim: name).blockTitle()
-                Spacer()
-                if !items.isEmpty, items.allSatisfy(\.done) {
-                    Button("Close the list", systemImage: "xmark.circle.fill", action: close)
-                        .labelStyle(.iconOnly).font(.title2).foregroundStyle(Theme.muted)
-                        .buttonStyle(.plain)
+            Text(verbatim: name).blockTitle()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .overlay(alignment: .trailing) {
+                    if !items.isEmpty, items.allSatisfy(\.done) {
+                        Button("Close the list", systemImage: "xmark.circle.fill", action: close)
+                            .labelStyle(.iconOnly).font(.title2).foregroundStyle(Theme.muted)
+                            .buttonStyle(.plain)
+                    }
                 }
-            }
             VStack(spacing: 0) {
                 if items.isEmpty {
                     Text("Empty").foregroundStyle(Theme.secondary).padding(.vertical, 12)
