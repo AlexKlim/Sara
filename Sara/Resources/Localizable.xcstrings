@@ -441,6 +441,16 @@
         }
       }
     },
+    "Change" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сменить"
+          }
+        }
+      }
+    },
     "Check connection" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1159,6 +1169,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Память"
+          }
+        }
+      }
+    },
+    "Microphone: %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Микрофон: %@"
           }
         }
       }

@@ -46,11 +46,11 @@ struct ContentView: View {
                 let lastTurn = latestTurns.first { $0.chatID == sara.chatID }
                 Group {
                     if !PowerSaver.isWallPanel {
-                        PhoneView(home: home, panel: panel, lastTurn: lastTurn, date: timeline.date, onTalk: { showTalk = true }, onSettings: { showSettings = true })
+                        PhoneView(home: home, panel: panel, lastTurn: lastTurn, date: timeline.date, onTalk: talk, onSettings: { showSettings = true })
                     } else {
                         PanelView(
                             home: home, panel: panel, lastTurn: lastTurn, listening: wakeEnabled,
-                            onTalk: { showTalk = true }, onSettings: { showSettings = true })
+                            onTalk: talk, onSettings: { showSettings = true })
                     }
                 }
                 .onAppear { PowerSaver.shared.night = false }
@@ -65,7 +65,7 @@ struct ContentView: View {
             }
         }
         .overlay { if let done { DoneAlertView(name: done) { self.done = nil } } }
-        .fullScreenCover(isPresented: $showTalk) {
+        .fullScreenCover(isPresented: $showTalk, onDismiss: voice.cancelPushToTalk) {
             TalkView(sara: sara, voice: voice, onAsk: { respond($0, spoken: $1) })
         }
         .sheet(isPresented: $showSettings, onDismiss: { home.start(); applyWakeWord(); buildPanelIfEmpty() }) {
@@ -281,6 +281,11 @@ struct ContentView: View {
             guard let built, !built.blocks.isEmpty, url == haURL, panel.blocks.isEmpty else { return }
             built.save()
         }
+    }
+
+    private func talk() {
+        showTalk = true
+        Task { await voice.start() }
     }
 
     private func applyWakeWord() {

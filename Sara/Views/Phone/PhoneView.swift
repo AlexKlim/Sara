@@ -14,22 +14,24 @@ struct PhoneView: View {
 
     /// Settings and talking to Sara open over the panel, so their tabs act and leave Home selected.
     private enum Place { case home, settings, talk }
+    @State private var place = Place.home
 
     /// What one column shows, in the order of the design. Two halves follow each block's column instead.
     private enum Part: CaseIterable { case header, running, lights, climate, sliders, turn, other }
 
     var body: some View {
-        TabView(selection: Binding(get: { Place.home }, set: { if $0 == .talk { onTalk() } else if $0 == .settings { onSettings() } })) {
+        TabView(selection: $place) {
             Tab("Home", systemImage: "house", value: Place.home) { page }
             Tab("Settings", systemImage: "slider.horizontal.3", value: Place.settings) { Theme.background }
-            Tab("Talk to Sara", systemImage: "mic", value: Place.talk, role: Self.talkRole) { Theme.background }
+            Tab("Talk to Sara", systemImage: "mic", value: Place.talk) { Theme.background }
         }
         .tint(Theme.teal)
-    }
-
-    /// The main action stands apart from the sections where the system supports it.
-    private static var talkRole: TabRole? {
-        if #available(iOS 27.0, *) { .prominent } else { nil }
+        .onChange(of: place) {
+            guard place != .home else { return }
+            Log.write("[phone] tab \(place)")
+            if place == .talk { onTalk() } else { onSettings() }
+            place = .home
+        }
     }
 
     private var page: some View {

@@ -30,6 +30,7 @@ import Speech
     private var generation = 0
     private var started = Date.now
     private var pushToTalk = false
+    private var startRequest = 0
 
     private var wakeWord: String?
     /// Numbers listen() calls, so an older one finishing its authorization late can't restart recognition.
@@ -58,7 +59,10 @@ import Speech
     // MARK: Push-to-talk
 
     func start() async {
-        guard await authorized() else { return }
+        startRequest += 1
+        let request = startRequest
+        // The dialog may have closed while authorization was asked.
+        guard await authorized(), request == startRequest else { return }
         stopSpeaking()
         pushToTalk = true
         begin()
@@ -73,6 +77,12 @@ import Speech
         listening = false
         if wakeWord != nil { begin() } else { endRecognition() }
         return phrase
+    }
+
+    /// The dialog closed: an unsent phrase is dropped, and a start still waiting for authorization won't begin.
+    func cancelPushToTalk() {
+        startRequest += 1
+        if pushToTalk { _ = stop() }
     }
 
     // MARK: Wake word and follow-ups
@@ -266,8 +276,11 @@ import Speech
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .duckOthers])
         try? session.setActive(true)
-        do { try engine.inputNode.setVoiceProcessingEnabled(true) } catch {
-            Log.write("[voice] voice processing failed: \(error)")
+
+        if !ProcessInfo.processInfo.isiOSAppOnMac {
+            do { try engine.inputNode.setVoiceProcessingEnabled(true) } catch {
+                Log.write("[voice] voice processing failed: \(error)")
+            }
         }
         // A failed start leaves the player attached, and attaching it twice ends the app.
         if player.engine == nil { engine.attach(player) }
