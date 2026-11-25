@@ -65,7 +65,7 @@ struct ContentView: View {
             }
         }
         .overlay { if let done { DoneAlertView(name: done) { self.done = nil } } }
-        .fullScreenCover(isPresented: $showTalk, onDismiss: { if voice.pushToTalk { _ = voice.stop() } }) {
+        .fullScreenCover(isPresented: $showTalk, onDismiss: voice.cancelPushToTalk) {
             TalkView(sara: sara, voice: voice, onAsk: { respond($0, spoken: $1) })
         }
         .sheet(isPresented: $showSettings, onDismiss: { home.start(); applyWakeWord(); buildPanelIfEmpty() }) {

@@ -29,7 +29,8 @@ import Speech
     /// Callbacks of an old recognition task are ignored.
     private var generation = 0
     private var started = Date.now
-    private(set) var pushToTalk = false
+    private var pushToTalk = false
+    private var startRequest = 0
 
     private var wakeWord: String?
     /// Numbers listen() calls, so an older one finishing its authorization late can't restart recognition.
@@ -58,7 +59,10 @@ import Speech
     // MARK: Push-to-talk
 
     func start() async {
-        guard await authorized() else { return }
+        startRequest += 1
+        let request = startRequest
+        // The dialog may have closed while authorization was asked.
+        guard await authorized(), request == startRequest else { return }
         stopSpeaking()
         pushToTalk = true
         begin()
@@ -73,6 +77,12 @@ import Speech
         listening = false
         if wakeWord != nil { begin() } else { endRecognition() }
         return phrase
+    }
+
+    /// The dialog closed: an unsent phrase is dropped, and a start still waiting for authorization won't begin.
+    func cancelPushToTalk() {
+        startRequest += 1
+        if pushToTalk { _ = stop() }
     }
 
     // MARK: Wake word and follow-ups
