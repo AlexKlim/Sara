@@ -4,6 +4,8 @@ import SwiftData
 @MainActor enum Lists {
     static let tools = try! JSONSerialization.jsonObject(
         with: Data(contentsOf: Bundle.main.url(forResource: "ListTools", withExtension: "json")!)) as! [[String: Any]]
+    private static let names = Set(tools.compactMap { $0["name"] as? String })
+    private static var moving = false
 
     /// List names with their open item counts, for Claude. Empty when there are no lists.
     static func summary() async -> String {
@@ -14,7 +16,7 @@ import SwiftData
 
     /// Runs a list tool. Returns nil for any other tool.
     static func run(_ tool: String, _ args: [String: Any]) async -> String? {
-        guard tool.hasPrefix("list_") else { return nil }
+        guard names.contains(tool) else { return nil }
         guard let api = HomeAssistant.saved else { return "error: Home Assistant is not set up" }
         let asked = (args["list"] as? String ?? "").trimmingCharacters(in: .whitespaces)
         let texts = (args["items"] as? [String] ?? []).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
@@ -58,19 +60,25 @@ import SwiftData
     }
 
     static func moveToHomeAssistant(_ context: ModelContext) async {
-        guard HomeAssistant.saved != nil,
+        guard !moving, HomeAssistant.saved != nil,
               let local = try? context.fetch(FetchDescriptor<ListItem>(predicate: #Predicate { $0.closed == nil })),
               !local.isEmpty else { return }
-        for (name, items) in Dictionary(grouping: local, by: \.list) {
-            let open = items.sorted { $0.created < $1.created }.filter { !$0.done }.map(\.text)
+        moving = true
+        defer { moving = false }
+        lists: for (name, items) in Dictionary(grouping: local, by: \.list) {
             Panel.removeList(name)
-            let result = await run("list_add", ["list": name, "items": open])
-            guard result?.hasPrefix("added") == true else {
-                Log.write("[lists] \(name) not moved: \(result ?? "-")")
-                Panel.addList(name)
-                continue
+            // Item by item: after a failure, the next start moves only what is left.
+            for item in items.sorted(by: { $0.created < $1.created }) {
+                if !item.done {
+                    let result = await run("list_add", ["list": name, "items": [item.text]])
+                    guard result?.hasPrefix("added") == true else {
+                        Log.write("[lists] \(name) not moved: \(result ?? "-")")
+                        Panel.addList(name)
+                        continue lists
+                    }
+                }
+                context.delete(item)
             }
-            items.forEach(context.delete)
             Log.write("[lists] \(name) moved to Home Assistant")
         }
     }
