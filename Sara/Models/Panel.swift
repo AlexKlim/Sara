@@ -28,6 +28,16 @@ struct Panel: Codable, Equatable {
         panel.save()
     }
 
+    static func addLists(from entities: Set<String>) {
+        var panel = load()
+        let shown = Set(panel.blocks.flatMap(\.items).map(\.entity))
+        let new = entities.filter { $0.hasPrefix("todo.") && !shown.contains($0) }.sorted()
+
+        guard !new.isEmpty, !panel.blocks.isEmpty else { return }
+        panel.blocks += new.map { PanelBlock(kind: .list, title: "", column: 1, items: [PanelItem(entity: $0)]) }
+        panel.save()
+    }
+
     static func removeList(_ name: String) {
         var panel = load()
         panel.blocks.removeAll { $0.kind == .list && $0.title == name }

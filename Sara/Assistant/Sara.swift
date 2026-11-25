@@ -348,7 +348,14 @@ import SwiftData
 
     /// "HassTurnOn" + {name: "Light"} -> "HassTurnOn name=Light"
     private static func describe(_ tool: String, _ args: [String: Any]) -> String {
-        let params = args.keys.sorted().map { "\($0)=\(args[$0] ?? "")" }.joined(separator: ", ")
+        let params = args.keys.sorted().map { "\($0)=\(readable(args[$0] ?? ""))" }.joined(separator: ", ")
         return params.isEmpty ? tool : "\(tool) \(params)"
+    }
+
+    private static func readable(_ value: Any) -> String {
+        if let list = value as? [Any] { return list.map(readable).joined(separator: ", ") }
+        guard JSONSerialization.isValidJSONObject(value),
+              let data = try? JSONSerialization.data(withJSONObject: value, options: .sortedKeys) else { return "\(value)" }
+        return String(decoding: data, as: UTF8.self)
     }
 }

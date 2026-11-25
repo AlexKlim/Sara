@@ -79,7 +79,10 @@ struct ContentView: View {
         .onChange(of: panelData) { panel = Panel.decoded(panelData) }
         .onChange(of: home.saraAsleep) { applyWakeWord() }
         // Entities come and go when a device is added: look for new devices then, and on every start.
-        .onChange(of: home.entityIDs, initial: true) { Task { await NewDevices.shared.check() } }
+        .onChange(of: home.entityIDs, initial: true) {
+            Panel.addLists(from: home.entityIDs)
+            Task { await NewDevices.shared.check() }
+        }
         .onAppear {
             Keychain.moveLocalSecretsToICloud()
             CloudSettings.start()
@@ -94,7 +97,7 @@ struct ContentView: View {
             // A timer or alarm rang while Sara is on screen: say it and show the card.
             Alarms.shared.onFire = { label in
                 done = label
-                if !isNight(.now) { voice.say(String(localized: "Timer: \(label)")) }
+                if !isNight(.now) { sayAloud(String(localized: "Timer: \(label)")) }
             }
             // A scheduled command is due: Sara does it silently, after whatever she is doing, and the panel shows it.
             Alarms.shared.onCommand = { command in
@@ -106,7 +109,7 @@ struct ContentView: View {
                 }
             }
             NewDevices.shared.onFound = { device in
-                if !home.saraAsleep && !isNight(.now) { voice.say(String(localized: "A new device appeared: \(device.name). You can add it to the panel.")) }
+                if !home.saraAsleep && !isNight(.now) { sayAloud(String(localized: "A new device appeared: \(device.name). You can add it to the panel.")) }
             }
             // Sara changed how she listens or speaks: restart listening once she has finished answering
             // and the follow-up is over, so its timeout is kept.
@@ -149,6 +152,21 @@ struct ContentView: View {
         Set(panel.blocks.filter { $0.kind == .running }.flatMap(\.items).filter(home.isRunning).map(\.entity))
     }
 
+    /// Sara's voice: the Home Assistant speaker (e.g. Yandex Station) when one is set, else this device.
+    /// If the speaker fails, this device speaks.
+    private func sayAloud(_ phrase: String, token: Int? = nil) {
+        let speaker = speakerEntity.trimmingCharacters(in: .whitespaces)
+        guard !speaker.isEmpty else { voice.say(phrase, token: token); return }
+        // Voice filters out its words and lets the user interrupt it while it reads, about 14 characters a second.
+        voice.speakingExternally(phrase, for: Double(phrase.count) / 14 + 1)
+        Task {
+            do { try await home.say(Voice.speakable(phrase), on: speaker) } catch {
+                Log.write("[speaker] \(speaker) failed: \(error)")
+                voice.say(phrase)
+            }
+        }
+    }
+
     /// Sends a phrase to Sara. A spoken phrase gets a spoken answer, except at night.
     /// `followUp`: heard without the wake word, so Sara may decide it was not for her.
     /// `scheduled`: a command the user set for now; it doesn't wake the panel.
@@ -175,22 +193,7 @@ struct ContentView: View {
         let speaker = speakerEntity.trimmingCharacters(in: .whitespaces)
         // A new answer: speech of an earlier, interrupted one is dropped. Silent scheduled work leaves speech playing.
         let token = scheduled ? 0 : voice.newSpeech()
-        var say: ((String) -> Void)? = speak ? { voice.say($0, token: token) } : nil
-        if speak, !speaker.isEmpty {
-            // A Home Assistant speaker (e.g. Yandex Station) gets the whole reply. If it fails, this device speaks.
-            // Voice filters out its words and lets the user interrupt it while it reads, about 14 characters a second.
-            say = { phrase in
-                voice.speakingExternally(phrase, for: Double(phrase.count) / 14 + 1)
-                Task {
-                    do { try await home.say(Voice.speakable(phrase), on: speaker) } catch {
-                        #if DEBUG
-                        print("[speaker] \(speaker) failed:", error)
-                        #endif
-                        voice.say(phrase)
-                    }
-                }
-            }
-        }
+        let say: ((String) -> Void)? = speak ? { sayAloud($0, token: token) } : nil
         let task = Task { [followUp] in
             _ = await previous?.value // a cancelled request cleans up first
             // The pause may still be on its way to Home Assistant; the note has to match how it ends.

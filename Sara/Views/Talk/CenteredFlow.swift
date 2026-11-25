@@ -15,7 +15,7 @@ struct CenteredFlow: Layout {
         for row in rows(of: subviews, width: bounds.width) {
             var x = bounds.midX - row.width / 2
             for (index, width) in row.items {
-                subviews[index].place(at: CGPoint(x: x, y: y), proposal: .unspecified)
+                subviews[index].place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(width: width, height: nil))
                 x += width + spacing
             }
             y += row.height + spacing
@@ -25,7 +25,7 @@ struct CenteredFlow: Layout {
     private func rows(of subviews: Subviews, width: CGFloat) -> [(items: [(index: Int, width: CGFloat)], width: CGFloat, height: CGFloat)] {
         var rows: [(items: [(index: Int, width: CGFloat)], width: CGFloat, height: CGFloat)] = []
         for (index, subview) in subviews.enumerated() {
-            let size = subview.sizeThatFits(.unspecified)
+            let size = subview.sizeThatFits(ProposedViewSize(width: width, height: nil))
             if let last = rows.last, last.width + spacing + size.width <= width {
                 rows[rows.count - 1] = (last.items + [(index, size.width)], last.width + spacing + size.width, max(last.height, size.height))
             } else {
