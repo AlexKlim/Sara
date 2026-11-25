@@ -29,7 +29,7 @@ import Speech
     /// Callbacks of an old recognition task are ignored.
     private var generation = 0
     private var started = Date.now
-    private var pushToTalk = false
+    private(set) var pushToTalk = false
 
     private var wakeWord: String?
     /// Numbers listen() calls, so an older one finishing its authorization late can't restart recognition.
@@ -266,8 +266,11 @@ import Speech
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .duckOthers])
         try? session.setActive(true)
-        do { try engine.inputNode.setVoiceProcessingEnabled(true) } catch {
-            Log.write("[voice] voice processing failed: \(error)")
+
+        if !ProcessInfo.processInfo.isiOSAppOnMac {
+            do { try engine.inputNode.setVoiceProcessingEnabled(true) } catch {
+                Log.write("[voice] voice processing failed: \(error)")
+            }
         }
         // A failed start leaves the player attached, and attaching it twice ends the app.
         if player.engine == nil { engine.attach(player) }

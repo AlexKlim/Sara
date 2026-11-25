@@ -42,7 +42,13 @@ struct TalkView: View {
             .background(Theme.deepBackground)
             .foregroundStyle(Theme.text)
             .toolbar(.hidden, for: .navigationBar)
-            .safeAreaInset(edge: .bottom) { inputBar }
+            .safeAreaInset(edge: .bottom) {
+                VStack(spacing: 0) {
+                    if ProcessInfo.processInfo.isiOSAppOnMac { MicrophoneBar(listening: voice.listening).padding(.top, 8) }
+                    inputBar
+                }
+                .background(Theme.deepBackground)
+            }
         }
     }
 
