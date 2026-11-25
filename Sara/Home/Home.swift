@@ -294,6 +294,11 @@ import Foundation
         await loadTodo(id)
     }
 
+    func clearDone(_ id: String) async {
+        try? await api?.call("todo", "remove_completed_items", ["entity_id": id])
+        await loadTodo(id)
+    }
+
     func say(_ text: String, on speaker: String) async throws {
         guard let api else { throw SaraError("No Home Assistant address") }
         // A Yandex Station speaks text itself, in Alice's voice. Other players need a text-to-speech engine in HA.

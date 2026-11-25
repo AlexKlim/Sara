@@ -30,7 +30,10 @@ struct BlockView: View {
             DeviceBlockView(block: block, home: home)
         case .list:
             if let todo = block.items.first?.entity, todo.hasPrefix("todo.") {
-                TodoBlockView(entity: todo, title: block.title, home: home)
+                // The state counts only open items: a list with checked items left must still show.
+                if home.state(todo) != "0" || !(home.todoItems[todo]?.isEmpty ?? true) {
+                    TodoBlockView(entity: todo, title: block.title, home: home)
+                }
             } else {
                 ListBlockView(name: block.title)
             }

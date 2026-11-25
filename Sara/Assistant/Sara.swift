@@ -122,8 +122,7 @@ import SwiftData
                 ["type": "text", "text": "<now>\(Date.now.formatted(date: .complete, time: .shortened))</now>" + (note.map { "\n\($0)" } ?? "")],
                 ["type": "text", "text": text],
             ]
-            let lists = Lists(context: context)
-            let listSummary = lists.summary()
+            let listSummary = await Lists.summary()
             if !listSummary.isEmpty { content.insert(["type": "text", "text": listSummary], at: 0) }
             if let forecast = Weather.shared.forecast { content.insert(["type": "text", "text": forecast.summary()], at: 0) }
             if let yandex {
@@ -205,7 +204,7 @@ import SwiftData
                     var output: String, failed: Bool
                     if let saved = memory.run(name, args) {
                         (output, failed) = (saved, false)
-                    } else if let result = lists.run(name, args) {
+                    } else if let result = await Lists.run(name, args) {
                         (output, failed) = (result, result.hasPrefix("error"))
                     } else if let result = await AppSettings.run(name, args) {
                         (output, failed) = (result, result.hasPrefix("error"))

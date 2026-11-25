@@ -16,10 +16,11 @@ struct Panel: Codable, Equatable {
     var listNames: [String] { blocks.filter { $0.kind == .list }.map(\.title) }
 
     /// A list Sara created shows up on the panel, in the right column.
-    static func addList(_ name: String) {
+    static func addList(_ name: String, entity: String? = nil) {
         var panel = load()
-        guard !panel.listNames.contains(name) else { return }
-        panel.blocks.append(PanelBlock(kind: .list, title: name, column: 1))
+        guard !panel.blocks.contains(where: { $0.kind == .list && ($0.title == name || $0.items.contains { $0.entity == entity }) })
+        else { return }
+        panel.blocks.append(PanelBlock(kind: .list, title: name, column: 1, items: entity.map { [PanelItem(entity: $0)] } ?? []))
         panel.save()
     }
 

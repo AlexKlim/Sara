@@ -1,7 +1,7 @@
 [
   {
     "name": "list_add",
-    "description": "Add items to a list kept in the app (to-do, shopping, packing). Creates the list if it does not exist; a new list also appears on the panel.",
+    "description": "Add items to a list (to-do, shopping, packing). Creates the list if it does not exist; a new list also appears on the panel.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -40,7 +40,7 @@
   },
   {
     "name": "list_remove",
-    "description": "Remove items from a list, or the whole list when items is empty.",
+    "description": "Remove items from a list, or all of them when items is empty. An empty list stays but is hidden from the panel.",
     "input_schema": {
       "type": "object",
       "properties": {
