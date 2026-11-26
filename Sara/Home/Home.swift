@@ -162,6 +162,8 @@ import Foundation
     /// while it has time left or is between 0 and 100 percent.
     func isRunning(_ item: PanelItem) -> Bool {
         let active = activeState(item)
+        if let active, ["off", "offline", "unavailable"].contains(active) { return false }
+        if state(item.entity) == "unavailable" { return false }
         // Paused or waiting to start is busy, whatever the timer still shows from the last cycle.
         if let active, Self.held.contains(active) { return true }
         if finished(item) { return false }
@@ -181,7 +183,11 @@ import Foundation
     private static let working = ["on", "running", "prepare"] + held
     private static let held = ["pause", "paused", "delayed start"]
 
-    private func activeState(_ item: PanelItem) -> String? { item.active.flatMap { state($0)?.lowercased() } }
+    private func activeState(_ item: PanelItem) -> String? {
+        let own = item.base.map { "binary_sensor.\($0)status" }.flatMap { state($0) == nil ? nil : $0 }
+        let id = item.active.flatMap { $0.contains("door") ? nil : $0 } ?? own
+        return id.flatMap { state($0)?.lowercased() }
+    }
 
     /// Nothing left, and the progress, if there is one, is full. A washer stays "on" after this until it is switched off.
     private func finished(_ item: PanelItem) -> Bool {
