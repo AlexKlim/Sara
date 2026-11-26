@@ -24,6 +24,13 @@ struct PanelItem: Codable, Identifiable, Equatable {
         case entity, name, icon, script, field, active, progress, end, detail
     }
 
+    static let remainingEndings = ["remaining_time", "time_remaining", "time_left", "timetoend", "remaining_drying_time"]
+
+    var base: String? {
+        let id = Self.objectID(entity)
+        return Self.remainingEndings.first(where: id.hasSuffix).map { String(id.dropLast($0.count)) }
+    }
+
     static func domain(_ entity: String) -> String { entity.components(separatedBy: ".").first ?? "" }
     static func objectID(_ entity: String) -> String { entity.components(separatedBy: ".").dropFirst().joined(separator: ".") }
 }
